@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+/* eslint-disable */
+import { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 
 import Box from '@mui/material/Box';
@@ -20,10 +21,40 @@ import Scrollbar from 'src/components/scrollbar';
 
 import { NAV } from './config-layout';
 import navConfig from './config-navigation';
+import api from 'src/services/api';
 
 // ----------------------------------------------------------------------
 
 export default function Nav({ openNav, onCloseNav }) {
+
+      /** GET USER BY REQUEST IN BACKEND AND TAKES TOKEN FROM LOCALSTORAGE*/
+      const user_id = localStorage.getItem('tejas.app.user_id');
+      const token = localStorage.getItem('tejas.app.token');
+      const user_name = localStorage.getItem('tejas.app.user_name');
+      const [user, setUser] = useState(null);
+      const getUser = async () => {
+        if (user_id){
+          try {
+            const response = await api.get(`/users/${user_id}`, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            });
+            if(response.data){
+                setUser(response.data);
+                console.log(response.data)
+            //se der erro setar botao logout
+            }
+          } catch (err) {
+            setUser(null);
+            //se der erro setar botao login
+          }
+        }
+      }; 
+      useEffect(() => {
+      getUser();
+      }, []);
+      /** */
 
 
   const pathname = usePathname();
@@ -31,9 +62,9 @@ export default function Nav({ openNav, onCloseNav }) {
 
   const userProps = {
     profilePic: "https://cdn-icons-png.flaticon.com/512/10593/10593542.png",
-    displayName: "Jurácio",
+    displayName: user?.apelido_nome_fantasia,
     email: "holland@jupiter.com",
-    userType: "Colaborador"
+    userType: user?.tags.includes("Empreendedor") ? "Empreendedor" : user?.tags.includes("Colaborador") ? "Colaborador" : user?.tags.includes("Administrador") ? "Admin" : "Cliente"
   }
 
   useEffect(() => {
@@ -45,25 +76,47 @@ export default function Nav({ openNav, onCloseNav }) {
 
 
   const renderAccount = (
-    <Box sx={{my: 3,mx: 2.5,py: 2,px: 2.5,display: 'flex',borderRadius: 1.5,alignItems: 'center',bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),}}>
+    <Box sx={{my: 3,mx: 2.5,py: 2,px: 2.5,display: 'flex',borderRadius: 1.5,alignItems: 'center',bgcolor: (theme) => alpha(theme.palette.grey[500], 0.12),  cursor:"pointer"}}>
       
       <Avatar src={userProps.profilePic} alt="photoURL" />
 
-      <Box sx={{ ml: 2 }}>
-        <Typography variant="subtitle2">{userProps.displayName}</Typography>
+      <Box sx={{ ml: 2, }} >
+        {
+          user ?
+(          <>
+            <Typography variant="subtitle2">{user?.apelido_nome_fantasia}</Typography>
 
-        <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {userProps.userType}
-        </Typography>
+            <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+              {userProps.userType}
+            </Typography>
+            </>
+            ) 
+            :
+            (
+            <>
+              <Typography variant="subtitle2" >Cadastre-se</Typography>
+            </>
+    )
+        }
+
       </Box>
     </Box>
   );
 
   const renderMenu = (
     <Stack component="nav" spacing={0.5} sx={{ px: 2 }}>
-      {navConfig.map((item) => (
-        <NavItem key={item.title} item={item} />
-      ))}
+      {
+        user ? (
+          navConfig.loggedIn.map((item) => (
+            <NavItem key={item.title} item={item} />
+          ))
+        ):
+        (
+          navConfig.unsigned.map((item) => (
+            <NavItem key={item.title} item={item} />
+          ))
+        )
+}
     </Stack>
   );
 
@@ -97,16 +150,7 @@ export default function Nav({ openNav, onCloseNav }) {
   );
 
   const renderContent = (
-    <Scrollbar
-      sx={{
-        height: 1,
-        '& .simplebar-content': {
-          height: 1,
-          display: 'flex',
-          flexDirection: 'column',
-        },
-      }}
-    >
+    <Scrollbar sx={{height: 1,'& .simplebar-content': {height: 1,display: 'flex',flexDirection: 'column',},}}>
       <Logo sx={{ mt: 3, ml: 4 }} />
 
       {renderAccount}
@@ -120,40 +164,18 @@ export default function Nav({ openNav, onCloseNav }) {
   );
 
   return (
-    <Box    
-      sx={{
-        flexShrink: { lg: 0 },
-        width: { lg: NAV.WIDTH },
-      }}
-    >
-
+    <Box sx={{flexShrink: { lg: 0 },width: { lg: NAV.WIDTH },}}>
 
       
       {upLg ? (
-        <Box
-          sx={{
-            height: 1,
-            position: 'fixed',
-            width: NAV.WIDTH,
-            borderRight: (theme) => `dashed 1px ${theme.palette.divider}`,
-          }}
-        >
+        <Box sx={{height: 1,position: 'fixed',width: NAV.WIDTH,borderRight: (theme) => `dashed 1px ${theme.palette.divider}`,}}>
           {renderContent}
         </Box>
       ) : (
-        <Drawer
-          open={openNav}
-          onClose={onCloseNav}
-          PaperProps={{
-            sx: {
-              width: NAV.WIDTH,
-            },
-          }}
-        >
+        <Drawer open={openNav} onClose={onCloseNav} PaperProps={{ sx: { width: NAV.WIDTH, }, }} >
           {renderContent}
         </Drawer>
       )}
-
 
 
     </Box>

@@ -38,33 +38,46 @@ export default function AccountPopover() {
 
 
   const [open, setOpen] = useState(null);
-  const [user, setUser] = useState(null);
+
 
   const router = useRouter();
 
-  const getUser = async () => {
-    if (!user_id){
-      try {
-        const response = await api.get(`/users/${user_id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if(response.data){
-            setUser(response.data);
-        // se der erro setar botao logout
+    /** GET USER BY REQUEST IN BACKEND AND TAKES TOKEN FROM LOCALSTORAGE*/
+    const user_id = localStorage.getItem('tejas.app.user_id');
+    const token = localStorage.getItem('tejas.app.token');
+    const user_name = localStorage.getItem('tejas.app.user_name');
+    const [user, setUser] = useState(null);
+    const getUser = async () => {
+      if (user_id){
+        try {
+          const response = await api.get(`/users/${user_id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if(response.data){
+              setUser(response.data);
+
+          //se der erro setar botao logout
+          }
+        } catch (err) {
+          setUser(null);
+          //se der erro setar botao login
         }
-      } catch (err) {
-        setUser(null);
-        // se der erro setar botao login
       }
-    }
-  }; 
+    }; 
+    useEffect(() => {
+    getUser();
+    }, []);
+    /** */
 
-  useEffect(() => {
-  getUser();
-}, []);
-
+  const logout = () => {
+    localStorage.removeItem('tejas.app.token');
+    localStorage.removeItem('tejas.app.user_id');
+    localStorage.removeItem('tejas.app.user_name');
+  
+    window.location.reload();
+  };
 
   const handleOpen = (event) => {
     setOpen(event.currentTarget);
@@ -107,10 +120,10 @@ export default function AccountPopover() {
       >
         <Box sx={{ my: 1.5, px: 2 }}>
           <Typography variant="subtitle2" noWrap>
-            {userProps.displayName}
+            {user?.apelido_nome_fantasia}
           </Typography>
           <Typography variant="body2" sx={{ color: 'text.secondary' }} noWrap>
-            {userProps.email}
+            {user?.email}
           </Typography>
         </Box>
 
@@ -130,7 +143,10 @@ export default function AccountPopover() {
             <MenuItem
             disableRipple
             disableTouchRipple
-            onClick={handleClose}
+            onClick={()=>{
+              handleClose();
+              logout();
+            }}
             sx={{ typography: 'body2', color: 'error.main', py: 1.5 }}
           >
             Logout

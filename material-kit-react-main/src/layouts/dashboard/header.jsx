@@ -24,9 +24,8 @@ import Searchbar from './common/searchbar';
 // import LanguagePopover from './common/language-popover' 
 
 
-// const user_name = localStorage.getItem('user_name');
-const user_id = localStorage.getItem('user_id');
-const token = localStorage.getItem('token');
+
+
 
 
 
@@ -34,33 +33,10 @@ const token = localStorage.getItem('token');
 export default function Header({ onOpenNav }) {
 
   const theme = useTheme();
-
   const lgUp = useResponsive('up', 'lg');
 
-  const [user, setUser] = useState(null);
 
-  const getUser = async () => {
-    if (!user_id){
-      try {
-        const response = await api.get(`/users/${user_id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if(response.data){
-            setUser(response.data);
-        //se der erro setar botao logout
-        }
-      } catch (err) {
-        setUser(null);
-        //se der erro setar botao login
-      }
-    }
-  }; 
 
-  useEffect(() => {
-  getUser();
-}, []);
 
 
 
