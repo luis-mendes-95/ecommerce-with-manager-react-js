@@ -42,7 +42,6 @@ export default function Nav({ openNav, onCloseNav }) {
             });
             if(response.data){
                 setUser(response.data);
-                console.log(response.data)
             //se der erro setar botao logout
             }
           } catch (err) {

@@ -14,7 +14,7 @@ export default function AppPage() {
     <>
       <ToastContainer />
       <Helmet>
-        <title> Dashboard | Minimal UI </title>
+        <title> E-Kommerce | Tejas Software</title>
       </Helmet>
 
       <AppView />

@@ -1,3 +1,4 @@
+/* eslint-disable */
 import PropTypes from 'prop-types';
 
 import Box from '@mui/material/Box';
@@ -27,13 +28,16 @@ export default function UserTableHead({
   return (
     <TableHead>
       <TableRow>
-        <TableCell padding="checkbox">
+
+      {
+        /**        <TableCell padding="checkbox">
           <Checkbox
             indeterminate={numSelected > 0 && numSelected < rowCount}
             checked={rowCount > 0 && numSelected === rowCount}
             onChange={onSelectAllClick}
           />
-        </TableCell>
+        </TableCell> */
+      }
 
         {headLabel.map((headCell) => (
           <TableCell

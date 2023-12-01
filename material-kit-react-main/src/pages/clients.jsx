@@ -1,17 +1,18 @@
+/* eslint-disable */
 import { Helmet } from 'react-helmet-async';
 
-import { UserView } from 'src/sections/user/view';
+import { ClientsView } from 'src/sections/clients/view';
 
 // ----------------------------------------------------------------------
 
-export default function UserPage() {
+export default function ClientsPage() {
   return (
     <>
       <Helmet>
-        <title> User | Minimal UI </title>
+        <title> E-Kommerce </title>
       </Helmet>
 
-      <UserView />
+      <ClientsView />
     </>
   );
 }

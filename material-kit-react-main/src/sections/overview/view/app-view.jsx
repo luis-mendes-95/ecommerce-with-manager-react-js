@@ -74,7 +74,7 @@ export default function AppView() {
         <Grid xs={12} sm={6} md={3}>
             <AppWidgetSummary
               title="Clientes Cadastrados"
-              total={user?.clientes.length}
+              total={user?.clientes.length || "0"}
               color="info"
               icon={<img alt="icon" src="https://cdn-icons-png.flaticon.com/512/1379/1379505.png" />}
             />
@@ -83,7 +83,7 @@ export default function AppView() {
         <Grid xs={12} sm={6} md={3}>
             <AppWidgetSummary
               title="Produtos Cadastrados"
-              total={user?.produtos.length}
+              total={user?.produtos.length || "0"}
               color="info"
               icon={<img alt="icon" src="https://cdn-icons-png.flaticon.com/512/1573/1573499.png" />}
             />
@@ -93,7 +93,7 @@ export default function AppView() {
           <Grid xs={12} sm={6} md={3}>
             <AppWidgetSummary
               title="Vendas Efetuadas"
-              total={user?.vendas.length}
+              total={user?.vendas.length || "0"}
               color="success"
               icon={<img alt="icon" src="https://cdn-icons-png.flaticon.com/512/7646/7646966.png" />}
             />
@@ -104,7 +104,7 @@ export default function AppView() {
           <Grid xs={12} sm={6} md={3}>
             <AppWidgetSummary
               title="Ordens de Serviço"
-              total={user?.os.length}
+              total={user?.os.length || "0"}
               color="warning"
               icon={<img alt="icon" src="https://cdn-icons-png.flaticon.com/512/3527/3527105.png" />}
             />
@@ -113,7 +113,7 @@ export default function AppView() {
           <Grid xs={12} sm={6} md={3}>
             <AppWidgetSummary
               title="Compras Feitas"
-              total={user?.compras.length}
+              total={user?.compras.length || "0"}
               color="warning"
               icon={<img alt="icon" src="https://cdn-icons-png.flaticon.com/512/3862/3862976.png" />}
             />
@@ -122,7 +122,7 @@ export default function AppView() {
           <Grid xs={12} sm={6} md={3}>
             <AppWidgetSummary
               title="Títulos A Receber"
-              total={user?.receivables.length}
+              total={user?.receivables.length || "0"}
               color="warning"
               icon={<img alt="icon" src="https://cdn-icons-png.flaticon.com/512/8312/8312154.png" />}
             />
@@ -131,7 +131,7 @@ export default function AppView() {
           <Grid xs={12} sm={6} md={3}>
             <AppWidgetSummary
               title="Títulos A Pagar"
-              total={user?.payables.length}
+              total={user?.payables.length || "0"}
               color="warning"
               icon={<img alt="icon" src="https://cdn-icons-png.flaticon.com/512/8312/8312797.png" />}
             />
@@ -140,7 +140,7 @@ export default function AppView() {
           <Grid xs={12} sm={6} md={3}>
             <AppWidgetSummary
               title="Arquivos"
-              total={user?.arquivos.length}
+              total={user?.arquivos.length || "0"}
               color="warning"
               icon={<img alt="icon" src="https://cdn-icons-png.flaticon.com/512/4706/4706330.png" />}
             />

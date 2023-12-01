@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 
@@ -16,14 +17,15 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function UserTableRow({
+export default function ClientTableRow({
+
+  nome_razao_social,
+  apelido_nome_fantasia,
+  celular,
+  telefone,
+  cidade,
+  estado,
   selected,
-  name,
-  avatarUrl,
-  company,
-  role,
-  isVerified,
-  status,
   handleClick,
 }) {
   const [open, setOpen] = useState(null);
@@ -39,34 +41,21 @@ export default function UserTableRow({
   return (
     <>
       <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
-        <TableCell padding="checkbox">
-          <Checkbox disableRipple checked={selected} onChange={handleClick} />
-        </TableCell>
 
-        <TableCell component="th" scope="row" padding="none">
-          <Stack direction="row" alignItems="center" spacing={2}>
-            <Avatar alt={name} src={avatarUrl} />
-            <Typography variant="subtitle2" noWrap>
-              {name}
-            </Typography>
-          </Stack>
-        </TableCell>
 
-        <TableCell>{company}</TableCell>
+      <TableCell>{nome_razao_social}</TableCell>
 
-        <TableCell>{role}</TableCell>
+        <TableCell>{apelido_nome_fantasia}</TableCell>
 
-        <TableCell align="center">{isVerified ? 'Yes' : 'No'}</TableCell>
+        <TableCell>{celular}</TableCell>
 
-        <TableCell>
-          <Label color={(status === 'banned' && 'error') || 'success'}>{status}</Label>
-        </TableCell>
+        <TableCell>{telefone}</TableCell>
 
-        <TableCell align="right">
-          <IconButton onClick={handleOpenMenu}>
-            <Iconify icon="eva:more-vertical-fill" />
-          </IconButton>
-        </TableCell>
+        <TableCell>{cidade}</TableCell>
+
+        <TableCell>{estado}</TableCell>
+
+
       </TableRow>
 
       <Popover
@@ -93,7 +82,7 @@ export default function UserTableRow({
   );
 }
 
-UserTableRow.propTypes = {
+ClientTableRow.propTypes = {
   avatarUrl: PropTypes.any,
   company: PropTypes.any,
   handleClick: PropTypes.func,
