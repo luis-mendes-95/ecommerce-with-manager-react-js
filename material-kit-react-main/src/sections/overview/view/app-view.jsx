@@ -14,6 +14,8 @@ import AppCurrentVisits from '../app-current-visits';
 import AppWidgetSummary from '../app-widget-summary';
 import { useEffect, useState } from 'react';
 import api from 'src/services/api';
+import { ToastContainer } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 // import AppTrafficBySite from '../app-traffic-by-site';
 // import AppCurrentSubject from '../app-current-subject';
 // import AppConversionRates from '../app-conversion-rates';
@@ -55,6 +57,7 @@ export default function AppView() {
 
   return (
     <Container maxWidth="xl">
+            <ToastContainer />
 
       {
         user &&

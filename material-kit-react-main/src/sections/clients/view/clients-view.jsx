@@ -21,6 +21,7 @@ import { emptyRows, applyFilter, getComparator } from '../utils';
 import api from 'src/services/api';
 import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { ClientAddFormView } from 'src/sections/clientAddForm';
+import "react-toastify/dist/ReactToastify.css";
 // ----------------------------------------------------------------------
 
 
@@ -34,7 +35,7 @@ export default function ClientView() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [regsSituation, setRegsSituation] = useState("all");
-  const [showAdd, setShowAdd] = useState(true);
+  const [showAdd, setShowAdd] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
 
 
@@ -135,7 +136,7 @@ export default function ClientView() {
 
           <Typography variant="h4">Clientes</Typography>
 
-          <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
+          <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{setShowAdd(true); setShowEdit(false)}}>
             Novo Cliente
           </Button>
 
