@@ -20,6 +20,7 @@ import ClientTableToolbar from '../client-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 import api from 'src/services/api';
 import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { ClientAddFormView } from 'src/sections/clientAddForm';
 // ----------------------------------------------------------------------
 
 
@@ -33,6 +34,8 @@ export default function ClientView() {
   const [filterName, setFilterName] = useState('');
   const [rowsPerPage, setRowsPerPage] = useState(25);
   const [regsSituation, setRegsSituation] = useState("all");
+  const [showAdd, setShowAdd] = useState(true);
+  const [showEdit, setShowEdit] = useState(false);
 
 
   /** GET USER BY REQUEST IN BACKEND AND TAKES TOKEN FROM LOCALSTORAGE*/
@@ -50,7 +53,6 @@ export default function ClientView() {
         });
         if(response.data){
             setUser(response.data);
-           //console.log(response.data)
         //se der erro setar botao logout
         }
       } catch (err) {
@@ -126,130 +128,146 @@ export default function ClientView() {
   return (
     <Container>
 
-      <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
+    {
+      !showAdd && !showEdit &&
+        <>
+          <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
 
-        <Typography variant="h4">Clientes</Typography>
+          <Typography variant="h4">Clientes</Typography>
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
-          Novo Cliente
-        </Button>
+          <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
+            Novo Cliente
+          </Button>
 
-      </Stack>
+          </Stack>
 
-      <Card>
-        
-        <Box sx={{display:"flex", alignItems:"center", flexWrap:"wrap"}}>
-        <ClientTableToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
-        <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
-                <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Situação</InputLabel>
-                <Select
-                  style={{minWidth: "200px"}}
-                  labelId="demo-simple-select-label"
-                  id="demo-simple-select"
-                  value={regsSituation}
-                  label="Age"
-                  onChange={handleChangeregsSituation}
-                >
-                  <MenuItem value={"active"}>Ativos</MenuItem>
-                  <MenuItem value={"inactive"}>Inativos</MenuItem>
-                  <MenuItem value={"all"}>Todas</MenuItem>
-                </Select>
-            </FormControl>
-        </Box>
+          <Card>
 
-
-        <Scrollbar>
-          <TableContainer sx={{ overflow: 'unset' }}>
-            <Table sx={{ minWidth: 800 }}>
-
-              <UserTableHead order={order} orderBy={orderBy} rowCount={users.length} numSelected={selected.length} onRequestSort={handleSort} onSelectAllClick={handleSelectAllClick}
-                headLabel={[
-                  { id: 'nome_razao_social', label: 'Nome / Razão Social' },
-                  { id: 'apelido_nome_fantasia', label: 'Apelido / Nome Fantasia' },
-                  { id: 'celular', label: 'Celular' },
-                  { id: 'telefone', label: 'Telefone', align: 'center' },
-                  { id: 'cidade', label: 'Cidade' },
-                  { id: 'estado', label: "Estado" },
-                ]}
-              />
-
-              <TableBody>
-                {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
-                    
-                  if (regsSituation === "all") {
-                    return (
-                      <ClientTableRow
-                      key={row.id}
-                      nome_razao_social={row.nome_razao_social}
-                      apelido_nome_fantasia={row.apelido_nome_fantasia}
-                      celular={row.celular}
-                      telefone={row.telefone}
-                      cidade={row.cidade}
-                      estado={row.estado}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.nome_razao_social)}
-                    />
-                    )  
-                  }  else if (regsSituation === "inactive" && row.active === false) {
-                    return (
-                      <ClientTableRow
-                      key={row.id}
-                      nome_razao_social={row.nome_razao_social}
-                      apelido_nome_fantasia={row.apelido_nome_fantasia}
-                      celular={row.celular}
-                      telefone={row.telefone}
-                      cidade={row.cidade}
-                      estado={row.estado}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.nome_razao_social)}
-                    />
-                    )  
-                  } else if (regsSituation === "active" && row.active === true) {
-                    return (
-                      <ClientTableRow
-                      key={row.id}
-                      nome_razao_social={row.nome_razao_social}
-                      apelido_nome_fantasia={row.apelido_nome_fantasia}
-                      celular={row.celular}
-                      telefone={row.telefone}
-                      cidade={row.cidade}
-                      estado={row.estado}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={(event) => handleClick(event, row.nome_razao_social)}
-                    />
-                    )  
-                  }
-                  
-                                
-                  
-                  
-                  }
-
-                                       
-                  )}
+          <Box sx={{display:"flex", alignItems:"center", flexWrap:"wrap"}}>
+          <ClientTableToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+          <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
+                  <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Situação</InputLabel>
+                  <Select
+                    style={{minWidth: "200px"}}
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={regsSituation}
+                    label="Age"
+                    onChange={handleChangeregsSituation}
+                  >
+                    <MenuItem value={"active"}>Ativos</MenuItem>
+                    <MenuItem value={"inactive"}>Inativos</MenuItem>
+                    <MenuItem value={"all"}>Todas</MenuItem>
+                  </Select>
+              </FormControl>
+          </Box>
 
 
-                <TableEmptyRows
-                  height={77}
-                  emptyRows={emptyRows(page, rowsPerPage, users.length)}
+          <Scrollbar>
+            <TableContainer sx={{ overflow: 'unset' }}>
+              <Table sx={{ minWidth: 800 }}>
+
+                <UserTableHead order={order} orderBy={orderBy} rowCount={users.length} numSelected={selected.length} onRequestSort={handleSort} onSelectAllClick={handleSelectAllClick}
+                  headLabel={[
+                    { id: 'nome_razao_social', label: 'Nome / Razão Social' },
+                    { id: 'apelido_nome_fantasia', label: 'Apelido / Nome Fantasia' },
+                    { id: 'celular', label: 'Celular' },
+                    { id: 'telefone', label: 'Telefone', align: 'center' },
+                    { id: 'cidade', label: 'Cidade' },
+                    { id: 'estado', label: "Estado" },
+                  ]}
                 />
 
-                {notFound && <TableNoData query={filterName} />}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Scrollbar>
+                <TableBody>
+                  {dataFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row) => {
+                      
+                    if (regsSituation === "all") {
+                      return (
+                        <ClientTableRow
+                        key={row.id}
+                        nome_razao_social={row.nome_razao_social}
+                        apelido_nome_fantasia={row.apelido_nome_fantasia}
+                        celular={row.celular}
+                        telefone={row.telefone}
+                        cidade={row.cidade}
+                        estado={row.estado}
+                        selected={selected.indexOf(row.name) !== -1}
+                        handleClick={(event) => handleClick(event, row.nome_razao_social)}
+                      />
+                      )  
+                    }  else if (regsSituation === "inactive" && row.active === false) {
+                      return (
+                        <ClientTableRow
+                        key={row.id}
+                        nome_razao_social={row.nome_razao_social}
+                        apelido_nome_fantasia={row.apelido_nome_fantasia}
+                        celular={row.celular}
+                        telefone={row.telefone}
+                        cidade={row.cidade}
+                        estado={row.estado}
+                        selected={selected.indexOf(row.name) !== -1}
+                        handleClick={(event) => handleClick(event, row.nome_razao_social)}
+                      />
+                      )  
+                    } else if (regsSituation === "active" && row.active === true) {
+                      return (
+                        <ClientTableRow
+                        key={row.id}
+                        nome_razao_social={row.nome_razao_social}
+                        apelido_nome_fantasia={row.apelido_nome_fantasia}
+                        celular={row.celular}
+                        telefone={row.telefone}
+                        cidade={row.cidade}
+                        estado={row.estado}
+                        selected={selected.indexOf(row.name) !== -1}
+                        handleClick={(event) => handleClick(event, row.nome_razao_social)}
+                      />
+                      )  
+                    }
+                    
+                                  
+                    
+                    
+                    }
 
-        <TablePagination
-          page={page}
-          component="div"
-          count={users.length}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          rowsPerPageOptions={[5, 10, 25]}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </Card>
+                                        
+                    )}
+
+
+                  <TableEmptyRows
+                    height={77}
+                    emptyRows={emptyRows(page, rowsPerPage, users.length)}
+                  />
+
+                  {notFound && <TableNoData query={filterName} />}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          </Scrollbar>
+
+          <TablePagination
+            page={page}
+            component="div"
+            count={users.length}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            rowsPerPageOptions={[5, 10, 25]}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+          </Card>
+        </>
+
+    }
+
+    {
+      showAdd &&
+      <>
+      <ClientAddFormView/>
+      </>
+    }
+
+
+
     </Container>
   );
 }
