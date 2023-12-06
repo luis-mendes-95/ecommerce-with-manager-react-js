@@ -1,4 +1,3 @@
-/* eslint-disable */
 import PropTypes from 'prop-types';
 
 import Box from '@mui/material/Box';
@@ -22,27 +21,36 @@ import { ColorPicker } from 'src/components/color-utils';
 // ----------------------------------------------------------------------
 
 export const SORT_OPTIONS = [
-  { value: 'featured', label: 'Mais Vendidos' },
-  { value: 'newest', label: 'Novos' },
-  { value: 'priceDesc', label: 'Preço: Maior-Menor' },
-  { value: 'priceAsc', label: 'Preço: Menor-Maior' },
+  { value: 'featured', label: 'Featured' },
+  { value: 'newest', label: 'Newest' },
+  { value: 'priceDesc', label: 'Price: High-Low' },
+  { value: 'priceAsc', label: 'Price: Low-High' },
 ];
-export const GENDER_OPTIONS = ['Masculino', 'Feminino', 'Infanto-Juvenil'];
-export const CATEGORY_OPTIONS = ['Todas', 'Camisetas', 'Windbanners', 'Adesivos']; //PUXAR CATEGORIAS CADASTRADAS PELO USUÁRIO
+export const GENDER_OPTIONS = ['Men', 'Women', 'Kids'];
+export const CATEGORY_OPTIONS = ['All', 'Shose', 'Apparel', 'Accessories'];
 export const RATING_OPTIONS = ['up4Star', 'up3Star', 'up2Star', 'up1Star'];
 export const PRICE_OPTIONS = [
-  { value: 'below', label: 'Abaixo de R$ 25' },
-  { value: 'between', label: 'Entre R$ 25 e R$ 75' },
-  { value: 'above', label: 'Acima de R$ 75' },
+  { value: 'below', label: 'Below $25' },
+  { value: 'between', label: 'Between $25 - $75' },
+  { value: 'above', label: 'Above $75' },
 ];
-export const COLOR_OPTIONS = [  '#00AB55',  '#000000',  '#FFFFFF',  '#FFC0CB',  '#FF4842',  '#1890FF',  '#94D82',  '#FFC107',];
+export const COLOR_OPTIONS = [
+  '#00AB55',
+  '#000000',
+  '#FFFFFF',
+  '#FFC0CB',
+  '#FF4842',
+  '#1890FF',
+  '#94D82D',
+  '#FFC107',
+];
 
 // ----------------------------------------------------------------------
 
 export default function ProductFilters({ openFilter, onOpenFilter, onCloseFilter }) {
   const renderGender = (
     <Stack spacing={1}>
-      <Typography variant="subtitle2">Gêneros</Typography>
+      <Typography variant="subtitle2">Gender</Typography>
       <FormGroup>
         {GENDER_OPTIONS.map((item) => (
           <FormControlLabel key={item} control={<Checkbox />} label={item} />
@@ -53,7 +61,7 @@ export default function ProductFilters({ openFilter, onOpenFilter, onCloseFilter
 
   const renderCategory = (
     <Stack spacing={1}>
-      <Typography variant="subtitle2">Categorias</Typography>
+      <Typography variant="subtitle2">Category</Typography>
       <RadioGroup>
         {CATEGORY_OPTIONS.map((item) => (
           <FormControlLabel key={item} value={item} control={<Radio />} label={item} />
@@ -77,7 +85,7 @@ export default function ProductFilters({ openFilter, onOpenFilter, onCloseFilter
 
   const renderPrice = (
     <Stack spacing={1}>
-      <Typography variant="subtitle2">Preço</Typography>
+      <Typography variant="subtitle2">Price</Typography>
       <RadioGroup>
         {PRICE_OPTIONS.map((item) => (
           <FormControlLabel
@@ -130,7 +138,7 @@ export default function ProductFilters({ openFilter, onOpenFilter, onCloseFilter
         endIcon={<Iconify icon="ic:round-filter-list" />}
         onClick={onOpenFilter}
       >
-        Filtros&nbsp;
+        Filters&nbsp;
       </Button>
 
       <Drawer
@@ -148,7 +156,7 @@ export default function ProductFilters({ openFilter, onOpenFilter, onCloseFilter
           sx={{ px: 1, py: 2 }}
         >
           <Typography variant="h6" sx={{ ml: 1 }}>
-            Filtros
+            Filters
           </Typography>
           <IconButton onClick={onCloseFilter}>
             <Iconify icon="eva:close-fill" />
@@ -163,11 +171,11 @@ export default function ProductFilters({ openFilter, onOpenFilter, onCloseFilter
 
             {renderCategory}
 
-       {/** {renderColors} */}
+            {renderColors}
 
             {renderPrice}
 
-       {/** {renderRating} */}
+            {renderRating}
           </Stack>
         </Scrollbar>
 
@@ -180,7 +188,7 @@ export default function ProductFilters({ openFilter, onOpenFilter, onCloseFilter
             variant="outlined"
             startIcon={<Iconify icon="ic:round-clear-all" />}
           >
-            Limpar Filtros
+            Clear All
           </Button>
         </Box>
       </Drawer>

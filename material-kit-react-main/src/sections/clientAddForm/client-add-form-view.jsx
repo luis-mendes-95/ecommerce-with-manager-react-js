@@ -62,7 +62,7 @@ const getUser = async () => {
       //se der erro setar botao logout
       }
     } catch (err) {
-      setUser(null);
+      //setUser(null);
       //se der erro setar botao login
     }
   }
@@ -81,10 +81,6 @@ const registerItem = (itemData) => {
 
         if(response.data){
 
-          localStorage.setItem("tejas.app.token", response.data.token);
-          localStorage.setItem("tejas.app.user_id", response.data.user_id);
-          localStorage.setItem("tejas.app.user_name", response.data.user_name);
-
           toast.success("Item cadastrado com sucesso!");
 
           setTimeout(() => {
@@ -101,10 +97,16 @@ const { register, handleSubmit } = useForm({
   //resolver: zodResolver(LoginUserSchema),
 });
 const onFormSubmit = (formData) => {
-  formData.user_id = user_id;
-  formData.active = true;
-  console.log(formData);
-  registerItem(formData);
+
+  if (formData.nome_razao_social === "" || formData.nome_razao_social === " ") {
+    toast.error("Preenchimento Obrigatório: Nome / Razão Social*")
+  } else {
+    formData.user_id = user_id;
+    formData.active = true;
+    console.log(formData);
+    registerItem(formData);
+  }
+
 };
       
 
@@ -200,10 +202,17 @@ const onFormSubmit = (formData) => {
       }}
     >
       <ToastContainer />
-      <Logo sx={{position: 'fixed',top: { xs: 16, md: 24 },left: { xs: 16, md: 24 },}}/>
+
 
       <Stack alignItems="center" justifyContent="center" sx={{ height: 1 }}>
         <Card sx={{p: 5,width: 1,maxWidth: 820,}}        >
+        <Button
+              variant="contained"
+              sx={{ mt: 3, mb: 2, mr: 3, bgcolor:"brown"}}
+              onClick={()=>{window.location.reload()}}
+            >
+              Voltar
+            </Button>
           <Typography variant="h4">Cadastrar Cliente</Typography>
 
 

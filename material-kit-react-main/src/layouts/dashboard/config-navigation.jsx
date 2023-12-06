@@ -26,6 +26,11 @@ const navConfig = {
       icon: iconExternal('https://cdn-icons-png.flaticon.com/512/1573/1573499.png'),
     },
     {
+      title: 'Vendas',
+      path: '/vendas',
+      icon: iconExternal('https://cdn-icons-png.flaticon.com/512/7646/7646966.png'),
+    },
+    {
       title: 'Ordens de serviço',
       path: '/os',
       icon: iconExternal('https://cdn-icons-png.flaticon.com/512/3527/3527105.png'),

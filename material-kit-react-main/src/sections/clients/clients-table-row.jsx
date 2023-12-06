@@ -19,6 +19,7 @@ import Iconify from 'src/components/iconify';
 
 export default function ClientTableRow({
 
+  id,
   nome_razao_social,
   apelido_nome_fantasia,
   celular,
@@ -40,7 +41,7 @@ export default function ClientTableRow({
 
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected}>
+      <TableRow hover tabIndex={-1} role="checkbox" selected={selected} sx={{cursor:"pointer"}} onClick={()=>{handleClick(id)}}>
 
 
       <TableCell>{nome_razao_social}</TableCell>

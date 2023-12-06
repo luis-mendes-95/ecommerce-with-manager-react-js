@@ -1,4 +1,5 @@
-import { useState } from 'react';
+/* eslint-disable */
+import { useEffect, useState } from 'react';
 
 import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
@@ -11,10 +12,47 @@ import ProductCard from '../product-card';
 import ProductSort from '../product-sort';
 import ProductFilters from '../product-filters';
 import ProductCartWidget from '../product-cart-widget';
+import api from 'src/services/api';
+import { Button } from '@mui/material';
+import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
 export default function ProductsView() {
+
+
+    /** GET USER BY REQUEST IN BACKEND AND TAKES TOKEN FROM LOCALSTORAGE*/
+    const user_id = localStorage.getItem('tejas.app.user_id');
+    const token = localStorage.getItem('tejas.app.token');
+    const user_name = localStorage.getItem('tejas.app.user_name');
+    const [user, setUser] = useState(null);
+    const getUser = async () => {
+      if (user_id){
+        try {
+          const response = await api.get(`/users/${user_id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if(response.data){
+              setUser(response.data);
+              console.log(response.data)
+          //se der erro setar botao logout
+          }
+        } catch (err) {
+          console.log(err)
+          setUser(null);
+          //se der erro setar botao login
+        }
+      }
+    }; 
+    useEffect(() => {
+    getUser();
+
+    }, []);
+    /** */
+
+
   const [openFilter, setOpenFilter] = useState(false);
 
   const handleOpenFilter = () => {
@@ -27,17 +65,16 @@ export default function ProductsView() {
 
   return (
     <Container>
+
       <Typography variant="h4" sx={{ mb: 5 }}>
-        Products
+        Produtos
       </Typography>
 
-      <Stack
-        direction="row"
-        alignItems="center"
-        flexWrap="wrap-reverse"
-        justifyContent="flex-end"
-        sx={{ mb: 5 }}
-      >
+      <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />}>
+            Novo Produto
+        </Button>
+
+      <Stack direction="row" alignItems="center" flexWrap="wrap-reverse" justifyContent="flex-end" sx={{ mb: 5 }} >
         <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
           <ProductFilters
             openFilter={openFilter}
@@ -50,7 +87,7 @@ export default function ProductsView() {
       </Stack>
 
       <Grid container spacing={3}>
-        {products.map((product) => (
+        {user?.produtos.map((product) => (
           <Grid key={product.id} xs={12} sm={6} md={3}>
             <ProductCard product={product} />
           </Grid>

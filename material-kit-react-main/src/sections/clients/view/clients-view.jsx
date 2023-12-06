@@ -22,6 +22,7 @@ import api from 'src/services/api';
 import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 import { ClientAddFormView } from 'src/sections/clientAddForm';
 import "react-toastify/dist/ReactToastify.css";
+import { ClientEditFormView } from 'src/sections/clientEditForm';
 // ----------------------------------------------------------------------
 
 
@@ -33,8 +34,8 @@ export default function ClientView() {
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
-  const [rowsPerPage, setRowsPerPage] = useState(25);
-  const [regsSituation, setRegsSituation] = useState("all");
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [regsSituation, setRegsSituation] = useState("active");
   const [showAdd, setShowAdd] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
 
@@ -57,7 +58,7 @@ export default function ClientView() {
         //se der erro setar botao logout
         }
       } catch (err) {
-        setUser(null);
+        //setUser(null);
         //se der erro setar botao login
       }
     }
@@ -66,6 +67,34 @@ export default function ClientView() {
   getUser();
   }, []);
   /** */
+
+
+
+
+  /** GET CLIENT BY REQUEST IN BACKEND*/
+  const [client, setClient] = useState(null);
+  const getClient = async (id) => {
+    console.log("dae malusko");
+    try {
+      const response = await api.get(`/clientes/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if(response.data){
+
+        console.log(response.data);
+          setClient(response.data);
+          setShowEdit(true);  
+      }
+    } catch (err) {
+      console.log(err);
+      setClient(null);
+    }
+  }; 
+
+
+
 
 
   //VARIABLES AND FUNCTIONS USEFUL FOR THIS COMPONENT
@@ -84,22 +113,9 @@ export default function ClientView() {
     }
     setSelected([]);
   };
-  const handleClick = (event, name) => {
-    const selectedIndex = selected.indexOf(name);
-    let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, name);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
-    setSelected(newSelected);
+  const handleClick = (id) => {
+    setShowAdd(false);
+    getClient(id);
   };
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -119,6 +135,10 @@ export default function ClientView() {
   });
   const notFound = !dataFiltered.length && !!filterName;
   
+
+
+
+
   {/**FUNÇÃO CONTROLADA PELO SELECT DA SITUAÇÃO DO ITEM, ALTERNA ENTRE OS ESTADOS DISPONÍVEIS E RENDERIZA COM BASE NELES*/}
   const handleChangeregsSituation = (event) => {
     setRegsSituation(event.target.value);
@@ -158,7 +178,7 @@ export default function ClientView() {
                   >
                     <MenuItem value={"active"}>Ativos</MenuItem>
                     <MenuItem value={"inactive"}>Inativos</MenuItem>
-                    <MenuItem value={"all"}>Todas</MenuItem>
+                    <MenuItem value={"all"}>Todos</MenuItem>
                   </Select>
               </FormControl>
           </Box>
@@ -186,6 +206,7 @@ export default function ClientView() {
                       return (
                         <ClientTableRow
                         key={row.id}
+                        id={row.id}
                         nome_razao_social={row.nome_razao_social}
                         apelido_nome_fantasia={row.apelido_nome_fantasia}
                         celular={row.celular}
@@ -193,7 +214,7 @@ export default function ClientView() {
                         cidade={row.cidade}
                         estado={row.estado}
                         selected={selected.indexOf(row.name) !== -1}
-                        handleClick={(event) => handleClick(event, row.nome_razao_social)}
+                        handleClick={() => handleClick(row.id)}
                       />
                       )  
                     }  else if (regsSituation === "inactive" && row.active === false) {
@@ -207,7 +228,7 @@ export default function ClientView() {
                         cidade={row.cidade}
                         estado={row.estado}
                         selected={selected.indexOf(row.name) !== -1}
-                        handleClick={(event) => handleClick(event, row.nome_razao_social)}
+                        handleClick={() => handleClick(row.id)}
                       />
                       )  
                     } else if (regsSituation === "active" && row.active === true) {
@@ -221,7 +242,7 @@ export default function ClientView() {
                         cidade={row.cidade}
                         estado={row.estado}
                         selected={selected.indexOf(row.name) !== -1}
-                        handleClick={(event) => handleClick(event, row.nome_razao_social)}
+                        handleClick={() => handleClick(row.id)}
                       />
                       )  
                     }
@@ -264,6 +285,13 @@ export default function ClientView() {
       showAdd &&
       <>
       <ClientAddFormView/>
+      </>
+    }
+
+{
+      showEdit &&
+      <>
+      <ClientEditFormView item={client}/>
       </>
     }
 
