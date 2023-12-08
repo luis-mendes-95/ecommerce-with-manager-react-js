@@ -14,9 +14,7 @@ import { ColorPreview } from 'src/components/color-utils';
 
 // ----------------------------------------------------------------------
 
-export default function ShopProductCard({ product }) {
-
-  console.log(product)
+export default function ShopProductCard({ product, handleEditProduct }) {
 
 
   const renderStatus = (
@@ -64,7 +62,7 @@ export default function ShopProductCard({ product }) {
   );
 
   return (
-    <Card>
+    <Card onClick={()=>{handleEditProduct(product.id)}} sx={{ cursor:"pointer" }}>
       <Box sx={{ pt: '100%', position: 'relative' }}>
         {renderStatus}
 

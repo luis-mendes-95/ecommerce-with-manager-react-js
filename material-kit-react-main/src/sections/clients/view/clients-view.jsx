@@ -20,9 +20,9 @@ import ClientTableToolbar from '../client-table-toolbar';
 import { emptyRows, applyFilter, getComparator } from '../utils';
 import api from 'src/services/api';
 import { Box, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
-import { ClientAddFormView } from 'src/sections/clientAddForm';
+import { ClientAddFormView } from 'src/sections/clients/clientAddForm';
 import "react-toastify/dist/ReactToastify.css";
-import { ClientEditFormView } from 'src/sections/clientEditForm';
+import { ClientEditFormView } from 'src/sections/clients/clientEditForm';
 // ----------------------------------------------------------------------
 
 
