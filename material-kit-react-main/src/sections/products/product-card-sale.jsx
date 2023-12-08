@@ -1,3 +1,4 @@
+/* eslint-disable */
 import PropTypes from 'prop-types';
 
 import Box from '@mui/material/Box';
@@ -13,11 +14,13 @@ import { ColorPreview } from 'src/components/color-utils';
 
 // ----------------------------------------------------------------------
 
-export default function ShopProductCard({ product }) {
+export default function ShopProductCardSale({ product, handleEditProduct }) {
+
+
   const renderStatus = (
     <Label
       variant="filled"
-      color={(product.status === 'sale' && 'error') || 'info'}
+      color={(product.active === true  && 'info') || 'error'}
       sx={{
         zIndex: 9,
         top: 16,
@@ -26,15 +29,22 @@ export default function ShopProductCard({ product }) {
         textTransform: 'uppercase',
       }}
     >
-      {product.status}
+      {product.active &&
+        <span>Em estoque</span>
+      }
+
+      {product.active === false &&
+        <span>Inativo</span>
+      }
+
     </Label>
   );
 
   const renderImg = (
     <Box
       component="img"
-      alt={product.name}
-      src={product.cover}
+      alt={product.imagem_principal}
+      src={product.imagem_principal}
       sx={{
         top: 0,
         width: 1,
@@ -47,41 +57,32 @@ export default function ShopProductCard({ product }) {
 
   const renderPrice = (
     <Typography variant="subtitle1">
-      <Typography
-        component="span"
-        variant="body1"
-        sx={{
-          color: 'text.disabled',
-          textDecoration: 'line-through',
-        }}
-      >
-        {product.priceSale && fCurrency(product.priceSale)}
-      </Typography>
-      &nbsp;
-      {fCurrency(product.price)}
+      R{fCurrency(product.preco)}
     </Typography>
   );
 
   return (
-    <Card>
+    <Card onClick={()=>{handleEditProduct(product.id)}} sx={{ cursor:"pointer" }}>
       <Box sx={{ pt: '100%', position: 'relative' }}>
-        {product.status && renderStatus}
+        {renderStatus}
 
         {renderImg}
       </Box>
 
       <Stack spacing={2} sx={{ p: 3 }}>
-        <Link color="inherit" underline="hover" variant="subtitle2" noWrap>
-          {product.name}
+        <Link color="inherit" underline="hover" variant="subtitle2" Wrap>
+          {product.nome}
         </Link>
+        <span style={{fontSize:"10px"}}>Cod: {product.cod}</span>
 
         <Stack direction="row" alignItems="center" justifyContent="space-between">
-          <ColorPreview colors={product.colors} />
+          {/**<ColorPreview colors={product.colors} /> */}
           {renderPrice}
         </Stack>
       </Stack>
     </Card>
   );
+
 }
 
 ShopProductCard.propTypes = {

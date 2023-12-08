@@ -73,6 +73,7 @@ export default function ShopProductCard({ product, handleEditProduct }) {
         <Link color="inherit" underline="hover" variant="subtitle2" Wrap>
           {product.nome}
         </Link>
+        <span style={{fontSize:"10px"}}>Cod: {product.cod}</span>
 
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           {/**<ColorPreview colors={product.colors} /> */}
