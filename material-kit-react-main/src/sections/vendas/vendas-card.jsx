@@ -209,27 +209,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
         toast.error("Erro ao cancelar venda");
       }
   };
-  const deleteItemVenda = async (itemId) => {
-    
-        try {
-          const config = {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          };
-          const response = await api.delete(`${urlItemVenda}/${itemId}`, config);
-          if (response.status === 200) {
-            
-            toast.success("Item deletado com sucesso!");
-            setTimeout(() => {
-              handleSetSale(thisSale.id)
-            }, 1500);
-          }
-        } catch (err) {
-          console.error(err);
-          toast.error("Erro ao deletar item");
-        }
-  };
 
 
   

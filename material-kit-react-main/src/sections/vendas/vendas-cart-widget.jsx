@@ -1,5 +1,5 @@
 /* eslint-disable */
-import { Box } from '@mui/material';
+import { Box, Checkbox, FormControlLabel, FormGroup } from '@mui/material';
 import Badge from '@mui/material/Badge';
 import { styled } from '@mui/material/styles';
 import { useState } from 'react';
@@ -39,36 +39,6 @@ const StyledRoot = styled('div')(({ theme }) => ({
 
 
 
-const TAX_RATE = 0.07;
-
-function ccyFormat(num) {
-  return parseFloat(num).toFixed(2);
-}
-
-function priceRow(qty, unit) {
-  return qty * unit;
-}
-
-function createRow(desc, qty, unit) {
-  const price = priceRow(qty, unit);
-  return { desc, qty, unit, price };
-}
-
-
-
-function subtotal(items) {
-  return items.map(({ price }) => price).reduce((sum, i) => sum + i, 0);
-}
-
-const rows = [
-  createRow('Paperclips (Box)', 100, 1.15),
-  createRow('Paper (Case)', 10, 45.99),
-  createRow('Waste Basket', 2, 17.99),
-];
-
-const invoiceSubtotal = subtotal(rows);
-const invoiceTaxes = TAX_RATE * invoiceSubtotal;
-const invoiceTotal = invoiceTaxes + invoiceSubtotal;
 
 
 
@@ -80,33 +50,7 @@ const invoiceTotal = invoiceTaxes + invoiceSubtotal;
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export default function CartWidget({thisSale}) {
+export default function CartWidget({thisSale, deleteItemVenda}) {
 
   const [showCartModal, setShowCartModal] = useState(false);
 
@@ -115,7 +59,6 @@ export default function CartWidget({thisSale}) {
   }
 
 
-  console.log(thisSale?.itens.length)
 
   return (
     <>
@@ -131,7 +74,7 @@ export default function CartWidget({thisSale}) {
         <div style={{color:"white", width:"100%"}}>
           <div style={{display:"flex", width:"100%", justifyContent:"space-between", position:"absolute", top:"0", left:"0"}}>
             <h1 style={{margin:"0", padding:"0"}}>CHECKOUT</h1>
-            <button style={{height:"50px", width:"50px", backgroundColor:"brown", color:"white", fontWeight:"bold", border:"none"}} onClick={cartModalFlipFlop}>X</button>
+            <button style={{height:"50px", width:"50px", backgroundColor:"brown", color:"white", fontWeight:"bold", border:"none", cursor:"pointer", borderBottomLeftRadius:"40px"}} onClick={cartModalFlipFlop}>X</button>
           </div>
 
 
@@ -139,7 +82,7 @@ export default function CartWidget({thisSale}) {
             <Table sx={{ minWidth: 600 }} aria-label="spanning table">
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" colSpan={4}>
+                  <TableCell align="center" colSpan={5}>
                     Confira os itens
                   </TableCell>
                   <TableCell align="right">Valor</TableCell>
@@ -150,6 +93,7 @@ export default function CartWidget({thisSale}) {
                   <TableCell align="right">Valor Unit</TableCell>
                   <TableCell align="right">Desconto Unit</TableCell>
                   <TableCell align="right">Sub Total</TableCell>
+                  <TableCell align="right">...</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -160,15 +104,27 @@ export default function CartWidget({thisSale}) {
                     <TableCell align="right">R${row.produto.preco}</TableCell>
                     <TableCell align="right">R${row.disccount}</TableCell>
                     <TableCell align="right">R${(row.qty * row.produto.preco) - (row.disccount * row.qty)}</TableCell>
-                    <button>x</button>
+                    <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemVenda(row.id)}} >X</button></TableCell>
+
                   </TableRow>
                 ))}
 
                 <TableRow>
                   <TableCell align="right"> Total R$ {thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=precoComDesconto*item.qty;return total+subtotal;}, 0)}</TableCell>
                 </TableRow>
+
               </TableBody>
+
             </Table>
+
+            <FormGroup>
+            <FormControlLabel control={<Checkbox defaultChecked />} label="Gerar Ordem de Serviço" />
+            <FormControlLabel control={<Checkbox defaultChecked />} label="Gerar Títulos A Receber" />
+
+            </FormGroup>
+
+
+
           </TableContainer>
 
 

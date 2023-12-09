@@ -13,6 +13,8 @@ import { ProductEditFormView } from '../vendaEditForm';
 import api from 'src/services/api';
 import ProductCartWidget from '../vendas-cart-widget';
 import { id } from 'date-fns/locale';
+import { ToastContainer, toast } from "react-toastify";
+import { Toastify } from 'toastify';
 
 
 export default function VendasView() {
@@ -86,7 +88,7 @@ export default function VendasView() {
     const handleSetSubmitType = (string) => {
       setSubmitType(string);
     }
-
+    const urlItemVenda = "itemVendas";
 
 
     //SET FILTER NAME
@@ -135,9 +137,35 @@ export default function VendasView() {
         }
       } catch (err) {
         console.log(err);
-        setClient(null);
+        setThisSale(null);
       }
   }; 
+
+
+
+  /**DELETE ITEM IN CART */
+  const deleteItemVenda = async (itemId) => {
+    
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.delete(`${urlItemVenda}/${itemId}`, config);
+      if (response.status === 200) {
+        
+        toast.success("Item deletado com sucesso!");
+        setTimeout(() => {
+          getSale(thisSale.id)
+        }, 1500);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao deletar item");
+    }
+};
+
 
 
 
@@ -149,6 +177,7 @@ export default function VendasView() {
   
   return (
     <Container>
+      <ToastContainer/>
 
     {!showAdd && !showEdit &&
     <>
@@ -264,7 +293,7 @@ export default function VendasView() {
       <ProductEditFormView product={product}/>
     }
 
-    <ProductCartWidget thisSale={thisSale}/>
+    <ProductCartWidget thisSale={thisSale} deleteItemVenda={deleteItemVenda}/>
     </Container>
   );
 }

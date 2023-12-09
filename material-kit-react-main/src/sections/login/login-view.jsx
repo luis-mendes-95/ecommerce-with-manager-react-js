@@ -14,7 +14,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import { alpha, useTheme } from '@mui/material/styles';
 import InputAdornment from '@mui/material/InputAdornment';
 import { ToastContainer, toast } from "react-toastify";
-
+import { Toastify } from 'toastify';
 import { useRouter } from 'src/routes/hooks';
 
 import { bgGradient } from 'src/theme/css';
@@ -23,7 +23,7 @@ import Logo from 'src/components/logo';
 import Iconify from 'src/components/iconify';
 import api from 'src/services/api';
 import { useForm } from 'react-hook-form';
-import { Toastify } from 'toastify';
+
 
 // ----------------------------------------------------------------------
 
