@@ -12,6 +12,7 @@ import { ProductAddFormView } from '../vendaAddForm';
 import { ProductEditFormView } from '../vendaEditForm';
 import api from 'src/services/api';
 import ProductCartWidget from '../vendas-cart-widget';
+import { id } from 'date-fns/locale';
 
 
 export default function VendasView() {
@@ -32,7 +33,6 @@ export default function VendasView() {
           });
           if(response.data){
               setUser(response.data);
-              console.log(response.data)
           //se der erro setar botao logout
           }
         } catch (err) {
@@ -52,10 +52,13 @@ export default function VendasView() {
     const [showAdd, setShowAdd] = useState(false);
     const [showEdit, setShowEdit] = useState(false);
     const [product, setProduct] = useState(null);
+    const [thisSale, setThisSale] = useState(null);
+    const [thisClient, setThisClient] = useState(null);
     const [filterName, setFilterName] = useState('');
     const [selected, setSelected] = useState([]);
     const [regsSituation, setRegsSituation] = useState("active");
     const [filteredProducts, setFilteredProducts] = useState([]);
+    const [submitType, setSubmitType] = useState('createSale');
 
 
     const filterProducts = (searchText) => {
@@ -70,6 +73,19 @@ export default function VendasView() {
         setFilteredProducts(filtered || []);
       }
     };
+
+
+    const handleGetSale = (id) => {
+      getSale(id)
+    }
+
+    const handleSetClient = (data) => {
+      setThisClient(data);
+    }
+
+    const handleSetSubmitType = (string) => {
+      setSubmitType(string);
+    }
 
 
 
@@ -106,34 +122,48 @@ export default function VendasView() {
 
 
 
+    /** GET SALE BY REQUEST IN BACKEND*/
+    const getSale = async (id) => {
+      try {
+        const response = await api.get(`/vendas/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if(response.data){
+            setThisSale(response.data); 
+        }
+      } catch (err) {
+        console.log(err);
+        setClient(null);
+      }
+  }; 
+
+
+
+
 {/**  const handleOpenFilter = () => {    setOpenFilter(true);  };  const handleCloseFilter = () => {    setOpenFilter(false);  }; */}
 
 
   const handleEditProduct = (id) => {    getProduct(id);  }
   
-
-
-
-
   return (
     <Container>
 
     {!showAdd && !showEdit &&
     <>
-
-
-
-
-
-
       <Box sx={{display:"flex", justifyContent:"space-between", alignContent:"flex-start", alignItems:"flex-start"}}>
         <Typography variant="h4" sx={{ mb: 5 }}>
               Vendas
             </Typography>
 
-        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{setShowAdd(true); setShowEdit(false);}}>
+{
+  /**
+   *         <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{setShowAdd(true); setShowEdit(false);}}>
             Nova Venda
         </Button>
+   */
+}
       </Box>
 
 
@@ -168,7 +198,7 @@ export default function VendasView() {
       {filteredProducts?.map((product) => (
           regsSituation === "all" &&
           <Grid key={product.id} xs={12} sm={6} md={3} >
-            <ProductCard product={product} handleEditProduct={handleEditProduct}/>
+            <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient}/>
             
           </Grid>
         ))}
@@ -176,14 +206,14 @@ export default function VendasView() {
         {filteredProducts?.map((product) => (
           regsSituation === "active" && product.active &&
           <Grid key={product.id} xs={12} sm={6} md={3} >
-            <ProductCard product={product} handleEditProduct={handleEditProduct}/>
+            <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient}/>
           </Grid>
         ))}
         
         {filteredProducts?.map((product) => (
           regsSituation === "inactive" && product.active === false &&
           <Grid key={product.id} xs={12} sm={6} md={3} >
-            <ProductCard product={product} handleEditProduct={handleEditProduct}/>
+            <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient}/>
           </Grid>
         ))
         }
@@ -193,7 +223,7 @@ export default function VendasView() {
             regsSituation === "all" &&
               user?.produtos.map((product) => (
                 <Grid key={product.id} xs={12} sm={6} md={3} >
-                <ProductCard product={product} handleEditProduct={handleEditProduct}/>
+                <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient}/>
               </Grid>
               ))
         }
@@ -204,7 +234,7 @@ export default function VendasView() {
               user?.produtos.map((product) => (
                 product.active &&
                   <Grid key={product.id} xs={12} sm={6} md={3} >
-                    <ProductCard product={product} handleEditProduct={handleEditProduct}/>
+                    <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient}/>
                   </Grid>
               ))
         }
@@ -215,7 +245,7 @@ export default function VendasView() {
               user?.produtos.map((product) => (
                 product.active  === false &&
                   <Grid key={product.id} xs={12} sm={6} md={3} >
-                    <ProductCard product={product} handleEditProduct={handleEditProduct}/>
+                    <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient}/>
                   </Grid>
               ))
         }
@@ -234,7 +264,7 @@ export default function VendasView() {
       <ProductEditFormView product={product}/>
     }
 
-    <ProductCartWidget/>
+    <ProductCartWidget thisSale={thisSale}/>
     </Container>
   );
 }

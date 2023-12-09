@@ -7,7 +7,6 @@ import Card from '@mui/material/Card';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import * as React from 'react';
-import Select from '@mui/joy/Select';
 import Option from '@mui/joy/Option';
 import Button from '@mui/joy/Button';
 import { fCurrency } from 'src/utils/format-number';
@@ -15,11 +14,20 @@ import Label from 'src/components/label';
 import { ColorPreview } from 'src/components/color-utils';
 import FormControl from '@mui/joy/FormControl';
 import FormLabel from '@mui/joy/FormLabel';
+import { Select } from '@mui/material';
 import FormHelperText from '@mui/joy/FormHelperText';
 import Input from '@mui/joy/Input';
 import { TextField } from '@mui/material';
 import { useForm } from 'react-hook-form';
+import api from 'src/services/api';
+import { ToastContainer, toast } from "react-toastify";
+import { Toastify } from 'toastify';
+import "react-toastify/dist/ReactToastify.css";
 
+  /**LOCALSTORAGE DATA TO HAVE PERMISSION */
+  const user_id = localStorage.getItem('tejas.app.user_id');
+  const token = localStorage.getItem('tejas.app.token');
+  const user_name = localStorage.getItem('tejas.app.user_name');
 
 
 
@@ -33,19 +41,22 @@ function getDataAtualFormatada() {
 }
 
 
+export default function ShopProductCard({ product, handleEditProduct, handleGetSale, thisSale, submitType, setSubmitType, thisClient, handleSetClient }) {
 
 
-export default function ShopProductCard({ product, handleEditProduct }) {
+
+
+
 
 
 
   /**STATES FOR THIS COMPONENT */
   const [user, setUser] = React.useState(null);
   const [showCart, setShowCart] = React.useState(false);
-  const [thisSale, setThisSale] = React.useState(false);
-  const [subtotal, setSubtotal] = React.useState(null);
-  const [disccount, setDisccount] = React.useState(null);
-  const [submitType, setSubmitType] = React.useState('createSale');
+
+  const [showModalVenda, setShowModalVenda] = React.useState(false);
+  const [showTypedClientResults, setShowTypedClientResults] = React.useState(false);
+  const [filteredClients, setFilteredClients] = React.useState(null);
 
 
 
@@ -59,32 +70,10 @@ export default function ShopProductCard({ product, handleEditProduct }) {
 
 
   /**FUNCTIONS FOR REQUESTS */
-  const getSale = async (id) => {
-    if (user_id){
-      try {
-        const response = await api.get(`/vendas/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if(response.data){
-          setSale(response.data);
-          let total = 0;
-          let disccount = 0;
-          response.data.itens.map((row) => {
-            total += parseFloat(row.qty) * parseFloat(row.produto.preco)
-            disccount += parseFloat(row.disccount) * parseFloat(row.qty);
-          })
-          setSubtotal(total.toFixed(2));
-          setDisccount(disccount.toFixed(2));
-        }
-      } catch (err) {
-        setSale(null);
-      }
-    }
-  }; 
   const getUser = async () => {
+
     if (user_id){
+
       try {
         const response = await api.get(`/users/${user_id}`, {
           headers: {
@@ -99,6 +88,23 @@ export default function ShopProductCard({ product, handleEditProduct }) {
       }
     }
   }; 
+  const getClient = async (id) => {
+
+      try {
+        const response = await api.get(`/clientes/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if(response.data){
+            handleSetClient(response.data);
+            console.log(response.data)
+        }
+      } catch (err) {
+        handleSetClient(null);
+      }
+
+  }; 
   const createVenda = async (createData) => {
     try {
       const config = {
@@ -108,18 +114,36 @@ export default function ShopProductCard({ product, handleEditProduct }) {
       };
       const response = await api.post(url, createData, config);
       if (response.data) {
-        toast.success("Venda cadastrada com sucesso!");
+        toast.success("Adicione produtos no carrinho!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+        setShowModalVenda(false);
         setTimeout(() => {
           setShowCart(true);
           setSubmitType("createItemSale");
-          setThisSale(response.data)
+          handleGetSale(response.data.id);
+          reset();
           getUser();
-          console.log(user)
         }, 1500);
       }
     } catch (err) {
       console.error(err);
-      toast.error("Erro ao cadastrar venda");
+      toast.error("Erro ao cadastrar venda!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+      setSubmitType("createItemSale")
     }
   };
   const createItemVenda = async (createData) => {
@@ -131,16 +155,34 @@ export default function ShopProductCard({ product, handleEditProduct }) {
       };
       const response = await api.post(urlItemVenda, createData, config);
       if (response.data) {
-        toast.success("Item cadastrado com sucesso!");
+        toast.success("Item adicionado ao carrinho!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
         setTimeout(() => {
           setShowCart(true);
           getUser();
-          getSale(response.data.venda_id);
+          reset();
+          handleGetSale(response.data.venda_id);
+          console.log(response.data)
         }, 1500);
       }
     } catch (err) {
       console.error(err);
-      toast.error("Erro ao cadastrar item");
+      toast.error("Erro ao adicionar ao carrinho!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
     }
   };
   const deleteVenda = async () => {
@@ -180,7 +222,7 @@ export default function ShopProductCard({ product, handleEditProduct }) {
             
             toast.success("Item deletado com sucesso!");
             setTimeout(() => {
-              getSale(thisSale.id)
+              handleSetSale(thisSale.id)
             }, 1500);
           }
         } catch (err) {
@@ -195,47 +237,56 @@ export default function ShopProductCard({ product, handleEditProduct }) {
   /**AFTER LOAD THIS COMPONENT, RUN THESE CODES */
   React.useEffect(() => {
     getUser();
+
   }, []); 
 
 
 
 
   /**FORM CONFIGURATION - USE FORM */
-  const { register, handleSubmit, formState: { errors }  } = useForm({
+  const { register, handleSubmit, reset, formState: { errors }  } = useForm({
     // resolver: zodResolver(RegisterClientSchema),
   });
+
   const onFormSubmit = (formData) => {
+
+
+
+
 
     if (submitType === "createSale") {
 
-            /**VERIFICA DADOS DO FORMULÁRIO E DEPOIS CHAMA A FUNÇÃO DE REQUISIÇÃO AO BACKEND */
-            if(formData.description === "") {
-              return toast.error("Obrigatório preencher: Descrição")
-            } else if (formData.colaborador === "") {
-              return toast.error("Obrigatório preencher: Vendedor")
-            } else {
-    
-              formData.createdAt = getDataAtualFormatada();
-              formData.lastEditted = getDataAtualFormatada();
-              formData.changeMaker = user_name;
-    
-              formData.active = true;
-              formData.user_id = user_id;
-              formData.colaborador = user_name;
-    
-              createVenda(formData);
-            }
+      formData.createdAt = getDataAtualFormatada();
+      formData.lastEditted = getDataAtualFormatada();
+      formData.changeMaker = user_name;
+      formData.active = true;
+      formData.user_id = user_id;
+      formData.colaborador = user_name;
+      formData.client_id = thisClient?.id;
+      console.log(formData)
+
+      createVenda(formData);
 
     } else if (submitType === "createItemSale") {
+
       formData.description = formData.itemDescription;
       delete formData.itemDescription;
       formData.createdAt = getDataAtualFormatada();
       formData.changeMaker = getDataAtualFormatada();
       formData.lastEditted = getDataAtualFormatada();
-      formData.venda_id = getDataAtualFormatada();
       formData.files = formData.files.split();
       formData.venda_id = thisSale.id;
+      formData.client_id = thisClient.id;
+      formData.produto_id = product.id;
+
+      console.log(formData)
+
+      if (formData.disccount === "") {formData.disccount = "0"};
+
+      console.log(formData)
+
       createItemVenda(formData);
+
     }
 
     
@@ -244,10 +295,23 @@ export default function ShopProductCard({ product, handleEditProduct }) {
   };
 
 
+  /**FILTER CLIENTS TO SELECT WHILE TYPING */
+  const setFilteredClientsByTyping = (string) => {
+    if (string === "") { 
+      setFilteredClients(null);
+    } else {
+      const filteredClients = user?.clientes.filter((client) => {
+        return client.nome_razao_social.includes(string);
+      });
+      setFilteredClients(filteredClients);
+    }      
+  }
 
 
 
 
+
+  /**PRE RENDER HTML  */
   const renderStatus = (
     <Label
       variant="filled"
@@ -266,7 +330,6 @@ export default function ShopProductCard({ product, handleEditProduct }) {
 
     </Label>
   );
-
   const renderImg = (
     <Box
       component="img"
@@ -281,15 +344,72 @@ export default function ShopProductCard({ product, handleEditProduct }) {
       }}
     />
   );
-
   const renderPrice = (
     <Typography variant="subtitle1">
       R{fCurrency(product.preco)}
     </Typography>
   );
 
+
   return (
     <Card>
+      <ToastContainer/>
+
+      {
+        showModalVenda &&
+          <div style={{position:"absolute", top:"0", left:"0", zIndex: 999, backgroundColor:"#F9FAFA", width:"100%", height:"100%", padding:"10px"}}>
+            <h3>Nova Venda:</h3>
+
+          {
+            !thisClient &&
+            <TextField fullWidth label="Digitar Cliente" id="client_id" inputProps={{ maxLength: 400 }} onInput={(e) => {e.target.value =  e.target.value.toUpperCase(); setShowTypedClientResults(true); setFilteredClientsByTyping(e.target.value)}} {...register("client_id")} />
+          }
+          
+
+          {
+            showTypedClientResults && !thisClient &&
+              filteredClients?.map((client)=>{
+                return (
+                  <p style={{cursor:"pointer", backgroundColor:"lightgray", padding:"5px", borderRadius:"8px"}} key={client.id} onClick={()=>{getClient(client.id)}}>{client.nome_razao_social}</p>
+                )
+              })
+          }
+
+
+
+
+
+          {
+            thisClient &&
+            <div style={{width:"100%", display:"flex", flexWrap:"wrap",  justifyContent:"space-between"}}>
+                <label style={{fontWeight:"bold"}}>CLIENTE:</label>    
+                <button onClick={()=>{handleSetClient(null)}}>Trocar</button>     
+              <form onSubmit={(e) => { e.preventDefault(); handleSubmit(onFormSubmit)(e); }} style={{display:"flex", flexWrap:"wrap", justifyContent:"space-between", padding:'5px'}}>
+                
+                <div style={{width:"100%"}}>
+                <p style={{ padding:"5px", borderRadius:"8px"}} key={thisClient.id}>{thisClient.nome_razao_social}</p>
+                <TextField fullWidth label="Observações" id="description" inputProps={{ maxLength: 400 }} onInput={(e) => {e.target.value =  e.target.value.toUpperCase(); setShowTypedClientResults(true); setFilteredClientsByTyping(e.target.value)}} {...register("description")} />
+                </div>
+                <button type="submit" style={{backgroundColor:"green",  color:"white", textShadow:"2pt 2pt 5pt black", padding: "10px", border:"none", margin:"5px", borderRadius:"8px", cursor:"pointer"}}>Iniciar Venda</button>    
+                {/**AQUI É FEITA A CRIACAO DA VENDA E SETADA PARA RESPONSE.DATA, LIBERANDO OS BOTÕES PARA ADICIONAR CADA ITEM */}
+              </form>
+            </div>
+          
+           }
+
+
+
+
+
+
+          </div>
+      }
+
+
+
+
+
+
       <Box sx={{ pt: '100%', position: 'relative' }}>
         {renderStatus}
 
@@ -297,6 +417,7 @@ export default function ShopProductCard({ product, handleEditProduct }) {
       </Box>
 
       <Stack spacing={2} sx={{ p: 3 }}>
+
         <Link color="inherit" underline="hover" variant="subtitle2" Wrap>
           {product.nome}
         </Link>
@@ -308,76 +429,37 @@ export default function ShopProductCard({ product, handleEditProduct }) {
         </Stack>
 
         <Stack>
-          
+      
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        <form onSubmit={handleSubmit} id="demo">
-
-          <form>
-
+        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(onFormSubmit)(e); }} id="demo">
             <span style={{fontWeight:"bolder", fontSize: "px"}}> Adicionar ao carrinho: </span>
-
-            <TextField style={{width:"100%", marginTop:"0"}} required fullWidth {...register("qty")} label="Quantidade" id="qty" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
-            <TextField style={{width:"100%", marginTop:"0"}} required fullWidth {...register("disccount")} label="Desconto unitário" id="disccount" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
-            <TextField style={{width:"100%", marginTop:"0"}} required fullWidth {...register("description")} label="Instruções" id="description" inputProps={{ maxLength: 4000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
-            <TextField style={{width:"100%", marginTop:"0"}} required fullWidth {...register("files")} label="Anexar Arquivos" id="files" inputProps={{ maxLength: 4000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
-
-            <button  style={{backgroundColor:"green", color:"white", border:"none", width:"100%", margin:"15px 0 0 0", padding:"5px 0", fontSize:"30px", borderRadius:"8px", cursor:"pointer"}}>
+            {
+              thisSale &&
+              <div>
+              <TextField style={{width:"100%", marginTop:"8px"}} required fullWidth {...register("qty")} label="Quantidade" id="qty" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
+              <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("disccount")} label="Desconto unitário" id="disccount" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
+              <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("itemDescription")} label="Instruções" id="description" inputProps={{ maxLength: 4000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
+              <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("files")} label="Anexar Arquivos" id="files" inputProps={{ maxLength: 4000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
+              <button type="submit" style={{backgroundColor:"green", color:"white", border:"none", width:"100%", margin:"15px 0 0 0", padding:"5px 0", fontSize:"30px", borderRadius:"8px", cursor:"pointer"}}>
               +
-            </button>
-
-
-          </form>
-
+        </button>
+            </div>
+            }
+            
         </form>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+            {
+              !thisSale &&
+              <button onClick={()=>{setShowModalVenda(true)}} style={{backgroundColor:"green", color:"white", border:"none", width:"100%", margin:"15px 0 0 0", padding:"5px 0", fontSize:"30px", borderRadius:"8px", cursor:"pointer"}}>
+                  +
+            </button>
+            }
 
         </Stack>
 
       </Stack>
     </Card>
+
   );
 
 }
