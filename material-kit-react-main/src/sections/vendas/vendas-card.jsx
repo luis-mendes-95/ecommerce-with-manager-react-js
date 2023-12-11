@@ -98,7 +98,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
         });
         if(response.data){
             handleSetClient(response.data);
-            console.log(response.data)
         }
       } catch (err) {
         handleSetClient(null);
@@ -169,7 +168,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
           getUser();
           reset();
           handleGetSale(response.data.venda_id);
-          console.log(response.data)
         }, 1500);
       }
     } catch (err) {
@@ -242,7 +240,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
       formData.user_id = user_id;
       formData.colaborador = user_name;
       formData.client_id = thisClient?.id;
-      console.log(formData)
+
 
       createVenda(formData);
 
@@ -258,11 +256,10 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
       formData.client_id = thisClient.id;
       formData.produto_id = product.id;
 
-      console.log(formData)
 
       if (formData.disccount === "") {formData.disccount = "0"};
 
-      console.log(formData)
+
 
       createItemVenda(formData);
 

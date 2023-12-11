@@ -13,6 +13,11 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Label from 'src/components/label';
+import { useForm } from 'react-hook-form';
+import api from 'src/services/api';
+import { ToastContainer, toast } from "react-toastify";
+import { Toastify } from 'toastify';
+import "react-toastify/dist/ReactToastify.css";
 
 
 
@@ -61,23 +66,168 @@ function getDataAtualFormatada() {
 export default function CartWidget({thisSale, deleteItemVenda}) {
 
 
+
+
+  //FORM INPUTS CONFIGURATIONS
+  let url = "/clientes"
+
+
+
+
+
+
+
+
+  /** GET USER BY REQUEST IN BACKEND AND TAKES TOKEN FROM LOCALSTORAGE*/
+  const user_id = localStorage.getItem('tejas.app.user_id');
+  const token = localStorage.getItem('tejas.app.token');
+  const user_name = localStorage.getItem('tejas.app.user_name');
+  // const user_name = localStorage.getItem('user_name');
+  const [user, setUser] = useState(null);
+  const getUser = async () => {
+    if (user_id){
+      try {
+        const response = await api.get(`/users/${user_id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if(response.data){
+            setUser(response.data);
+        //se der erro setar botao logout
+        }
+      } catch (err) {
+        //setUser(null);
+        //se der erro setar botao login
+      }
+    }
+  }; 
+  React.useEffect(() => {
+  getUser();
+  }, []);
+
+
+
+
+
+
+
   const [showCartModal, setShowCartModal] = useState(false);
+  const [receivableMode, setReceivableMode] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState(0);
   const [parcelas, setParcelas] = useState(1);
   const [formaPagamentoParcelas, setFormaPagamentoParcelas] = useState(Array(parcelas).fill([]));
-
-
-  const [freteValue, setFreteValue] = useState(0);
-
+  const [dueDates, setDueDates] = useState([`${getDataAtualFormatada()}`,`${getDataAtualFormatada()}`]);
+  const [dispatchValue, setDispatchValue] = useState(0);
   const [generateReceivables, setGenerateReceivables] = useState(true);
   const [generateOs, setGenerateOs] = useState(false);
-  const [generateDispatch, setGenerateDispatch] = useState(true);
+  const [generateDispatch, setGenerateDispatch] = useState(false);
+  const [showForm, SetShowForm] = useState("new");
+  const [receivablesToGet, setReceivablesToGet] = useState([]);
+  const [choosePayMethod, setChoosePayMethod] = useState(false);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  const createReceivable = async (createData) => {
+    try {
+      // Define o cabeçalho da solicitação com o token de autenticação
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+  
+      const response = await api.post("/receivables", createData, config);
+  
+      if (response.status === 201) {
+        toast.success();
+        toast.success("Título a receber cadastrado com sucesso!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+
+        setCheckoutStep(checkoutStep + 1)
+        getUser();
+        
+        const receivablesIdArray = [...receivablesToGet];
+        receivablesIdArray.push(response.data.id)
+        setReceivablesToGet((prevReceivables) => {
+          return [...prevReceivables, response.data.id];
+        });
+  
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao cadastrar título a receber");
+    }
+  };
+  const { register, handleSubmit } = useForm({
+    //resolver: zodResolver(LoginUserSchema),
+  });
+  const onFormSubmit = (formData) => {
+
+    let wait = true;
+
+    let numIndexes = parcelas.length;
+
+    dueDates.forEach((item, index)=>{
+
+
+      formData.createdAt = getDataAtualFormatada();
+      formData.lastEditted = getDataAtualFormatada();
+      formData.changeMaker = user_name;
+
+      formData.dueDate = item;
+      formData.status = "Pendente";
+      formData.amount = `${thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) - -dispatchValue);return total+subtotal;}, 0) / parcelas}`;
+      formData.active = true;
+      formData.receivements = [];
+      formData.description = "Título gerado a partir de uma venda"
+
+      formData.user_id = user_id;
+      formData.client_id = thisSale?.client_id;
+      formData.venda_id = thisSale?.id;
+
+      createReceivable(formData)
+    })
+
+    setTimeout(() => {
+      setReceivableMode(true);
+    }, 1000);
+
+  
+  };
+       
+
+
+
 
 
   const cartModalFlipFlop = () => {
     setShowCartModal(!showCartModal);
   }
   
+
+
+
 
   const handleReceivablesChange = (parcelaIndex, formaPagamento) => {
     setFormaPagamentoParcelas(prevState => {
@@ -87,11 +237,12 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
     });
   };
   
-
+  console.log(formaPagamentoParcelas)
 
 
   return (
     <>
+    <ToastContainer/>
     <StyledRoot onClick={cartModalFlipFlop}>
       <Badge showZero badgeContent={thisSale?.itens.length || 0} color="error" max={99}>
         <Iconify icon="eva:shopping-cart-fill" width={24} height={24} />
@@ -99,8 +250,9 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
     </StyledRoot>
 
     {
-      showCartModal &&
+      showCartModal && 
       <div style={{backgroundColor:"black", position:"fixed", top:"0",left:"0", width:"100vw", height:"100%", zIndex:"9999", display:"flex", justifyContent:"center", alignItems:"center"}}>
+
         <div style={{color:"white", width:"100%"}}>
           <div style={{display:"flex", width:"100%", justifyContent:"space-between", position:"absolute", top:"0", left:"0"}}>
             <h1 style={{margin:"0", padding:"0", textShadow:"1pt 1pt 5pt black"}}>CHECKOUT</h1>
@@ -109,7 +261,10 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
 
 
           <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 600 }} aria-label="spanning table">
+            
+            {
+              !receivableMode &&
+              <Table sx={{ minWidth: 600 }} aria-label="spanning table">
               <TableHead>
                 <TableRow>
                   <TableCell align="center" colSpan={6}>
@@ -143,20 +298,154 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
                   </TableRow>
                 ))}
 
-                <TableRow>
-                  <TableCell align="right"> Total R$ {thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=precoComDesconto*item.qty;return total+subtotal;}, 0)}</TableCell>
+                <TableRow >
+                  {
+                    generateDispatch &&
+                    <TableCell align='right'> 
+                    <TextField align="right" label='Valor Frete' onChange={(e)=>{setDispatchValue(e.target.value)}}/> 
+                  </TableCell>
+                  }
+                  <TableCell align="right"> Total R$ { thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) - -dispatchValue);return total+subtotal;}, 0)  }</TableCell>
                 </TableRow>
 
               </TableBody>
 
             </Table>
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            {
+              receivableMode &&
+              <Table sx={{ minWidth: 600 }} aria-label="spanning table">
+              <TableHead>
+
+                <TableRow>
+                  <TableCell align="center" colSpan={5}>
+                    Receba Valores
+                  </TableCell>
+                </TableRow>
+
+                <TableRow>
+                  <TableCell>Descrição</TableCell>
+                  <TableCell >Valor</TableCell>
+                  <TableCell align="right">Vencimento</TableCell>
+                  <TableCell>Método</TableCell>
+                  <TableCell align="right">...</TableCell>
+                </TableRow>
+                
+              </TableHead>
+              <TableBody>
+
+
+
+                {
+                  user?.receivables.map((receivable) => {
+                    
+                    let index = -1;
+
+                    if(receivablesToGet.includes(receivable.id)){
+
+                      index += 1;
+
+                      return (
+                        <TableRow key={receivable.id}>
+                        <TableCell>{receivable.description}</TableCell>
+                        <TableCell>R$ {receivable.amount}</TableCell>
+                        <TableCell align="right">{receivable.dueDate}</TableCell>
+                        <TableCell>
+
+                        </TableCell>
+                        <TableCell align="right">
+                          <button>Receber</button>
+                          {
+                            choosePayMethod &&
+                             <select
+                               onChange={(e) => handleReceivablesChange(index, e.target.value)}
+                             >
+                               <option value="">Forma de Pagamento</option>
+                               <option value="A Vista">A Vista</option>
+                               <option value="Pix">Pix</option>
+                               <option value="Cartão Débito">Cartão Débito</option>
+                               <option value="Cartão Crédito">Cartão Crédito</option>
+                               <option value="A Prazo">A Prazo</option>
+                             </select>
+                          }
+                        </TableCell>
+    
+        
+    
+                      </TableRow>
+                      )
+
+                    }
+
+                  })
+                }
+
+
+
+
+
+
+              </TableBody>
+
+            </Table>
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             {
               checkoutStep === 0 &&
                 <FormGroup sx={{margin:"40px 0"}}>
-                <FormControlLabel control={<Checkbox defaultChecked />} label="Gerar Títulos A Receber" />
+                <FormControlLabel control={<Checkbox checked={generateReceivables} />} label="Gerar Títulos A Receber" />
                 <FormControlLabel control={<Checkbox />} label="Gerar Ordem de Serviço" />
-                <FormControlLabel control={<Checkbox />} label="Despacho por Transportadora" />
+                <FormControlLabel control={<Checkbox />} label="Despacho por Transportadora" onChange={()=>{setGenerateDispatch(!generateDispatch)}}/>
     
                 </FormGroup>
             }
@@ -182,7 +471,7 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
                       />
                     ))}
                   </FormGroup>
-                  <p>Valor da parcela: R$ {((thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=precoComDesconto*item.qty;return total+subtotal;}, 0))  / parcelas).toFixed(2)}</p>
+                  <p>Valor da parcela: R$ {((thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) - -dispatchValue);return total+subtotal;}, 0))  / parcelas).toFixed(2)}</p>
                 </Box>
               )
             }
@@ -191,43 +480,42 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
             {checkoutStep === 2 && (
               <Box>
                 {/* ... (outros elementos) */}
+                <form onSubmit={handleSubmit(onFormSubmit)}>
                 {Array.from({ length: parcelas }).map((_, index) => (
-                  <div style={{display:"flex", flexDirection:"column"}}>
-                    <p> Parcela {index + 1} : R$ {((thisSale?.itens.reduce((total, item) => {
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <p>Parcela R$ {index + 1} : R$ {((thisSale?.itens.reduce((total, item) => {
                       const precoComDesconto = item.produto.preco - item.disccount;
-                      const subtotal = precoComDesconto * item.qty;
+                      const subtotal = ((precoComDesconto * item.qty) - -dispatchValue);
                       return total + subtotal;
                     }, 0)) / parcelas).toFixed(2)}</p>
                     <FormGroup sx={{ margin: "0 0" }} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px", flexWrap: "nowrap" }}>
                       {/* Substituir os Checkbox por Select */}
-                      <select
-                        value={formaPagamentoParcelas[index]}
-                        onChange={(e) => handleReceivablesChange(index, e.target.value)}
-                      >
-                        <option value="">Forma de Pagamento</option>
-                        <option value="A Vista">A Vista</option>
-                        <option value="Pix">Pix</option>
-                        <option value="Cartão Débito">Cartão Débito</option>
-                        <option value="Cartão Crédito">Cartão Crédito</option>
-                        <option value="A Prazo">A Prazo</option>
-                      </select>
-                      <TextField placeholder='01/01/2018' label='Data Vencimento' defaultValue={getDataAtualFormatada()}></TextField>
+
+                      <TextField
+                        placeholder='01/01/2018'
+                        label='Data Vencimento'
+                        defaultValue={getDataAtualFormatada()}
+                        value={dueDates[index]}
+                        onChange={(e) => {
+                          const newDueDates = [...dueDates];
+                          newDueDates[index] = e.target.value;
+                          setDueDates(newDueDates);
+                        }}
+                      />
                     </FormGroup>
                   </div>
                 ))}
+
+                <Button sx={{bgcolor:"green", color:"white"}} type='submit' >Continuar</Button>
+                </form>
               </Box>
             )}
-
+            
           
-                    {
-                      checkoutStep !== 2 &&
-                      <Button sx={{bgcolor:"green", color:"white"}} onClick={()=>{setCheckoutStep(checkoutStep + 1);}} >Continuar</Button>
-                    }
-
-                    {
-                      checkoutStep === 2 &&
-                      <Button sx={{bgcolor:"green", color:"white"}} onClick={()=>{setCheckoutStep(checkoutStep + 1);}} disabled={formaPagamentoParcelas.length !== parcelas}>Continuar</Button>
-                    }
+            {
+              checkoutStep !== 2 && checkoutStep !== 4 && !receivableMode &&
+              <Button sx={{bgcolor:"green", color:"white"}} onClick={()=>{setCheckoutStep(checkoutStep + 1);}} >Continuar</Button>
+            }
 
 
 
