@@ -115,10 +115,10 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
       }
     }
   }; 
+  
   React.useEffect(() => {
   getUser();
   }, []);
-
 
 
 
@@ -180,8 +180,6 @@ const receiveValue = async (createData) => {
 
     const response = await api.patch(`/receivables/${receivingItem.id}`, createData, config);
 
-    console.log(response)
-
     if (response.status === 200) {
       toast.success();
       toast.success("Valor recebido com sucesso!", {
@@ -226,6 +224,10 @@ const receiveValue = async (createData) => {
 
 
     if(!receivableMode) {
+
+      setDueDates(Array(parcelas).fill(dueDates[0]));
+      console.log(dueDates);
+      
       dueDates.forEach((item, index)=>{
 
       formData.createdAt = getDataAtualFormatada();
@@ -252,15 +254,12 @@ const receiveValue = async (createData) => {
  
     } else {
 
-      //console.log(formaPagamentoParcelas)
 
       let currentReceivement = `data:${getDataAtualFormatada()}, amount:${formData.receivingAmount}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
       delete formData.amount;
       delete formData.receivingAmount;
       formData.receivements = receivingItem.receivements
       formData.receivements.push(currentReceivement);
-      console.log(formData);
-      console.log(receivingItem.id)
       receiveValue(formData)
     }
 
@@ -302,7 +301,7 @@ const receiveValue = async (createData) => {
  */}
     {
       showCartModal && 
-      <div style={{backgroundColor:"black", position:"fixed", top:"0",left:"0", width:"100vw", height:"100%", zIndex:"9999", display:"flex", justifyContent:"center", alignItems:"center"}}>
+      <div style={{backgroundColor:"black", position:"fixed", top:"0",left:"0", width:"100vw", height:"100%", zIndex:"9999", display:"flex", justifyContent:"center", alignItems:"flex-start"}}>
 
 
 
@@ -312,7 +311,7 @@ const receiveValue = async (createData) => {
 {/**TITLE */}
         <div style={{color:"white", width:"100%"}}>
           <div style={{display:"flex", width:"100%", justifyContent:"space-between", position:"absolute", top:"0", left:"0"}}>
-            <h1 style={{margin:"0", padding:"0", textShadow:"1pt 1pt 5pt black"}}>CHECKOUT</h1>
+            <h1 style={{margin:"0", padding:"0", textShadow:"1pt 1pt 5pt black"}}></h1>
             <button style={{height:"50px", width:"50px", backgroundColor:"brown", color:"white", fontWeight:"bold", border:"none", cursor:"pointer", borderBottomLeftRadius:"40px"}} onClick={cartModalFlipFlop}>X</button>
           </div>
 
@@ -343,6 +342,7 @@ const receiveValue = async (createData) => {
             {
               !receivableMode &&
               <Table sx={{ minWidth: 600 }} aria-label="spanning table">
+
               <TableHead>
                 <TableRow>
                   <TableCell align="center" colSpan={6}>
@@ -350,7 +350,7 @@ const receiveValue = async (createData) => {
                   </TableCell>
                   <TableCell align="right">Valor</TableCell>
                 </TableRow>
-                <TableRow>
+                <TableRow style={{height:"100%", padding:"0"}}>
                   <TableCell>Item</TableCell>
                   <TableCell align="right">Qtd</TableCell>
                   <TableCell align="right">Valor Unit</TableCell>
@@ -360,11 +360,12 @@ const receiveValue = async (createData) => {
                   <TableCell align="right">...</TableCell>
                 </TableRow>
               </TableHead>
-              <TableBody>
+
+              <TableBody style={{height:"100px", overflow:"scroll"}}>
 
 
                 {thisSale?.itens.map((row) => (
-                  <TableRow key={row.id}>
+                  <TableRow key={row.id}> 
                     <TableCell>{row.produto.nome}</TableCell>
                     <TableCell align="right">{row.qty}</TableCell>
                     <TableCell align="right">R${row.produto.preco}</TableCell>
@@ -385,7 +386,7 @@ const receiveValue = async (createData) => {
                   {
                     generateDispatch &&
                     <TableCell align='right'> 
-                    <TextField align="right" label='Valor Frete' onChange={(e)=>{setDispatchValue(e.target.value)}}/> 
+                    <TextField style={{width:"110px"}} align="right" label='Valor Frete' onChange={(e)=>{setDispatchValue(e.target.value)}}/> 
                   </TableCell>
                   }
 
@@ -393,7 +394,7 @@ const receiveValue = async (createData) => {
 
 
 
-                  <TableCell align="right"> Total R$ { thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) - -dispatchValue);return total+subtotal;}, 0)  }</TableCell>
+                  <TableCell style={{width:"150px"}} align="right"> Total R$ { thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) - -dispatchValue);return total+subtotal;}, 0)  }</TableCell>
                 </TableRow>
 
               </TableBody>
@@ -414,7 +415,7 @@ const receiveValue = async (createData) => {
               receivableMode && (
 
                 /**TABLE*/
-                <Table sx={{ minWidth: 600 }} aria-label="spanning table">
+                <Table sx={{ minWidth: 600, maxHeight: 100 }} aria-label="spanning table">
 
 
                 {/**TABLE HEADER */}
@@ -427,12 +428,11 @@ const receiveValue = async (createData) => {
 
 
                         <TableRow>
-                              <TableCell>Descrição</TableCell>
                               <TableCell >Valor</TableCell>
-                              <TableCell align="right">Vencimento</TableCell>
-                              <TableCell align="center">Método</TableCell>
+                              <TableCell align="left">Vencimento</TableCell>
+                              <TableCell align="left">Método</TableCell>
                               <TableCell align="">Quantia</TableCell>
-                              <TableCell align="right"></TableCell>
+                              <TableCell align="left"></TableCell>
                         </TableRow> 
 
                   </TableHead>
@@ -453,75 +453,46 @@ const receiveValue = async (createData) => {
                   {
                     !receivingItem && (
 
-                    user?.receivables.map((receivable) => {
-
-                      let valueToRender = parseFloat(receivable.amount);
-                      console.log(valueToRender)
-
-                      console.log("é aqui co puxo os coiso do recebívu");
-
-
+                      user?.receivables.map((receivable) => {
+                        let valueToRender = parseFloat(receivable.amount);
+                        let index = -1;
                       
-                      let index = -1;
-
-                      if(receivablesToGet.includes(receivable.id)){
-
-
-
-                        receivable.receivements.map((receivement) => {
-                        
-                          let keyValuePairs = receivement.split(', ');
-  
-                          let receivableObject = {};
-  
-                          for (let i = 0; i < keyValuePairs.length; i++) {
-                            let pair = keyValuePairs[i].split(':');
-                            let key = pair[0];
-                            let value = pair[1];
-                            receivableObject[key] = value;
-                          }
-  
-                          let amount = receivableObject['amount'];
-  
-                          console.log("Amount:", parseFloat(amount));
-                          valueToRender -= amount;
-  
-                          console.log(valueToRender)
-  
-                        })
-                        
-
-                        index += 1;
-
-                        if (valueToRender > 0) return (
-                        <>
-                          <TableRow key={receivable.id}>
-                            <TableCell>{receivable.description}</TableCell>
-                            <TableCell>R$ {valueToRender}</TableCell>
-                            <TableCell align="right">{receivable.dueDate}</TableCell>
-
-                            <TableCell align="right">
-                              {
-                                !choosePayMethod &&
-                                <button onClick={()=>{setReceivingItem(receivable); setChoosePayMethod(!choosePayMethod); }}>Receber</button>
-                              }
-
-                            </TableCell>
-        
-            
-
-                            </TableRow>
-
-                          </>
-
-                        )
-
-
-
-
-                      }
-
-                    })
+                        if (receivablesToGet.includes(receivable.id) && receivable.dueDate === new Date().toLocaleDateString()) {
+                          receivable.receivements.map((receivement) => {
+                            let keyValuePairs = receivement.split(', ');
+                      
+                            let receivableObject = {};
+                      
+                            for (let i = 0; i < keyValuePairs.length; i++) {
+                              let pair = keyValuePairs[i].split(':');
+                              let key = pair[0];
+                              let value = pair[1];
+                              receivableObject[key] = value;
+                            }
+                      
+                            let amount = receivableObject['amount'];
+                      
+                            valueToRender -= amount;
+                          });
+                      
+                          index += 1;
+                      
+                          if (valueToRender > 0)
+                            return (
+                              <>
+                                <TableRow key={receivable.id}>
+                                  <TableCell>R$ {valueToRender.toFixed(2)}</TableCell>
+                                  <TableCell align="left">{receivable.dueDate}</TableCell>
+                                  <TableCell align="left">
+                                    {!choosePayMethod && (
+                                      <button onClick={() => {setReceivingItem(receivable); setChoosePayMethod(!choosePayMethod); }}>Receber</button>
+                                    )}
+                                  </TableCell>
+                                </TableRow>
+                              </>
+                            );
+                        }
+                      })
                     )
                   }
 
@@ -562,10 +533,8 @@ const receiveValue = async (createData) => {
   
                           let amount = receivableObject['amount'];
   
-                          console.log("Amount:", parseFloat(amount));
                           valueToRender -= amount;
   
-                          console.log(valueToRender)
   
                         })
 
@@ -573,8 +542,7 @@ const receiveValue = async (createData) => {
                         return (
                           <>
                           <TableRow key={receivingItem.id}>
-                          <TableCell>{receivingItem.description}</TableCell>
-                          <TableCell>R$ {valueToRender}</TableCell>
+                          <TableCell>R$ {valueToRender.toFixed(2)}</TableCell>
                           <TableCell align="right">{receivingItem.dueDate}</TableCell>
 
                           <TableCell align="right">
@@ -655,9 +623,9 @@ const receiveValue = async (createData) => {
             {
               checkoutStep === 0 && (
                 <FormGroup sx={{margin:"40px 0"}}>
-                <FormControlLabel control={<Checkbox defaultChecked onChange={()=>{setGenerateReceivables(!generateReceivables)}}/>} label="Gerar Títulos A Receber" />
-                <FormControlLabel control={<Checkbox onChange={()=>{setGenerateReceivables(!generateReceivables)}} />} label="Gerar Ordem de Serviço" />
-                <FormControlLabel control={<Checkbox onChange={()=>{setGenerateDispatch(!generateDispatch)}}/>} label="Despacho por Transportadora" />
+                <FormControlLabel control={<Checkbox checked={generateReceivables} onChange={()=>{setGenerateReceivables(!generateReceivables)}}/>} label="Gerar Títulos A Receber" />
+                <FormControlLabel control={<Checkbox checked={generateOs} onChange={()=>{setGenerateOs(!generateOs)}} />} label="Gerar Ordem de Serviço" />
+                <FormControlLabel control={<Checkbox checked={generateDispatch} onChange={()=>{setGenerateDispatch(!generateDispatch)}}/>} label="Despacho por Transportadora" />
     
                 </FormGroup>
               )
@@ -689,21 +657,22 @@ const receiveValue = async (createData) => {
               checkoutStep === 2 && (
                 <Box>
                   {/* ... (outros elementos) */}
-                  <form onSubmit={handleSubmit(onFormSubmit)}>
+                  <form onSubmit={handleSubmit(onFormSubmit)} style={{height:"100%", overflow:"scroll", }}>
                   {Array.from({ length: parcelas }).map((_, index) => (
-                    <div style={{ display: "flex", flexDirection: "column" }}>
-                      <p>Parcela R$ {index + 1} : R$ {((thisSale?.itens.reduce((total, item) => {
+                    <div style={{ display: "flex", flexDirection:"row", backgroundColor:"lightgray", width:"25%" }}>
+                      <p>Parcela {index + 1} : R$ {((thisSale?.itens.reduce((total, item) => {
                         const precoComDesconto = item.produto.preco - item.disccount;
                         const subtotal = ((precoComDesconto * item.qty) - -dispatchValue);
                         return total + subtotal;
                       }, 0)) / parcelas).toFixed(2)}</p>
-                      <FormGroup sx={{ margin: "0 0" }} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px", flexWrap: "nowrap" }}>
+                      <FormGroup sx={{ margin: "0 0" }} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px", flexWrap: "nowrap", maxHeight:"80px" }}>
                         {/* Substituir os Checkbox por Select */}
 
                         <TextField
                           placeholder='01/01/2018'
                           label='Data Vencimento'
                           defaultValue={getDataAtualFormatada()}
+                          style={{margin:"10px 0"}}
                           value={dueDates[index]}
                           onChange={(e) => {
                             const newDueDates = [...dueDates];
@@ -720,6 +689,13 @@ const receiveValue = async (createData) => {
                 </Box>
               )
             }
+
+            {
+              checkoutStep !== 2 && checkoutStep !== 4 && !receivableMode && (
+              <Button sx={{bgcolor:"#1877F2", color:"white", margin:"0 10px"}} onClick={()=>{setCheckoutStep(checkoutStep - 1);}} >Voltar</Button>
+              )
+            }
+
             {
               checkoutStep !== 2 && checkoutStep !== 4 && !receivableMode && (
               <Button sx={{bgcolor:"green", color:"white"}} onClick={()=>{setCheckoutStep(checkoutStep + 1);}} >Continuar</Button>
