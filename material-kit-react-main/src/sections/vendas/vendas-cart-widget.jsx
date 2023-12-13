@@ -493,24 +493,31 @@ const receiveValue = async (createData) => {
 
                         index += 1;
 
-                        return (
+                        if (valueToRender > 0) return (
+                        <>
                           <TableRow key={receivable.id}>
-                          <TableCell>{receivable.description}</TableCell>
-                          <TableCell>R$ {valueToRender}</TableCell>
-                          <TableCell align="right">{receivable.dueDate}</TableCell>
+                            <TableCell>{receivable.description}</TableCell>
+                            <TableCell>R$ {valueToRender}</TableCell>
+                            <TableCell align="right">{receivable.dueDate}</TableCell>
 
-                          <TableCell align="right">
-                            {
-                              !choosePayMethod &&
-                              <button onClick={()=>{setReceivingItem(receivable); setChoosePayMethod(!choosePayMethod); }}>Receber</button>
-                            }
+                            <TableCell align="right">
+                              {
+                                !choosePayMethod &&
+                                <button onClick={()=>{setReceivingItem(receivable); setChoosePayMethod(!choosePayMethod); }}>Receber</button>
+                              }
 
-                          </TableCell>
-      
-          
-      
-                        </TableRow>
+                            </TableCell>
+        
+            
+
+                            </TableRow>
+
+                          </>
+
                         )
+
+
+
 
                       }
 
@@ -532,10 +539,42 @@ const receiveValue = async (createData) => {
                   {
                     receivingItem &&
 
-                      
+
+                    user?.receivables.map((receivable) => {
+
+
+                      if(receivable.id === receivingItem.id) {
+
+                        let valueToRender = parseFloat(receivable.amount);
+
+                        receivable.receivements.map((receivement) => {
+                        
+                          let keyValuePairs = receivement.split(', ');
+  
+                          let receivableObject = {};
+  
+                          for (let i = 0; i < keyValuePairs.length; i++) {
+                            let pair = keyValuePairs[i].split(':');
+                            let key = pair[0];
+                            let value = pair[1];
+                            receivableObject[key] = value;
+                          }
+  
+                          let amount = receivableObject['amount'];
+  
+                          console.log("Amount:", parseFloat(amount));
+                          valueToRender -= amount;
+  
+                          console.log(valueToRender)
+  
+                        })
+
+
+                        return (
+                          <>
                           <TableRow key={receivingItem.id}>
                           <TableCell>{receivingItem.description}</TableCell>
-                          <TableCell>R$ {receivingItem.amount}</TableCell>
+                          <TableCell>R$ {valueToRender}</TableCell>
                           <TableCell align="right">{receivingItem.dueDate}</TableCell>
 
                           <TableCell align="right">
@@ -571,6 +610,16 @@ const receiveValue = async (createData) => {
           
       
                         </TableRow>
+                                                    
+                        </>
+                        )
+                      }
+
+
+                    })
+
+                      
+
 
 
 
@@ -580,7 +629,7 @@ const receiveValue = async (createData) => {
 
 
 
-
+                  <button style={{backgroundColor:"green", color:"white", border:"none", borderRadius:"8px", padding:"10px", margin:"10px", cursor:"pointer"}} onClick={()=>{window.location.reload();}}>Concluir</button>
 
                   </TableBody>
 

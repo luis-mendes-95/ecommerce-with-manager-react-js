@@ -121,10 +121,10 @@ const onFormSubmit = (formData) => {
     <>
       <Stack spacing={3} style={{display:"flex", flexDirection:"row", alignItems:"center", justifyContent:"center", alignContent:"center", gap:"15px", flexWrap:"wrap"}}>
 
-      <TextField style={{width:"150px"}} autoComplete="given-name" {...register("createdAt")} name="createdAt" required fullWidth id="createdAt" label="Data de cadastro" autoFocus value={getDataAtualFormatada()}/>
-      <TextField style={{width:"150px", marginTop:"0"}} required fullWidth id="lastEditted" label="Última Edição" {...register("lastEditted")} name="lastEditted" autoComplete="family-name" value={getDataAtualFormatada()}/>
-      <TextField style={{width:"150px", marginTop:"0"}} required fullWidth id="changeMaker" label="Colaborador" {...register("changeMaker")} name="changeMaker" autoComplete="family-name" value={user_name}/>
-      <TextField style={{width:"150px", marginTop:"0"}} required fullWidth label="CPF" type="CPF" id="CPF" inputProps={{ maxLength: 14 }} onInput={(e) => { 
+      <TextField style={{width:"200px"}} autoComplete="given-name" {...register("createdAt")} name="createdAt" required fullWidth id="createdAt" label="Data de cadastro" autoFocus value={getDataAtualFormatada()}/>
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth id="lastEditted" label="Última Edição" {...register("lastEditted")} name="lastEditted" autoComplete="family-name" value={getDataAtualFormatada()}/>
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth id="changeMaker" label="Colaborador" {...register("changeMaker")} name="changeMaker" autoComplete="family-name" value={user_name}/>
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth label="CPF" type="CPF" id="CPF" inputProps={{ maxLength: 14 }} onInput={(e) => { 
         let value = e.target.value; value = value.replace(/\D/g, ""); // Remove tudo o que não for dígito
           value = value.replace(/(\d{3})(\d)/, "$1.$2"); // Coloca um ponto entre o terceiro e o quarto dígitos
           value = value.replace(/(\d{3})(\d)/, "$1.$2"); // Coloca um ponto entre o terceiro e o quarto dígitos de novo
@@ -145,23 +145,23 @@ const onFormSubmit = (formData) => {
           }}
           {...register("cnpj")}
       />
-      <TextField style={{width:"300px", marginTop:"0"}} required fullWidth {...register("nome_razao_social")} name="nome_razao_social" label="Nome / Razão Social" type="nome_razao_social" id="nome_razao_social" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }} />
-      <TextField style={{width:"300px", marginTop:"0"}} required fullWidth {...register("apelido_nome_fantasia")} name="apelido_nome_fantasia" label="Apelido / Nome Fantasia" type="apelido_nome_fantasia" id="apelido_nome_fantasia" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }} />
-      <TextField style={{width:"300px", marginTop:"0"}} required fullWidth {...register("tags")} name="tags" label="Tags (separe por vírgulas)" type="tags" id="tags" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
-      <TextField style={{width:"150px", marginTop:"0"}} required fullWidth {...register("inscricao_estadual")} name="inscricao_estadual" label="Inscrição Estadual" type="text" id="inscricao_estadual" inputProps={{ maxLength: 50 }} />
-      <TextField style={{width:"150px", marginTop:"0"}} required fullWidth {...register("inscricao_municipal")} name="inscricao_municipal" label="Inscrição Municipal" type="text" id="inscricao_municipal" inputProps={{ maxLength: 8 }} />
-      <TextField style={{width:"130px", marginTop:"0"}} required fullWidth {...register("cep")} name="cep" label="CEP" type="text" id="cep" inputProps={{ maxLength: 20 }} />
-      <TextField style={{width:"300px", marginTop:"0"}} required fullWidth {...register("rua")} name="rua" label="Rua" type="text" id="rua" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }} />
-      <TextField style={{width:"130px", marginTop:"0"}} required fullWidth {...register("numero")} name="numero" label="Nº" type="text" id="numero" inputProps={{ maxLength: 20 }} />
-      <TextField style={{width:"300px", marginTop:"0"}} required fullWidth {...register("complemento")} name="complemento" label="Complemento" type="text" id="complemento" inputProps={{ maxLength: 40 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}} />
-      <TextField style={{width:"180px", marginTop:"0"}} required fullWidth {...register("bairro")} name="bairro" label="Bairro" type="text" id="bairro" inputProps={{ maxLength: 40 }}onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}} />
-      <TextField style={{width:"180px", marginTop:"0"}} required fullWidth {...register("cidade")} name="cidade" label="Cidade" type="text" id="cidade" inputProps={{ maxLength: 40 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
-      <TextField style={{width:"80px", marginTop:"0"}} required fullWidth {...register("estado")} name="estado" label="Estado" type="text" id="estado" inputProps={{ maxLength: 40 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
-      <TextField style={{width:"180px", marginTop:"0"}} required fullWidth {...register("telefone")} name="telefone" label="Telefone" type="text" id="telefone" inputProps={{ maxLength: 40 }} />
-      <TextField style={{width:"180px", marginTop:"0"}} required fullWidth {...register("celular")} name="celular" label="Celular" type="text" id="celular" inputProps={{ maxLength: 40 }} />
-      <TextField style={{width:"300px", marginTop:"0"}} required fullWidth {...register("email")} name="email" label="E-mail" type="text" id="celular" inputProps={{ maxLength: 40 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
-      <TextField style={{width:"300px", marginTop:"0"}} required fullWidth {...register("site")} name="site" label="Site" type="text" id="site" inputProps={{ maxLength: 40 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
-      <TextField style={{width:"700px", marginTop:"0"}} required fullWidth {...register("descricao")} name="descricao" label="Descrição" type="text" id="descricao" inputProps={{ maxLength: 40 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("nome_razao_social")} name="nome_razao_social" label="Nome / Razão Social" type="nome_razao_social" id="nome_razao_social" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }} />
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("apelido_nome_fantasia")} name="apelido_nome_fantasia" label="Apelido / Nome Fantasia" type="apelido_nome_fantasia" id="apelido_nome_fantasia" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }} />
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("tags")} name="tags" label="Tags (separe por vírgulas)" type="tags" id="tags" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("inscricao_estadual")} name="inscricao_estadual" label="Inscrição Estadual" type="text" id="inscricao_estadual" inputProps={{ maxLength: 50 }} />
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("inscricao_municipal")} name="inscricao_municipal" label="Inscrição Municipal" type="text" id="inscricao_municipal" inputProps={{ maxLength: 8 }} />
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("cep")} name="cep" label="CEP" type="text" id="cep" inputProps={{ maxLength: 20 }} />
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("rua")} name="rua" label="Rua" type="text" id="rua" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }} />
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("numero")} name="numero" label="Nº" type="text" id="numero" inputProps={{ maxLength: 20 }} />
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("complemento")} name="complemento" label="Complemento" type="text" id="complemento" inputProps={{ maxLength: 40 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}} />
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("bairro")} name="bairro" label="Bairro" type="text" id="bairro" inputProps={{ maxLength: 40 }}onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}} />
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("cidade")} name="cidade" label="Cidade" type="text" id="cidade" inputProps={{ maxLength: 40 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("estado")} name="estado" label="Estado" type="text" id="estado" inputProps={{ maxLength: 40 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("telefone")} name="telefone" label="Telefone" type="text" id="telefone" inputProps={{ maxLength: 40 }} />
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("celular")} name="celular" label="Celular" type="text" id="celular" inputProps={{ maxLength: 40 }} />
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("email")} name="email" label="E-mail" type="text" id="celular" inputProps={{ maxLength: 40 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("site")} name="site" label="Site" type="text" id="site" inputProps={{ maxLength: 40 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
+      <TextField style={{width:"630px", marginTop:"0"}} required fullWidth {...register("descricao")} name="descricao" label="Descrição" type="text" id="descricao" inputProps={{ maxLength: 40 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
 
 
 

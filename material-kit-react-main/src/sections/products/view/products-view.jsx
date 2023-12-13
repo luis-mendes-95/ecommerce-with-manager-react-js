@@ -233,7 +233,7 @@ export default function ProductsView() {
       <ProductEditFormView product={product}/>
     }
 
-    <ProductCartWidget/>
+
     </Container>
   );
 }

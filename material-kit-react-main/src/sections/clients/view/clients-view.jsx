@@ -34,7 +34,7 @@ export default function ClientView() {
   const [selected, setSelected] = useState([]);
   const [orderBy, setOrderBy] = useState('name');
   const [filterName, setFilterName] = useState('');
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [regsSituation, setRegsSituation] = useState("active");
   const [showAdd, setShowAdd] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
@@ -270,7 +270,7 @@ export default function ClientView() {
           <TablePagination
             page={page}
             component="div"
-            count={users.length}
+            count={user?.clientes.length}
             rowsPerPage={rowsPerPage}
             onPageChange={handleChangePage}
             rowsPerPageOptions={[5, 10, 25]}

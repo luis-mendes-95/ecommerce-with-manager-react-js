@@ -6,7 +6,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import ProductCard from '../vendas-card';
 import ProductTableToolbar from '../vendas-table-toolbar';
-import { Box, Button, FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, Table, TableBody, TableContainer, TextField } from '@mui/material';
 import Iconify from 'src/components/iconify';
 import { ProductAddFormView } from '../vendaAddForm';
 import { ProductEditFormView } from '../vendaEditForm';
@@ -15,16 +15,183 @@ import ProductCartWidget from '../vendas-cart-widget';
 import { id } from 'date-fns/locale';
 import { ToastContainer, toast } from "react-toastify";
 import { Toastify } from 'toastify';
+import { useForm } from 'react-hook-form';
+import Scrollbar from 'src/components/scrollbar';
+import UserTableHead from 'src/sections/clients/clients-table-head';
+import { emptyRows, applyFilter, getComparator } from '../../clients/utils';
+import TableEmptyRows from 'src/sections/clients/table-empty-rows';
+import ClientTableRow from 'src/sections/clients/clients-table-row';
+import VendasTableRow from '../vendas-table-row';
+import ClientTableToolbar from 'src/sections/clients/client-table-toolbar';
+
+
+
+
+
+
+
+{/**FUNÇÃO QUE RETORNA A DATA ATUAL FORMATADA*/}
+function getDataAtualFormatada() {
+  var data = new Date();
+  var dia = data.getDate().toString().padStart(2, '0');
+  var mes = (data.getMonth() + 1).toString().padStart(2, '0'); // Adiciona 1 porque os meses começam do 0
+  var ano = data.getFullYear();
+  return dia + '/' + mes + '/' + ano;
+}
+
+
+
+
 
 
 export default function VendasView() {
 
-    /** GET USER BY REQUEST IN BACKEND AND TAKES TOKEN FROM LOCALSTORAGE*/
-    const [user, setUser] = useState(null);
+
+
+
+
+
+
+  
+
+
+
+      /**STATES FOR THIS COMPONENT */
+
+
+
+      /**RENDERED ENTITIES */
+      const [product, setProduct] = useState(null);
+      const [thisSale, setThisSale] = useState(null);
+      const [thisClient, setThisClient] = useState(null);
+      const [user, setUser] = useState(null);
+
+
+
+
+
+      /**FILTER STUFF STATES */
+      const [page, setPage] = useState(0);
+      const [filterName, setFilterName] = useState('');
+      const [regsSituation, setRegsSituation] = useState("active");
+      const [clientFilterName, setClientFilterName] = useState('');
+      const [filteredClients, setFilteredClients] = useState([]);
+      const [productFilterName, setProductFilterName] = useState('');
+      const [filteredProducts, setFilteredProducts] = useState([]);
+      const [showTypedClientResults, setShowTypedClientResults] = useState(false);
+      const [filtroAno, setFiltroAno] = useState('');
+      const [filtroMes, setFiltroMes] = useState('');
+      const [filtroDia, setFiltroDia] = useState('');
+
+
+
+
+      /**FILTER STUFF FUNCTIONS */
+      const handleChangeregsSituation = (event) => {    setRegsSituation(event.target.value);  };
+
+
+
+
+
+
+      /**FILTER STUFF VARIABLES */
+      const vendasFiltradas = user?.vendas
+        .map(row => ({
+          ...row,
+          createdAt: row.createdAt.split('/').reverse().join('-') // Change date format to "YYYY-MM-DD"
+        }))
+        .filter(row => {
+          const dataFormatada = row.createdAt.split('-').map(Number);
+          const anoMatch = filtroAno ? dataFormatada[0] === Number(filtroAno) : true;
+          const mesMatch = filtroMes ? dataFormatada[1] === Number(filtroMes) : true;
+          const diaMatch = filtroDia ? dataFormatada[2] === Number(filtroDia) : true;
+
+          return anoMatch && mesMatch && diaMatch;
+        })
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by createdAt in descending order
+
+
+
+
+
+
+      /**SHOWING EXTERNAL COMPONENTS STUFF */
+      const [showAdd, setShowAdd] = useState(false);
+      const [showEdit, setShowEdit] = useState(false);
+      const [showModalVenda, setShowModalVenda] = useState(false);
+      const [showCart, setShowCart] = useState(false);
+
+
+
+
+
+
+      /**FORM SUBMIT STUFF */
+      const url = "vendas"
+      const urlEdit = url + `/${thisSale?.id}`;
+      const [submitType, setSubmitType] = useState('createSale');
+      const { register, handleSubmit, reset, formState: { errors }  } = useForm({
+        // resolver: zodResolver(RegisterClientSchema),
+      });
+      const onFormSubmit = (formData) => {
+
+
+
+
+
+        if (submitType === "createSale") {
+
+          formData.createdAt = getDataAtualFormatada();
+          formData.lastEditted = getDataAtualFormatada();
+          formData.changeMaker = user_name;
+          formData.active = true;
+          formData.user_id = user_id;
+          formData.colaborador = user_name;
+          formData.client_id = thisClient?.id;
+
+
+          createVenda(formData);
+
+        } else if (submitType === "createItemSale") {
+
+          formData.description = formData.itemDescription;
+          delete formData.itemDescription;
+          formData.createdAt = getDataAtualFormatada();
+          formData.changeMaker = getDataAtualFormatada();
+          formData.lastEditted = getDataAtualFormatada();
+          formData.files = formData.files.split();
+          formData.venda_id = thisSale.id;
+          formData.client_id = thisClient.id;
+          formData.produto_id = product.id;
+
+
+          if (formData.disccount === "") {formData.disccount = "0"};
+
+
+
+          createItemVenda(formData);
+
+        }
+
+        
+
+        
+      };
+
+
+
+
+    /** LOCALSTORAGE STUFF*/
     const user_id = localStorage.getItem('tejas.app.user_id');
     const token = localStorage.getItem('tejas.app.token');
     const user_name = localStorage.getItem('tejas.app.user_name');
 
+
+
+
+
+
+    /**GET USER FROM BACKEND */
     const getUser = async () => {
       if (user_id){
         try {
@@ -35,6 +202,7 @@ export default function VendasView() {
           });
           if(response.data){
               setUser(response.data);
+              console.log(response.data)
           //se der erro setar botao logout
           }
         } catch (err) {
@@ -46,60 +214,34 @@ export default function VendasView() {
     }; 
     useEffect(() => {getUser();}, []); 
 
+
   
 
 
-    /**STATES FOR THIS COMPONENT */
-    const [openFilter, setOpenFilter] = useState(false);
-    const [showAdd, setShowAdd] = useState(false);
-    const [showEdit, setShowEdit] = useState(false);
-    const [product, setProduct] = useState(null);
-    const [thisSale, setThisSale] = useState(null);
-    const [thisClient, setThisClient] = useState(null);
-    const [filterName, setFilterName] = useState('');
-    const [selected, setSelected] = useState([]);
-    const [regsSituation, setRegsSituation] = useState("active");
-    const [filteredProducts, setFilteredProducts] = useState([]);
-    const [submitType, setSubmitType] = useState('createSale');
 
 
-    const filterProducts = (searchText) => {
-      if (!searchText) {
-        setFilteredProducts(user?.produtos || []);
-      } else {
-        const filtered = user?.produtos.filter(
-          (item) =>
-            item.nome.toLowerCase().includes(searchText.toLowerCase()) ||
-            item.cod.toLowerCase().includes(searchText.toLowerCase())
-        );
-        setFilteredProducts(filtered || []);
-      }
-    };
 
 
+
+    /**HANDLERS TO CHANGE STATES IN OUTSIDER COMPONENTS */
+    const handleSetShowCart = (bool) => {
+      setShowCart(bool);
+    }
+    const handleSetModalVenda = (bool) => {
+      setShowModalVenda(bool);
+    }
     const handleGetSale = (id) => {
       getSale(id)
     }
-
     const handleSetClient = (data) => {
       setThisClient(data);
     }
-
     const handleSetSubmitType = (string) => {
       setSubmitType(string);
     }
-    const urlItemVenda = "itemVendas";
+    const handleEditProduct = (id) => {    getProduct(id);  }
 
 
-    //SET FILTER NAME
-    const handleFilterByName = (event) => {
-      const searchText = event.target.value;
-      setFilterName(searchText);
-      filterProducts(searchText);
-    };
-
-
-    const handleChangeregsSituation = (event) => {    setRegsSituation(event.target.value);  };
 
 
 
@@ -122,10 +264,94 @@ export default function VendasView() {
   }; 
 
 
+  
 
 
-    /** GET SALE BY REQUEST IN BACKEND*/
-    const getSale = async (id) => {
+  /**FILTER CLIENTS TO SELECT WHILE TYPING */
+  const setFilteredClientsByTyping = (string) => {
+    if (string === "") { 
+      setFilteredClients(null);
+    } else {
+      const filteredClients = user?.clientes.filter((client) => {
+        return client.nome_razao_social.includes(string);
+      });
+      setFilteredClients(filteredClients);
+    }      
+  }
+
+
+
+
+  /**CREATE VENDA REQUEST IN BACKEND */
+  const createVenda = async (createData) => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.post(url, createData, config);
+      if (response.data) {
+        toast.success("Adicione produtos no carrinho!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+        handleSetModalVenda(false);
+        setTimeout(() => {
+          setShowCart(true);
+          setSubmitType("createItemSale");
+          handleGetSale(response.data.id);
+          reset();
+          getUser();
+        }, 1500);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao cadastrar venda!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+      setSubmitType("createItemSale")
+    }
+  };
+
+
+
+
+
+/**GET CLIENT REQUEST IN BACKEND */
+  const getClient = async (id) => {
+
+    try {
+      const response = await api.get(`/clientes/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if(response.data){
+          handleSetClient(response.data);
+      }
+    } catch (err) {
+      handleSetClient(null);
+    }
+
+}; 
+
+
+
+
+/** GET SALE BY REQUEST IN BACKEND*/
+const getSale = async (id) => {
       try {
         const response = await api.get(`/vendas/${id}`, {
           headers: {
@@ -139,7 +365,7 @@ export default function VendasView() {
         console.log(err);
         setThisSale(null);
       }
-  }; 
+}; 
 
 
 
@@ -170,14 +396,87 @@ export default function VendasView() {
 
 
 
-{/**  const handleOpenFilter = () => {    setOpenFilter(true);  };  const handleCloseFilter = () => {    setOpenFilter(false);  }; */}
 
 
-  const handleEditProduct = (id) => {    getProduct(id);  }
+
+
   
   return (
     <Container>
       <ToastContainer/>
+
+
+      
+    {/**ADD SALE MODAL */}
+      {
+        showModalVenda &&
+          <div style={{position:"absolute", top:"0", left:"0", zIndex: 9999, backgroundColor:"#F9FAFA", width:"100%", height:"100%", padding:"10px"}}>
+            <h3>Nova Venda:</h3>
+
+          {
+            !thisClient &&
+            <TextField fullWidth label="Digitar Cliente" id="client_id" inputProps={{ maxLength: 400 }} onInput={(e) => {e.target.value =  e.target.value.toUpperCase(); setShowTypedClientResults(true); setFilteredClientsByTyping(e.target.value)}} {...register("client_id")} />
+          }
+          
+
+          {
+            showTypedClientResults && !thisClient &&
+              filteredClients?.map((client)=>{
+                return (
+                  <p style={{cursor:"pointer", backgroundColor:"lightgray", padding:"5px", borderRadius:"8px"}} key={client.id} onClick={()=>{getClient(client.id)}}>{client.nome_razao_social}</p>
+                )
+              })
+          }
+
+
+
+          {
+            !showTypedClientResults && !thisClient &&
+              user?.clientes.map((client)=>{
+                return (
+                  <p style={{cursor:"pointer", backgroundColor:"lightgray", padding:"5px", borderRadius:"8px"}} key={client.id} onClick={()=>{getClient(client.id)}}>{client.nome_razao_social}</p>
+                )
+              })
+          }
+
+
+
+
+
+          {
+            thisClient &&
+            <div style={{width:"100%", display:"flex", flexWrap:"wrap",  justifyContent:"space-between"}}>
+                <label style={{fontWeight:"bold"}}>CLIENTE:</label>    
+                <button onClick={()=>{handleSetClient(null)}}>Trocar</button>     
+              <form onSubmit={(e) => { e.preventDefault(); handleSubmit(onFormSubmit)(e); }} style={{display:"flex", flexWrap:"wrap", justifyContent:"space-between", padding:'5px'}}>
+                
+                <div style={{width:"100%"}}>
+                <p style={{ padding:"5px", borderRadius:"8px"}} key={thisClient.id}>{thisClient.nome_razao_social}</p>
+                <TextField fullWidth label="Observações" id="description" inputProps={{ maxLength: 400 }} onInput={(e) => {e.target.value =  e.target.value.toUpperCase(); setShowTypedClientResults(true); setFilteredClientsByTyping(e.target.value)}} {...register("description")} />
+                </div>
+                <button type="submit" style={{backgroundColor:"green",  color:"white", textShadow:"2pt 2pt 5pt black", padding: "10px", border:"none", margin:"5px", borderRadius:"8px", cursor:"pointer"}}>Iniciar Venda</button>    
+                {/**AQUI É FEITA A CRIACAO DA VENDA E SETADA PARA RESPONSE.DATA, LIBERANDO OS BOTÕES PARA ADICIONAR CADA ITEM */}
+              </form>
+            </div>
+          
+           }
+
+
+
+
+
+
+          </div>
+      }
+
+
+
+
+
+
+
+
+
 
     {!showAdd && !showEdit &&
     <>
@@ -185,6 +484,9 @@ export default function VendasView() {
         <Typography variant="h4" sx={{ mb: 5 }}>
               Vendas
             </Typography>
+            <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{handleSetModalVenda(true)}}>
+            Nova Venda
+          </Button>
 
 {
   /**
@@ -197,7 +499,14 @@ export default function VendasView() {
 
 
       <Box sx={{display:"flex", flexWrap:"wrap", justifyContent:"flex-start", alignContent:"center", alignItems:"center", bgcolor:"white", borderRadius:"8px"}}>
-        <ProductTableToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
+        {
+          thisSale &&
+          <ProductTableToolbar filterName={productFilterName} />
+        }
+        {
+          !thisSale &&
+          <ClientTableToolbar filterName={filterName}  />
+        }
         <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
                       <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Situação</InputLabel>
                       <Select
@@ -213,6 +522,41 @@ export default function VendasView() {
                         <MenuItem value={"all"}>Todos</MenuItem>
                       </Select>
         </FormControl>
+        <FormControl style={{display:"flex", flexDirection:"row"}}>
+           <div>
+               <label>Ano:</label>
+               <select value={filtroAno} onChange={(e) => setFiltroAno(e.target.value)} style={{border:"none", margin:"10px", padding:"10px"}}>
+                 <option value="">Todos</option>
+                 <option value="2023">2023</option>
+                 <option value="2022">2022</option>
+               </select>
+             </div>
+             <div>
+               <label>Mês:</label>
+               <select value={filtroMes} onChange={(e) => setFiltroMes(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px"}}>
+                 <option value="">Todos</option>
+                 <option value="01">Janeiro</option>
+                 <option value="02">Fevereiro</option>
+                 <option value="03">Março</option>
+                 <option value="04">Abril</option>
+                 <option value="05">Maio</option>
+                 <option value="06">Junho</option>
+                 <option value="07">Julho</option>
+                 <option value="08">Agosto</option>
+                 <option value="09">Setembro</option>
+                 <option value="10">Outubro</option>
+                 <option value="11">Novembro</option>
+                 <option value="12">Dezembro</option>
+               </select>
+             </div>
+             <div>
+               <label>Dia:</label>
+               <select value={filtroDia} onChange={(e) => setFiltroDia(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px"}}>
+                 <option value="">Todos</option>
+                 {Array.from({ length: 31 }, (_, index) => <option key={index + 1} value={`${index + 1 < 10 ? '0' : ''}${index + 1}`}>{index + 1}</option>)}
+               </select>
+             </div>
+        </FormControl>
       </Box>
 
       <Stack direction="row" alignItems="center" flexWrap="wrap-reverse" justifyContent="flex-end" sx={{ mb: 5 }} >
@@ -223,75 +567,173 @@ export default function VendasView() {
         </Stack>
       </Stack>
 
-      <Grid container spacing={3}>
-      {filteredProducts?.map((product) => (
-          regsSituation === "all" &&
-          <Grid key={product.id} xs={12} sm={6} md={3} >
-            <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient}/>
-            
-          </Grid>
-        ))}
 
-        {filteredProducts?.map((product) => (
-          regsSituation === "active" && product.active &&
-          <Grid key={product.id} xs={12} sm={6} md={3} >
-            <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient}/>
-          </Grid>
-        ))}
-        
-        {filteredProducts?.map((product) => (
-          regsSituation === "inactive" && product.active === false &&
-          <Grid key={product.id} xs={12} sm={6} md={3} >
-            <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient}/>
-          </Grid>
-        ))
-        }
 
-        {
-          filteredProducts.length === 0 &&
+
+
+
+      {/**GRID WITH PRODUCTS TO CHOOSE TO ADD IN SALE */}
+      {
+        thisSale &&
+        <Grid container spacing={3}>
+        {filteredProducts?.map((product) => (
             regsSituation === "all" &&
-              user?.produtos.map((product) => (
-                <Grid key={product.id} xs={12} sm={6} md={3} >
-                <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient}/>
-              </Grid>
-              ))
-        }
-
-        {
-          filteredProducts.length === 0 &&
-            regsSituation === "active" &&
-              user?.produtos.map((product) => (
-                product.active &&
+            <Grid key={product.id} xs={12} sm={6} md={3} >
+              <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart}/>
+  
+            </Grid>
+          ))}
+  
+          {filteredProducts?.map((product) => (
+            regsSituation === "active" && product.active &&
+            <Grid key={product.id} xs={12} sm={6} md={3} >
+              <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart}/>
+            </Grid>
+          ))}
+          
+          {filteredProducts?.map((product) => (
+            regsSituation === "inactive" && product.active === false &&
+            <Grid key={product.id} xs={12} sm={6} md={3} >
+              <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart}/>
+            </Grid>
+          ))
+          }
+  
+          {
+            filteredProducts.length === 0 &&
+              regsSituation === "all" &&
+                user?.produtos.map((product) => (
                   <Grid key={product.id} xs={12} sm={6} md={3} >
-                    <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient}/>
-                  </Grid>
-              ))
-        }
+                  <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart}/>
+                </Grid>
+                ))
+          }
+  
+          {
+            filteredProducts.length === 0 &&
+              regsSituation === "active" &&
+                user?.produtos.map((product) => (
+                  product.active &&
+                    <Grid key={product.id} xs={12} sm={6} md={3} >
+                      <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart}/>
+                    </Grid>
+                ))
+          }
+  
+          {
+            filteredProducts.length === 0 &&
+              regsSituation === "inactive" &&
+                user?.produtos.map((product) => (
+                  product.active  === false &&
+                    <Grid key={product.id} xs={12} sm={6} md={3} >
+                      <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart}/>
+                    </Grid>
+                ))
+          }
+  
+        </Grid>
+      }
 
-        {
-          filteredProducts.length === 0 &&
-            regsSituation === "inactive" &&
-              user?.produtos.map((product) => (
-                product.active  === false &&
-                  <Grid key={product.id} xs={12} sm={6} md={3} >
-                    <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient}/>
-                  </Grid>
-              ))
-        }
 
-      </Grid>
+      {
+        !thisSale &&
+        <Scrollbar>
+        <TableContainer sx={{ overflow: 'unset' }}>
+          <Table sx={{ minWidth: 800 }}>
+
+
+            <UserTableHead rowCount={user?.clientes.length} 
+              headLabel={[
+                { id: 'data', label: 'Data' },
+                { id: 'nome_razao_social', label: 'Nome / Razão Social' },
+                { id: 'total', label: 'Total' },
+              ]}
+            />
+
+
+            <TableBody>
+              {vendasFiltradas?.map(row => ({
+                ...row,
+                createdAt: row.createdAt.split('/').reverse().join('-') // Change date format to "YYYY-MM-DD"
+              }))
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort by createdAt in descending order
+              .map((row) => {
+                const formattedDate = row.createdAt.split('-').reverse().join('/'); // Change date format back to "DD/MM/YYYY"
+
+                if (regsSituation === "all") {
+                  const total = row.itens.reduce((acc, item) => {
+                    const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
+                    const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
+                    const itemTotal = preco * qty;
+                    return acc + itemTotal;
+                  }, 0);
+
+                  return (
+                    <VendasTableRow
+                      key={row.id}
+                      id={row.id}
+                      data={formattedDate} // Use the formatted date
+                      nome_razao_social={row.client.nome_razao_social}
+                      total={`R$ ${total.toFixed(2)}`}
+                      selected={selected.indexOf(row.name) !== -1}
+                      handleClick={() => handleClick(row.id)}
+                    />
+                  );
+                } else if (regsSituation === "inactive" && row.active === false) {
+                  const total = row.itens.reduce((acc, item) => {
+                    const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
+                    const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
+                    const itemTotal = preco * qty;
+                    return acc + itemTotal;
+                  }, 0);
+
+                  return (
+                    <VendasTableRow
+                      key={row.id}
+                      nome_razao_social={row.nome_razao_social}
+                      total={`R$ ${total.toFixed(2)}`}
+                      selected={selected.indexOf(row.name) !== -1}
+                      handleClick={() => handleClick(row.id)}
+                    />
+                  );
+                } else if (regsSituation === "active" && row.active === true) {
+                  const total = row.itens.reduce((acc, item) => {
+                    const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
+                    const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
+                    const itemTotal = preco * qty;
+                    return acc + itemTotal;
+                  }, 0);
+
+                  return (
+                    <VendasTableRow
+                      key={row.id}
+                      data={formattedDate} // Use the formatted date
+                      nome_razao_social={row.client.nome_razao_social}
+                      total={`R$ ${total.toFixed(2)}`}
+                      handleClick={() => handleClick(row.id)}
+                    />
+                  );
+                }
+              })}
+
+
+              <TableEmptyRows
+                height={77}
+                emptyRows={emptyRows(page, user?.clientes.length)}
+              />
+
+              {/**              {notFound && <TableNoData query={filterName} />} */}
+            </TableBody>
+
+
+          </Table>
+        </TableContainer>
+      </Scrollbar>
+      }
+
     </>    
     }
 
-    {
-      showAdd &&
-      <ProductAddFormView/>
-    }
-
-    {
-      showEdit &&
-      <ProductEditFormView product={product}/>
-    }
 
     <ProductCartWidget thisSale={thisSale} deleteItemVenda={deleteItemVenda}/>
     </Container>

@@ -143,19 +143,19 @@ const onFormSubmit = (formData) => {
     <>
       <Stack spacing={3} style={{display:"flex", flexDirection:"row", alignItems:"center", justifyContent:"center", alignContent:"center", gap:"15px", flexWrap:"wrap"}}>
 
-      <TextField style={{width:"150px"}} autoComplete="given-name" {...register("createdAt")} name="createdAt" required fullWidth id="createdAt" label="Data de cadastro" autoFocus value={getDataAtualFormatada()}/>
-      <TextField style={{width:"150px", marginTop:"0"}} required fullWidth id="lastEditted" label="Última Edição" {...register("lastEditted")} name="lastEditted" autoComplete="family-name" value={getDataAtualFormatada()}/>
-      <TextField style={{width:"150px", marginTop:"0"}} required fullWidth id="changeMaker" label="Colaborador" {...register("changeMaker")} name="changeMaker" autoComplete="family-name" value={user_name}/>
-      <TextField style={{width:"100px", marginTop:"0"}} required fullWidth {...register("cod")} name="cod" label="Código" type="cod" id="cod" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }} />
+      <TextField style={{width:"200px"}} autoComplete="given-name" {...register("createdAt")} name="createdAt" required fullWidth id="createdAt" label="Data de cadastro" autoFocus value={getDataAtualFormatada()}/>
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth id="lastEditted" label="Última Edição" {...register("lastEditted")} name="lastEditted" autoComplete="family-name" value={getDataAtualFormatada()}/>
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth id="changeMaker" label="Colaborador" {...register("changeMaker")} name="changeMaker" autoComplete="family-name" value={user_name}/>
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("cod")} name="cod" label="Código" type="cod" id="cod" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }} />
       <TextField style={{width:"200px", marginTop:"0"}} required fullWidth label="Categoria" type="categoria" id="categoria" onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }} inputProps={{ maxLength: 18 }}{...register("categoria")}/>
       <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("marca")} label="Marca" type="marca" id="marca" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }} />
       <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("modelo")} label="Modelo" type="modelo" id="modelo"inputProps={{ maxLength: 80 }}onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }} />
-      <TextField style={{width:"650px", marginTop:"0"}} required fullWidth {...register("nome")} label="Nome" type="nome" id="nome" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
-      <TextField style={{width:"650px", marginTop:"0"}} required fullWidth {...register("descricao")} label="Descrição" type="descricao" id="descricao" inputProps={{ maxLength: 8000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
-      <TextField style={{width:"300px", marginTop:"0"}} required fullWidth {...register("imagem_principal")} label="Imagem de Capa" type="imagem_principal" id="imagem_principal" />
-      <TextField style={{width:"300px", marginTop:"0"}} required fullWidth {...register("imagens")} label="Imagens (por , )" type="imagens" id="imagens" />
-      <TextField style={{width:"300px", marginTop:"0"}} required fullWidth {...register("custo")} label="Custo" type="custo" id="custo" inputProps={{ maxLength: 80 }} />
-      <TextField style={{width:"300px", marginTop:"0"}} required fullWidth {...register("preco")} label="Preço" type="preco" id="preco" inputProps={{ maxLength: 20 }} />
+      <TextField style={{width:"415px", marginTop:"0"}} required fullWidth {...register("nome")} label="Nome" type="nome" id="nome" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
+      <TextField style={{width:"415px", marginTop:"0"}} required fullWidth {...register("descricao")} label="Descrição" type="descricao" id="descricao" inputProps={{ maxLength: 8000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("imagem_principal")} label="Imagem de Capa" type="imagem_principal" id="imagem_principal" />
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("imagens")} label="Imagens (por , )" type="imagens" id="imagens" />
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("custo")} label="Custo" type="custo" id="custo" inputProps={{ maxLength: 80 }} />
+      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("preco")} label="Preço" type="preco" id="preco" inputProps={{ maxLength: 20 }} />
 
 
 
