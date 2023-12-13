@@ -6,7 +6,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import ProductCard from '../vendas-card';
 import ProductTableToolbar from '../vendas-table-toolbar';
-import { Box, Button, FormControl, InputLabel, MenuItem, Select, Table, TableBody, TableContainer, TextField } from '@mui/material';
+import { Box, Button, FormControl, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, Table, TableBody, TableContainer, TextField } from '@mui/material';
 import Iconify from 'src/components/iconify';
 import { ProductAddFormView } from '../vendaAddForm';
 import { ProductEditFormView } from '../vendaEditForm';
@@ -73,6 +73,7 @@ export default function VendasView() {
       /**FILTER STUFF STATES */
       const [page, setPage] = useState(0);
       const [filterName, setFilterName] = useState('');
+      const [filtroNomeCliente, setFiltroNomeCliente] = useState('');
       const [regsSituation, setRegsSituation] = useState("active");
       const [clientFilterName, setClientFilterName] = useState('');
       const [filteredClients, setFilteredClients] = useState([]);
@@ -96,19 +97,22 @@ export default function VendasView() {
 
       /**FILTER STUFF VARIABLES */
       const vendasFiltradas = user?.vendas
-        .map(row => ({
-          ...row,
-          createdAt: row.createdAt.split('/').reverse().join('-') // Change date format to "YYYY-MM-DD"
-        }))
-        .filter(row => {
-          const dataFormatada = row.createdAt.split('-').map(Number);
-          const anoMatch = filtroAno ? dataFormatada[0] === Number(filtroAno) : true;
-          const mesMatch = filtroMes ? dataFormatada[1] === Number(filtroMes) : true;
-          const diaMatch = filtroDia ? dataFormatada[2] === Number(filtroDia) : true;
-
-          return anoMatch && mesMatch && diaMatch;
-        })
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Sort by createdAt in descending order
+      .map(row => ({
+        ...row,
+        createdAt: row.createdAt.split('/').reverse().join('-') // Change date format to "YYYY-MM-DD"
+      }))
+      .filter(row => {
+        const dataFormatada = row.createdAt.split('-').map(Number);
+        const anoMatch = filtroAno ? dataFormatada[0] === Number(filtroAno) : true;
+        const mesMatch = filtroMes ? dataFormatada[1] === Number(filtroMes) : true;
+        const diaMatch = filtroDia ? dataFormatada[2] === Number(filtroDia) : true;
+        const nomeMatch = filtroNomeCliente
+          ? row.client.nome_razao_social.toLowerCase().includes(filtroNomeCliente.toLowerCase())
+          : true;
+    
+        return anoMatch && mesMatch && diaMatch && nomeMatch;
+      })
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
 
 
@@ -445,19 +449,78 @@ const getSale = async (id) => {
 
           {
             thisClient &&
-            <div style={{width:"100%", display:"flex", flexWrap:"wrap",  justifyContent:"space-between"}}>
-                <label style={{fontWeight:"bold"}}>CLIENTE:</label>    
-                <button onClick={()=>{handleSetClient(null)}}>Trocar</button>     
-              <form onSubmit={(e) => { e.preventDefault(); handleSubmit(onFormSubmit)(e); }} style={{display:"flex", flexWrap:"wrap", justifyContent:"space-between", padding:'5px'}}>
-                
-                <div style={{width:"100%"}}>
-                <p style={{ padding:"5px", borderRadius:"8px"}} key={thisClient.id}>{thisClient.nome_razao_social}</p>
-                <TextField fullWidth label="Observações" id="description" inputProps={{ maxLength: 400 }} onInput={(e) => {e.target.value =  e.target.value.toUpperCase(); setShowTypedClientResults(true); setFilteredClientsByTyping(e.target.value)}} {...register("description")} />
-                </div>
-                <button type="submit" style={{backgroundColor:"green",  color:"white", textShadow:"2pt 2pt 5pt black", padding: "10px", border:"none", margin:"5px", borderRadius:"8px", cursor:"pointer"}}>Iniciar Venda</button>    
-                {/**AQUI É FEITA A CRIACAO DA VENDA E SETADA PARA RESPONSE.DATA, LIBERANDO OS BOTÕES PARA ADICIONAR CADA ITEM */}
-              </form>
-            </div>
+              <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <button
+                  onClick={() => window.location.reload()}
+                  style={{
+                    alignSelf: "flex-end",
+                    background: "none",
+                    border: "none",
+                    fontSize: "1.5em",
+                    cursor: "pointer",
+                    color: "#555",
+                    padding: "5px",
+                    marginRight: "10px",
+                  }}
+                >
+                  &#x2715;
+                </button>
+                <label style={{ fontWeight: "bold", marginBottom: "10px", fontSize: "1.2em" }}>Cliente:</label>
+                <button
+                  style={{
+                    maxWidth: "200px",
+                    padding: "8px",
+                    backgroundColor: "#3498db",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "5px",
+                    cursor: "pointer",
+                    marginBottom: "20px",
+                    fontSize: "1em",
+                  }}
+                  onClick={() => { handleSetClient(null) }}
+                >
+                  Trocar
+                </button>
+                <form
+                  onSubmit={(e) => { e.preventDefault(); handleSubmit(onFormSubmit)(e); }}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ width: "100%", marginBottom: "20px" }}>
+                    <p style={{ padding: "10px", borderRadius: "8px", backgroundColor: "#ecf0f1" }} key={thisClient.id}>
+                      {thisClient.nome_razao_social}
+                    </p>
+                    <TextField
+                      fullWidth
+                      label="Observações"
+                      id="description"
+                      inputProps={{ maxLength: 400 }}
+                      onInput={(e) => { e.target.value = e.target.value.toUpperCase(); setShowTypedClientResults(true); setFilteredClientsByTyping(e.target.value) }}
+                      {...register("description")}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    style={{
+                      backgroundColor: "#2ecc71",
+                      color: "white",
+                      textShadow: "2pt 2pt 5pt black",
+                      padding: "10px",
+                      border: "none",
+                      borderRadius: "8px",
+                      cursor: "pointer",
+                      fontSize: "1.2em",
+                    }}
+                  >
+                    Iniciar Venda
+                  </button>
+                </form>
+              </div>
+
           
            }
 
@@ -498,16 +561,28 @@ const getSale = async (id) => {
       </Box>
 
 
-      <Box sx={{display:"flex", flexWrap:"wrap", justifyContent:"flex-start", alignContent:"center", alignItems:"center", bgcolor:"white", borderRadius:"8px"}}>
+      <Box sx={{display:"flex", flexWrap:"wrap", justifyContent:"center", alignContent:"center", alignItems:"center", bgcolor:"white", borderRadius:"8px"}}>
         {
           thisSale &&
           <ProductTableToolbar filterName={productFilterName} />
         }
         {
           !thisSale &&
-          <ClientTableToolbar filterName={filterName}  />
-        }
-        <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
+          <>
+            <OutlinedInput
+              value={filtroNomeCliente}
+              onChange={(e) => setFiltroNomeCliente(e.target.value)}
+              placeholder="Procurar cliente..."
+              startAdornment={
+                <InputAdornment position="start">
+                  <Iconify
+                    icon="eva:search-fill"
+                    sx={{ color: 'text.disabled', width: 20, height: 20 }}
+                  />
+                </InputAdornment>
+              }
+            />
+          <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
                       <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Situação</InputLabel>
                       <Select
                         style={{minWidth: "200px"}}
@@ -522,18 +597,17 @@ const getSale = async (id) => {
                         <MenuItem value={"all"}>Todos</MenuItem>
                       </Select>
         </FormControl>
-        <FormControl style={{display:"flex", flexDirection:"row"}}>
-           <div>
-               <label>Ano:</label>
-               <select value={filtroAno} onChange={(e) => setFiltroAno(e.target.value)} style={{border:"none", margin:"10px", padding:"10px"}}>
+        <FormControl style={{display:"flex", flexDirection:"column"}}>
+             <div>
+               <label>Dia:</label>
+               <select value={filtroDia} onChange={(e) => setFiltroDia(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}} >
                  <option value="">Todos</option>
-                 <option value="2023">2023</option>
-                 <option value="2022">2022</option>
+                 {Array.from({ length: 31 }, (_, index) => <option key={index + 1} value={`${index + 1 < 10 ? '0' : ''}${index + 1}`}>{index + 1}</option>)}
                </select>
              </div>
              <div>
                <label>Mês:</label>
-               <select value={filtroMes} onChange={(e) => setFiltroMes(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px"}}>
+               <select value={filtroMes} onChange={(e) => setFiltroMes(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}}>
                  <option value="">Todos</option>
                  <option value="01">Janeiro</option>
                  <option value="02">Fevereiro</option>
@@ -550,13 +624,18 @@ const getSale = async (id) => {
                </select>
              </div>
              <div>
-               <label>Dia:</label>
-               <select value={filtroDia} onChange={(e) => setFiltroDia(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px"}}>
+               <label>Ano:</label>
+               <select value={filtroAno} onChange={(e) => setFiltroAno(e.target.value)} style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}}>
                  <option value="">Todos</option>
-                 {Array.from({ length: 31 }, (_, index) => <option key={index + 1} value={`${index + 1 < 10 ? '0' : ''}${index + 1}`}>{index + 1}</option>)}
+                 <option value="2023">2023</option>
+                 <option value="2022">2022</option>
                </select>
              </div>
+
         </FormControl>
+        </>
+        }
+
       </Box>
 
       <Stack direction="row" alignItems="center" flexWrap="wrap-reverse" justifyContent="flex-end" sx={{ mb: 5 }} >
@@ -675,7 +754,6 @@ const getSale = async (id) => {
                       data={formattedDate} // Use the formatted date
                       nome_razao_social={row.client.nome_razao_social}
                       total={`R$ ${total.toFixed(2)}`}
-                      selected={selected.indexOf(row.name) !== -1}
                       handleClick={() => handleClick(row.id)}
                     />
                   );
