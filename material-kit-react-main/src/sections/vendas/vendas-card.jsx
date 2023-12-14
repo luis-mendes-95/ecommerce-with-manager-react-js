@@ -23,6 +23,7 @@ import api from 'src/services/api';
 import { ToastContainer, toast } from "react-toastify";
 import { Toastify } from 'toastify';
 import "react-toastify/dist/ReactToastify.css";
+import { create } from 'lodash';
 
   /**LOCALSTORAGE DATA TO HAVE PERMISSION */
   const user_id = localStorage.getItem('tejas.app.user_id');
@@ -41,7 +42,7 @@ function getDataAtualFormatada() {
 }
 
 
-export default function ShopProductCard({ product, handleEditProduct, handleGetSale, thisSale, thisOs, submitType, setSubmitType, thisClient, handleSetClient, handleSetModalVenda, showModalVenda, handleSetShowCart }) {
+export default function ShopProductCard({ product, handleEditProduct, handleGetSale, thisSale, thisOs, submitType, setSubmitType, thisClient, handleSetClient, handleSetModalVenda, showModalVenda, handleSetShowCart, generateOs }) {
 
 
 
@@ -89,29 +90,113 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
   }; 
 
 
+  const createFiles = async (createData) => {
+
+    let filesToAdd = createData.files;
+    delete createData.files;
+
+    createData.active = true;
+    createData.filename = product.nome + "-" + thisClient.nome_razao_social + "-FILE-COMPONENT";
+    createData.filetype = "PDF";
+    createData.filesize = "15.26mb";
+    createData.link = "https://cloudinary.com";
+    createData.user_id = user_id;
+
+
+    for(let i = 0; i < filesToAdd.length; i ++) {
+
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = await api.post("files", createData, config);
+        if (response.data) {
   
+          toast.success("Arquivo adicionado com sucesso!", {
+            position: "bottom-right", 
+            autoClose: 3000, 
+            hideProgressBar: false, 
+            closeOnClick: true, 
+            pauseOnHover: true, 
+            draggable: true, 
+            progress: undefined, 
+          });
+          setTimeout(() => {
+            handleSetShowCart(true);
+            getUser();
+            reset();
+            handleGetSale(response.data.venda_id);
+          }, 1500);
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Erro ao adicionar arquivo!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+      } 
+      
+    }
+
+
+
+
+
+
+
+
+
+
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
   const createItemOs = async (createData) => {
 
-    console.log("criando item caraiiii")
+
     createData.descricao = createData.description;
     delete createData.description;
     createData.qtd = createData.qty;
     delete createData.qty;
     createData.tipo_arte = "Arte Nova";
+    createData.status = "Aguardando Arte";
     createData.colaborador = user_name;
     createData.os_id = thisOs.id;
     createData.produto_id = product.id;
-    console.log(createData)
-    /**    try {
+
+   try {
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await api.post(urlItemVenda, createData, config);
+      const response = await api.post("itemOs", createData, config);
       if (response.data) {
-        createOs(createData)
-        toast.success("Item adicionado ao carrinho!", {
+        createData.itemOs_id = response.data.id;
+        createData.files = createData.files[0].split(",")
+        if(createData.files[0] !== "") {
+          createFiles(createData)
+        }
+
+        toast.success("Item adicionado à Ordem de Serviço!", {
           position: "bottom-right", 
           autoClose: 3000, 
           hideProgressBar: false, 
@@ -129,7 +214,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
       }
     } catch (err) {
       console.error(err);
-      toast.error("Erro ao adicionar ao carrinho!", {
+      toast.error("Erro ao adicionar item na Ordem de Serviço!", {
         position: "bottom-right", 
         autoClose: 3000, 
         hideProgressBar: false, 
@@ -138,15 +223,21 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
         draggable: true, 
         progress: undefined, 
       });
-    } */
+    } 
   };
 
 
 
 
 
-  
+
+
+
+
+
   const createItemVenda = async (createData) => {
+
+
     try {
       const config = {
         headers: {
@@ -156,6 +247,17 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
       const response = await api.post(urlItemVenda, createData, config);
       if (response.data) {
         createItemOs(createData)
+
+
+
+
+
+
+
+
+
+
+
         toast.success("Item adicionado ao carrinho!", {
           position: "bottom-right", 
           autoClose: 3000, 
@@ -185,6 +287,16 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
       });
     }
   };
+
+
+
+
+
+
+
+
+
+
   const deleteVenda = async () => {
 
     console.log(thisItemId)
@@ -248,12 +360,19 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
     } else if (submitType === "createItemSale") {
 
-      formData.description = formData.itemDescription;
-      delete formData.itemDescription;
+
       formData.createdAt = getDataAtualFormatada();
       formData.changeMaker = getDataAtualFormatada();
       formData.lastEditted = getDataAtualFormatada();
-      formData.files = formData.files.split();
+      if (formData.files) {
+        formData.description = formData.itemDescription;
+        delete formData.itemDescription;
+        formData.files = formData.files.split();
+      } else {
+        formData.files = [];
+        formData.description = "";
+      }
+      
       formData.venda_id = thisSale.id;
       formData.client_id = thisClient.id;
       formData.produto_id = product.id;
@@ -358,8 +477,13 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
               <div>
               <TextField style={{width:"100%", marginTop:"8px"}} required fullWidth {...register("qty")} label="Quantidade" id="qty" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
               <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("disccount")} label="Desconto unitário" id="disccount" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
-              <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("itemDescription")} label="Instruções" id="description" inputProps={{ maxLength: 4000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
-              <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("files")} label="Anexar Arquivos" id="files" inputProps={{ maxLength: 4000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
+              {
+                generateOs &&
+                <>
+                  <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("itemDescription")} label="Instruções" id="description" inputProps={{ maxLength: 4000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
+                  <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("files")} label="Anexar Arquivos" id="files" inputProps={{ maxLength: 4000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
+                </>
+              }
               <button type="submit" style={{backgroundColor:"green", color:"white", border:"none", width:"100%", margin:"15px 0 0 0", padding:"5px 0", fontSize:"30px", borderRadius:"8px", cursor:"pointer"}}>
               +
         </button>
