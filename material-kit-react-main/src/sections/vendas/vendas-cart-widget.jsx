@@ -82,6 +82,7 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
 
 
 
+  let newArrayDueDates = []
 
 
 
@@ -225,10 +226,14 @@ const receiveValue = async (createData) => {
 
     if(!receivableMode) {
 
-      setDueDates(Array(parcelas).fill(dueDates[0]));
-      console.log(dueDates);
+
+
+      for (let i = 0; i < parcelas; i++) {
+        let currentDueDate = getDataAtualFormatada();
+        newArrayDueDates.push(currentDueDate);
+      }
       
-      dueDates.forEach((item, index)=>{
+      newArrayDueDates.forEach((item, index)=>{
 
       formData.createdAt = getDataAtualFormatada();
       formData.lastEditted = getDataAtualFormatada();

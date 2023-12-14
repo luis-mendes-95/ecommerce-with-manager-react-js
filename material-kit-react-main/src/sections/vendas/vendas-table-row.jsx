@@ -24,7 +24,7 @@ export default function VendasTableRow({
   nome_razao_social,
   total,
   selected,
-  handleClick,
+  handleSaleToEdit
 }) {
 
   const [open, setOpen] = useState(null);
@@ -40,7 +40,7 @@ export default function VendasTableRow({
 
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected} sx={{cursor:"pointer"}} onClick={()=>{handleClick(id)}}>
+      <TableRow hover tabIndex={-1} role="checkbox" selected={selected} sx={{cursor:"pointer"}} onClick={()=>{handleSaleToEdit(id);}}>
      
         <TableCell>{data}</TableCell>
 

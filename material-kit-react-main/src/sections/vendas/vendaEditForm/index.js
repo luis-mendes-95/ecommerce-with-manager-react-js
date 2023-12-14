@@ -1,1 +1,1 @@
-export { default as ProductEditFormView } from './product-edit-form-view';
+export { default as VendaEditFormView } from './venda-edit-form-view';

@@ -8,24 +8,16 @@ import ProductCard from '../vendas-card';
 import ProductTableToolbar from '../vendas-table-toolbar';
 import { Box, Button, FormControl, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, Table, TableBody, TableContainer, TextField } from '@mui/material';
 import Iconify from 'src/components/iconify';
-import { ProductAddFormView } from '../vendaAddForm';
-import { ProductEditFormView } from '../vendaEditForm';
 import api from 'src/services/api';
 import ProductCartWidget from '../vendas-cart-widget';
-import { id } from 'date-fns/locale';
 import { ToastContainer, toast } from "react-toastify";
-import { Toastify } from 'toastify';
 import { useForm } from 'react-hook-form';
 import Scrollbar from 'src/components/scrollbar';
 import UserTableHead from 'src/sections/clients/clients-table-head';
-import { emptyRows, applyFilter, getComparator } from '../../clients/utils';
+import { emptyRows } from '../../clients/utils';
 import TableEmptyRows from 'src/sections/clients/table-empty-rows';
-import ClientTableRow from 'src/sections/clients/clients-table-row';
 import VendasTableRow from '../vendas-table-row';
-import ClientTableToolbar from 'src/sections/clients/client-table-toolbar';
-
-
-
+import { VendaEditFormView } from '../vendaEditForm';
 
 
 
@@ -41,19 +33,7 @@ function getDataAtualFormatada() {
 
 
 
-
-
-
 export default function VendasView() {
-
-
-
-
-
-
-
-  
-
 
 
       /**STATES FOR THIS COMPONENT */
@@ -63,10 +43,9 @@ export default function VendasView() {
       /**RENDERED ENTITIES */
       const [product, setProduct] = useState(null);
       const [thisSale, setThisSale] = useState(null);
+      const [saleToEdit, setSaleToEdit] = useState(null);
       const [thisClient, setThisClient] = useState(null);
       const [user, setUser] = useState(null);
-
-
 
 
 
@@ -92,9 +71,6 @@ export default function VendasView() {
 
 
 
-
-
-
       /**FILTER STUFF VARIABLES */
       const vendasFiltradas = user?.vendas
       .map(row => ({
@@ -117,15 +93,11 @@ export default function VendasView() {
 
 
 
-
-
       /**SHOWING EXTERNAL COMPONENTS STUFF */
       const [showAdd, setShowAdd] = useState(false);
       const [showEdit, setShowEdit] = useState(false);
       const [showModalVenda, setShowModalVenda] = useState(false);
       const [showCart, setShowCart] = useState(false);
-
-
 
 
 
@@ -183,15 +155,10 @@ export default function VendasView() {
       };
 
 
-
-
     /** LOCALSTORAGE STUFF*/
     const user_id = localStorage.getItem('tejas.app.user_id');
     const token = localStorage.getItem('tejas.app.token');
     const user_name = localStorage.getItem('tejas.app.user_name');
-
-
-
 
 
 
@@ -206,7 +173,7 @@ export default function VendasView() {
           });
           if(response.data){
               setUser(response.data);
-              console.log(response.data)
+
           //se der erro setar botao logout
           }
         } catch (err) {
@@ -219,12 +186,6 @@ export default function VendasView() {
     useEffect(() => {getUser();}, []); 
 
 
-  
-
-
-
-
-
 
 
     /**HANDLERS TO CHANGE STATES IN OUTSIDER COMPONENTS */
@@ -234,9 +195,7 @@ export default function VendasView() {
     const handleSetModalVenda = (bool) => {
       setShowModalVenda(bool);
     }
-    const handleGetSale = (id) => {
-      getSale(id)
-    }
+
     const handleSetClient = (data) => {
       setThisClient(data);
     }
@@ -244,8 +203,6 @@ export default function VendasView() {
       setSubmitType(string);
     }
     const handleEditProduct = (id) => {    getProduct(id);  }
-
-
 
 
 
@@ -268,8 +225,6 @@ export default function VendasView() {
   }; 
 
 
-  
-
 
   /**FILTER CLIENTS TO SELECT WHILE TYPING */
   const setFilteredClientsByTyping = (string) => {
@@ -282,8 +237,6 @@ export default function VendasView() {
       setFilteredClients(filteredClients);
     }      
   }
-
-
 
 
   /**CREATE VENDA REQUEST IN BACKEND */
@@ -331,8 +284,6 @@ export default function VendasView() {
 
 
 
-
-
 /**GET CLIENT REQUEST IN BACKEND */
   const getClient = async (id) => {
 
@@ -352,8 +303,6 @@ export default function VendasView() {
 }; 
 
 
-
-
 /** GET SALE BY REQUEST IN BACKEND*/
 const getSale = async (id) => {
       try {
@@ -364,13 +313,13 @@ const getSale = async (id) => {
         });
         if(response.data){
             setThisSale(response.data); 
+            setSaleToEdit(response.data.id)
         }
       } catch (err) {
         console.log(err);
         setThisSale(null);
       }
 }; 
-
 
 
   /**DELETE ITEM IN CART */
@@ -397,12 +346,37 @@ const getSale = async (id) => {
 };
 
 
+  /**HANDLE SALE TO EDIT */
+  const handleSaleToEdit = (id) => {
+    getSale(id);
+    setSaleToEdit(id);
+    setShowEdit(true);
+    setShowAdd(false);
+  }
 
 
 
+  /**HANDLE GET SALE */
+  const handleGetSale = (id) => {
+    getSale(id)
+  }
+
+
+  /**HANDLE SET ADD */
+  const handleSetAdd = () => {
+    setShowAdd(!showAdd);
+    setShowEdit(!showAdd);
+  }
 
 
 
+  /**HANDLE SET EDIT */
+  const handleSetEdit = () => {
+    setShowEdit(!showEdit);
+    setShowAdd(!showEdit);
+  }
+
+    
 
   
   return (
@@ -531,12 +505,6 @@ const getSale = async (id) => {
 
           </div>
       }
-
-
-
-
-
-
 
 
 
@@ -749,12 +717,12 @@ const getSale = async (id) => {
 
                   return (
                     <VendasTableRow
-                      key={row.id}
-                      id={row.id}
-                      data={formattedDate} // Use the formatted date
-                      nome_razao_social={row.client.nome_razao_social}
-                      total={`R$ ${total.toFixed(2)}`}
-                      handleClick={() => handleClick(row.id)}
+                    key={row.id}
+                    data={formattedDate} // Use the formatted date
+                    nome_razao_social={row.client.nome_razao_social}
+                    total={`R$ ${total.toFixed(2)}`}
+                    handleSaleToEdit={handleSaleToEdit}
+
                     />
                   );
                 } else if (regsSituation === "inactive" && row.active === false) {
@@ -767,11 +735,11 @@ const getSale = async (id) => {
 
                   return (
                     <VendasTableRow
-                      key={row.id}
-                      nome_razao_social={row.nome_razao_social}
-                      total={`R$ ${total.toFixed(2)}`}
-                      selected={selected.indexOf(row.name) !== -1}
-                      handleClick={() => handleClick(row.id)}
+                    key={row.id}
+                    data={formattedDate} // Use the formatted date
+                    nome_razao_social={row.client.nome_razao_social}
+                    total={`R$ ${total.toFixed(2)}`}
+                    handleSaleToEdit={handleSaleToEdit}
                     />
                   );
                 } else if (regsSituation === "active" && row.active === true) {
@@ -785,10 +753,11 @@ const getSale = async (id) => {
                   return (
                     <VendasTableRow
                       key={row.id}
+                      id={row.id}
                       data={formattedDate} // Use the formatted date
                       nome_razao_social={row.client.nome_razao_social}
                       total={`R$ ${total.toFixed(2)}`}
-                      handleClick={() => handleClick(row.id)}
+                      handleSaleToEdit={handleSaleToEdit}
                     />
                   );
                 }
@@ -813,7 +782,19 @@ const getSale = async (id) => {
     }
 
 
+
+
+    {
+      showEdit &&
+      <VendaEditFormView saleToEdit={saleToEdit}/>
+    }
+
+
+   {
+    !showAdd && !showEdit &&
     <ProductCartWidget thisSale={thisSale} deleteItemVenda={deleteItemVenda}/>
+
+   }
     </Container>
   );
 }
