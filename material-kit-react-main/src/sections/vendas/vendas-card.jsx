@@ -41,7 +41,7 @@ function getDataAtualFormatada() {
 }
 
 
-export default function ShopProductCard({ product, handleEditProduct, handleGetSale, thisSale, submitType, setSubmitType, thisClient, handleSetClient, handleSetModalVenda, showModalVenda, handleSetShowCart }) {
+export default function ShopProductCard({ product, handleEditProduct, handleGetSale, thisSale, thisOs, submitType, setSubmitType, thisClient, handleSetClient, handleSetModalVenda, showModalVenda, handleSetShowCart }) {
 
 
 
@@ -88,6 +88,64 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
     }
   }; 
 
+
+  
+  const createItemOs = async (createData) => {
+
+    console.log("criando item caraiiii")
+    createData.descricao = createData.description;
+    delete createData.description;
+    createData.qtd = createData.qty;
+    delete createData.qty;
+    createData.tipo_arte = "Arte Nova";
+    createData.colaborador = user_name;
+    createData.os_id = thisOs.id;
+    createData.produto_id = product.id;
+    console.log(createData)
+    /**    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.post(urlItemVenda, createData, config);
+      if (response.data) {
+        createOs(createData)
+        toast.success("Item adicionado ao carrinho!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+        setTimeout(() => {
+          handleSetShowCart(true);
+          getUser();
+          reset();
+          handleGetSale(response.data.venda_id);
+        }, 1500);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao adicionar ao carrinho!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+    } */
+  };
+
+
+
+
+
+  
   const createItemVenda = async (createData) => {
     try {
       const config = {
@@ -97,6 +155,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
       };
       const response = await api.post(urlItemVenda, createData, config);
       if (response.data) {
+        createItemOs(createData)
         toast.success("Item adicionado ao carrinho!", {
           position: "bottom-right", 
           autoClose: 3000, 

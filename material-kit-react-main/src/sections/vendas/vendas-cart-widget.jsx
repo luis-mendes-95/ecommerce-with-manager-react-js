@@ -72,17 +72,17 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
   const [dueDates, setDueDates] = useState([`${getDataAtualFormatada()}`]);
   const [dispatchValue, setDispatchValue] = useState(0);
   const [generateReceivables, setGenerateReceivables] = useState(true);
-  const [generateOs, setGenerateOs] = useState(false);
+
   const [generateDispatch, setGenerateDispatch] = useState(false);
   const [showForm, SetShowForm] = useState("new");
   const [receivablesToGet, setReceivablesToGet] = useState([]);
   const [choosePayMethod, setChoosePayMethod] = useState(false);
   const [receivingItem, setReceivingItem] = useState(null);
-
-
-
-
   let newArrayDueDates = []
+
+
+
+
 
 
 
@@ -91,6 +91,10 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
   const cartModalFlipFlop = () => {
     setShowCartModal(!showCartModal);
   }
+
+
+
+
 
 
 
@@ -601,8 +605,8 @@ const receiveValue = async (createData) => {
 
 
 
-
-                  <button style={{backgroundColor:"green", color:"white", border:"none", borderRadius:"8px", padding:"10px", margin:"10px", cursor:"pointer"}} onClick={()=>{window.location.reload();}}>Concluir</button>
+                  
+                  <button style={{backgroundColor:"green", color:"white", border:"none", borderRadius:"8px", padding:"10px", margin:"10px", cursor:"pointer"}} onClick={()=>{window.location.reload()}}>Concluir</button>
 
                   </TableBody>
 
@@ -629,7 +633,7 @@ const receiveValue = async (createData) => {
               checkoutStep === 0 && (
                 <FormGroup sx={{margin:"40px 0"}}>
                 <FormControlLabel control={<Checkbox checked={generateReceivables} onChange={()=>{setGenerateReceivables(!generateReceivables)}}/>} label="Gerar Títulos A Receber" />
-                <FormControlLabel control={<Checkbox checked={generateOs} onChange={()=>{setGenerateOs(!generateOs)}} />} label="Gerar Ordem de Serviço" />
+
                 <FormControlLabel control={<Checkbox checked={generateDispatch} onChange={()=>{setGenerateDispatch(!generateDispatch)}}/>} label="Despacho por Transportadora" />
     
                 </FormGroup>

@@ -430,8 +430,6 @@ const renderForm = (
               {
                 sale?.receivables.map((receivable)=>{
 
-                  console.log(sale)
-
 
                   return(
 
