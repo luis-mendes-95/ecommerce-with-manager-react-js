@@ -555,7 +555,8 @@ const receiveValue = async (createData) => {
                       
                           index += 1;
                       
-                          if (valueToRender > 0)
+                          if (valueToRender > 0) {
+
                             return (
                               <>
                                 <TableRow key={receivable.id}>
@@ -569,6 +570,11 @@ const receiveValue = async (createData) => {
                                 </TableRow>
                               </>
                             );
+
+                          } else {
+                            window.location.reload();
+                          }
+
                         }
                       })
                     )

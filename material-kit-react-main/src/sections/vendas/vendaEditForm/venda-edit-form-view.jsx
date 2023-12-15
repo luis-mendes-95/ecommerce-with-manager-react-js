@@ -432,6 +432,7 @@ const renderForm = (
               <TableRow>
                     <TableCell align="center">Vencimento</TableCell>
                     <TableCell align="center">Quantia</TableCell>
+                    <TableCell align="center">Recebido</TableCell>
                     <TableCell align="center">...</TableCell>
               </TableRow> 
 
@@ -442,6 +443,19 @@ const renderForm = (
               {
                 sale?.receivables.map((receivable)=>{
 
+                  console.log("dae djow")
+                  console.log(receivable.receivements)
+
+                  const dataArray = receivable.receivements;
+                  let totalReceived = 0;
+                  dataArray.forEach(item => {
+                    const amountMatch = item.match(/amount:(\d+)/);
+                    if (amountMatch && amountMatch[1]) {
+                      totalReceived += parseInt(amountMatch[1], 10);
+                    }
+                  });
+
+                  const canReceive = receivable.amount - totalReceived !== 0;
 
                   return(
 
@@ -452,7 +466,16 @@ const renderForm = (
                       <TableRow key={receivable.id}>
                                   <TableCell align="center">{receivable.dueDate}</TableCell>
                                   <TableCell align="center">R$ {parseFloat(receivable.amount).toFixed(2)}</TableCell>
-                                  <TableCell align="center"><button style={{border:"none", padding:"15px", backgroundColor:"lightblue", borderRadius:"18px", cursor:"pointer", boxShadow:"1pt 1pt 5pt black"}}>Consultar</button></TableCell>
+                                  <TableCell align="center">R$ {totalReceived.toFixed(2)}</TableCell>
+                                  {
+                                    canReceive &&
+                                    <TableCell align="center"><button style={{border:"none", padding:"15px", backgroundColor:"green", color:"white", fontWeight:"bold", borderRadius:"18px", cursor:"pointer", boxShadow:"1pt 1pt 5pt black"}}>Receber</button></TableCell>
+                                  }
+                                  {
+                                    !canReceive &&
+                                    <TableCell align="center"><button style={{border:"none", padding:"15px", backgroundColor:"lightblue", color:"black", fontWeight:"bold", borderRadius:"18px", cursor:"pointer", boxShadow:"1pt 1pt 5pt black"}}>OK</button></TableCell>
+                                  }
+                                  
                       </TableRow>
 
       
