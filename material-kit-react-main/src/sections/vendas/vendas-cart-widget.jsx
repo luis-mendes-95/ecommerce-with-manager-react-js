@@ -230,7 +230,7 @@ const receiveValue = async (createData) => {
 
     if (dueDates.length < parcelas) {
       console.log("gere parcelas automaticas")
-      for (let i = 0; i < parcelas; i++) { /**CONTINUAR DAQUI, ESTÁ ADICIONANDO A MESMA DATA PRA TODOS E IGNORANO O QUE O CRIENTE DIGITA */
+      for (let i = 0; i < parcelas; i++) { 
       let currentDueDate = getDataAtualFormatada();
       newArrayDueDates.push(currentDueDate);
       }
@@ -283,7 +283,7 @@ const receiveValue = async (createData) => {
     } else if (dueDates.length === parcelas) {
       console.log("gere as dueDates digitadas: ")
       console.log(dueDates)
-      for (let i = 0; i < dueDates.length; i++) { /**CONTINUAR DAQUI, ESTÁ ADICIONANDO A MESMA DATA PRA TODOS E IGNORANO O QUE O CRIENTE DIGITA */
+      for (let i = 0; i < dueDates.length; i++) { 
       let currentDueDate = dueDates[i];
       newArrayDueDates.push(currentDueDate);
 
@@ -291,9 +291,6 @@ const receiveValue = async (createData) => {
       }
 
       if(!receivableMode) { 
-
-
-
 
 
 
@@ -316,6 +313,13 @@ const receiveValue = async (createData) => {
         formData.venda_id = thisSale?.id;
   
         createReceivable(formData)
+
+        if (generateDispatch){
+          console.log("gera despacho")
+          console.log("editar venda e adicionar valor no dispatchValue")
+          console.log(thisSale.id)
+          console.log("edit sale")
+        }
       })
   
       setTimeout(() => {
@@ -468,7 +472,7 @@ const receiveValue = async (createData) => {
 
 
 
-                  <TableCell style={{width:"150px"}} align="right"> Total R$ { thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) - -dispatchValue);return total+subtotal;}, 0)  }</TableCell>
+                  <TableCell style={{width:"150px"}} align="right"> Total R$ { thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty));return total+subtotal;}, 0) - -dispatchValue  }</TableCell>
                 </TableRow>
 
               </TableBody>
@@ -766,7 +770,7 @@ const receiveValue = async (createData) => {
 
             {
               checkoutStep !== 2 && checkoutStep !== 4 && !receivableMode && (
-              <Button sx={{bgcolor:"#1877F2", color:"white", margin:"0 10px"}} onClick={()=>{setCheckoutStep(checkoutStep - 1);}} >Voltar</Button>
+              <Button sx={{bgcolor:"#1877F2", color:"white", margin:"0 10px"}} onClick={()=>{if(checkoutStep > 0){setCheckoutStep(checkoutStep - 1);}}} >Voltar</Button>
               )
             }
 

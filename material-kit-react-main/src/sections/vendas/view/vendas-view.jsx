@@ -125,6 +125,7 @@ export default function VendasView() {
           formData.active = true;
           formData.user_id = user_id;
           formData.colaborador = user_name;
+          formData.dispatchValue = "0";
           formData.client_id = thisClient?.id;
 
           createVenda(formData)
@@ -267,6 +268,47 @@ export default function VendasView() {
 
 
 
+
+    /**CREATE VENDA REQUEST IN BACKEND */
+    const deleteOs = async () => {
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.delete(`os/${thisOs.id}`,  config);
+      if (response.status === 200) {
+        toast.success("Ordem de serviço deletada!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+        setThisOs(null);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao deletar ordem de serviço!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+      setThisOs(null);
+    }
+  };
+
+
+
+
   /**CREATE VENDA REQUEST IN BACKEND */
   const createVenda = async (createData) => {
     try {
@@ -312,6 +354,60 @@ export default function VendasView() {
       });
       setSubmitType("createItemSale")
     }
+  };
+
+
+
+
+
+  /**DELETE VENDA REQUEST IN BACKEND */
+  const deleteVenda = async () => {
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = await api.delete(`${url}/${thisSale.id}`, config);
+        console.log("to deletano")
+        console.log(response)
+        if (response.status === 200) {
+          toast.success("Venda cancelada!", {
+            position: "bottom-right", 
+            autoClose: 3000, 
+            hideProgressBar: false, 
+            closeOnClick: true, 
+            pauseOnHover: true, 
+            draggable: true, 
+            progress: undefined, 
+          });
+          handleSetModalVenda(false);
+          setThisSale(null);
+          setThisOs(null);
+          setThisClient(null);
+
+          setTimeout(() => {
+            setSubmitType("createSale");
+            reset();
+            getUser();
+          }, 1500);
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Erro ao cancelar venda!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+        setSubmitType("createSale")
+        setThisSale(null);
+        setThisOs(null);
+        setThisClient(null);
+      }
   };
 
 
@@ -407,6 +503,7 @@ const getSale = async (id) => {
       {
         showModalVenda &&
           <div style={{position:"absolute", top:"0", left:"0", zIndex: 9999, backgroundColor:"#F9FAFA", width:"100%", height:"100%", padding:"10px"}}>
+            <button style={{backgroundColor:"red", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer"}} onClick={()=>{window.location.reload()}}>X</button>
             <h3>Nova Venda:</h3>
 
           {
@@ -444,21 +541,7 @@ const getSale = async (id) => {
           {
             thisClient &&
               <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
-                <button
-                  onClick={() => window.location.reload()}
-                  style={{
-                    alignSelf: "flex-end",
-                    background: "none",
-                    border: "none",
-                    fontSize: "1.5em",
-                    cursor: "pointer",
-                    color: "#555",
-                    padding: "5px",
-                    marginRight: "10px",
-                  }}
-                >
-                  &#x2715;
-                </button>
+
                 <label style={{ fontWeight: "bold", marginBottom: "10px", fontSize: "1.2em" }}>Cliente:</label>
                 <button
                   style={{
@@ -535,9 +618,23 @@ const getSale = async (id) => {
         <Typography variant="h4" sx={{ mb: 5 }}>
               Vendas
             </Typography>
-            <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{handleSetModalVenda(true)}}>
-            Nova Venda
-          </Button>
+
+            {
+              !thisSale &&
+              <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{handleSetModalVenda(true)}}>
+                Nova Venda
+              </Button>
+            }
+
+{
+              thisSale &&
+              <>
+                <p style={{fontWeight:"bold"}}>{thisSale.client.nome_razao_social}</p>
+                <Button variant="contained" color="inherit" style={{backgroundColor:"brown"}} onClick={()=>{deleteVenda()}}>
+                  Cancelar Venda
+                </Button>
+              </>
+            }
 
 {
   /**

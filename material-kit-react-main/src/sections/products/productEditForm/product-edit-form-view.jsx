@@ -311,13 +311,17 @@ const renderForm = (
                 </Button>
                 )
               }
-              <Button
+              {
+                /**
+                 *               <Button
                 variant="contained"
                 sx={{ mt: 3, mb: 2, mr: 3, bgcolor: "red", color: "white" }}
                 onClick={deleteItem}
               >
                 Deletar
               </Button>
+                 */
+              }
           </Box>
     </Stack>
 

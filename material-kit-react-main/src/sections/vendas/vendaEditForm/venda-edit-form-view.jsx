@@ -381,17 +381,29 @@ const renderForm = (
       
       
       
-                        <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Total R$ {total}</TableCell>
+
                       </TableRow>
       
                     </TableBody>
+                    
                     </>
       
 
 
                   )
+                  
                 })
+                
               }
+              {
+              <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Total R$ {sale?.itens.reduce((acc, item) => {
+                const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
+                const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
+                const itemTotal = preco * qty;
+                return acc + itemTotal;
+              }, 0)}</TableCell>
+              }
+
             </Table>
           </Box>
 

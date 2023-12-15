@@ -302,30 +302,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
 
 
-  const deleteVenda = async () => {
 
-    console.log(thisItemId)
-    console.log(thisItemId.item)
-  
-      try {
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
-        const response = await api.delete(urlEdit, config);
-        if (response.status === 200) {
-          
-          toast.success("Venda cancelada com sucesso!");
-          setTimeout(() => {
-            window.location.reload();
-          }, 1500);
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Erro ao cancelar venda");
-      }
-  };
 
 
   
