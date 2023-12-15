@@ -179,7 +179,9 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
     createData.tipo_arte = "Arte Nova";
     createData.status = "Aguardando Arte";
     createData.colaborador = user_name;
-    createData.os_id = thisOs.id;
+    if(thisOs){
+      createData.os_id = thisOs.id;
+    }
     createData.produto_id = product.id;
 
    try {
@@ -191,8 +193,8 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
       const response = await api.post("itemOs", createData, config);
       if (response.data) {
         createData.itemOs_id = response.data.id;
-        createData.files = createData.files[0].split(",")
-        if(createData.files[0] !== "") {
+        if(createData.files[0]) {
+          createData.files = createData.files[0].split(",")
           createFiles(createData)
         }
 
@@ -246,7 +248,10 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
       };
       const response = await api.post(urlItemVenda, createData, config);
       if (response.data) {
-        createItemOs(createData)
+        if(generateOs){
+          createItemOs(createData)
+        }
+
 
 
 

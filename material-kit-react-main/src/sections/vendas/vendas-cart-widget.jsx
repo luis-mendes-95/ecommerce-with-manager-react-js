@@ -228,52 +228,117 @@ const receiveValue = async (createData) => {
   const onFormSubmit = (formData) => {
 
 
-    if(!receivableMode) {
-
-
-
-      for (let i = 0; i < parcelas; i++) {
-        let currentDueDate = getDataAtualFormatada();
-        newArrayDueDates.push(currentDueDate);
+    if (dueDates.length < parcelas) {
+      console.log("gere parcelas automaticas")
+      for (let i = 0; i < parcelas; i++) { /**CONTINUAR DAQUI, ESTÁ ADICIONANDO A MESMA DATA PRA TODOS E IGNORANO O QUE O CRIENTE DIGITA */
+      let currentDueDate = getDataAtualFormatada();
+      newArrayDueDates.push(currentDueDate);
       }
+
+      if(!receivableMode) { 
+
+
+
+
+
+
       
-      newArrayDueDates.forEach((item, index)=>{
+        newArrayDueDates.forEach((item, index)=>{
+  
+        formData.createdAt = getDataAtualFormatada();
+        formData.lastEditted = getDataAtualFormatada();
+        formData.changeMaker = user_name;
+  
+        formData.dueDate = item;
+        formData.status = "Pendente";
+        formData.amount = `${thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) - -dispatchValue);return total+subtotal;}, 0) / parcelas}`;
+        formData.active = true;
+        formData.receivements = [];
+        formData.description = "Título gerado a partir de uma venda"
+  
+        formData.user_id = user_id;
+        formData.client_id = thisSale?.client_id;
+        formData.venda_id = thisSale?.id;
+  
+        createReceivable(formData)
+      })
+  
+      setTimeout(() => {
+        setReceivableMode(true);
+      }, 1000);
+   
+      } else {
+  
+  
+        let currentReceivement = `data:${getDataAtualFormatada()}, amount:${formData.receivingAmount}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
+        delete formData.amount;
+        delete formData.receivingAmount;
+        formData.receivements = receivingItem.receivements
+        formData.receivements.push(currentReceivement);
+        receiveValue(formData)
+      }
 
-      formData.createdAt = getDataAtualFormatada();
-      formData.lastEditted = getDataAtualFormatada();
-      formData.changeMaker = user_name;
-
-      formData.dueDate = item;
-      formData.status = "Pendente";
-      formData.amount = `${thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) - -dispatchValue);return total+subtotal;}, 0) / parcelas}`;
-      formData.active = true;
-      formData.receivements = [];
-      formData.description = "Título gerado a partir de uma venda"
-
-      formData.user_id = user_id;
-      formData.client_id = thisSale?.client_id;
-      formData.venda_id = thisSale?.id;
-
-      createReceivable(formData)
-    })
-
-    setTimeout(() => {
-      setReceivableMode(true);
-    }, 1000);
- 
-    } else {
 
 
-      let currentReceivement = `data:${getDataAtualFormatada()}, amount:${formData.receivingAmount}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
-      delete formData.amount;
-      delete formData.receivingAmount;
-      formData.receivements = receivingItem.receivements
-      formData.receivements.push(currentReceivement);
-      receiveValue(formData)
+    } else if (dueDates.length === parcelas) {
+      console.log("gere as dueDates digitadas: ")
+      console.log(dueDates)
+      for (let i = 0; i < dueDates.length; i++) { /**CONTINUAR DAQUI, ESTÁ ADICIONANDO A MESMA DATA PRA TODOS E IGNORANO O QUE O CRIENTE DIGITA */
+      let currentDueDate = dueDates[i];
+      newArrayDueDates.push(currentDueDate);
+
+      
+      }
+
+      if(!receivableMode) { 
+
+
+
+
+
+
+      
+        dueDates.forEach((item, index)=>{
+  
+        formData.createdAt = getDataAtualFormatada();
+        formData.lastEditted = getDataAtualFormatada();
+        formData.changeMaker = user_name;
+  
+        formData.dueDate = item;
+        formData.status = "Pendente";
+        formData.amount = `${thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) - -dispatchValue);return total+subtotal;}, 0) / parcelas}`;
+        formData.active = true;
+        formData.receivements = [];
+        formData.description = "Título gerado a partir de uma venda"
+  
+        formData.user_id = user_id;
+        formData.client_id = thisSale?.client_id;
+        formData.venda_id = thisSale?.id;
+  
+        createReceivable(formData)
+      })
+  
+      setTimeout(() => {
+        setReceivableMode(true);
+      }, 1000);
+   
+      } else {
+  
+  
+        let currentReceivement = `data:${getDataAtualFormatada()}, amount:${formData.receivingAmount}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
+        delete formData.amount;
+        delete formData.receivingAmount;
+        formData.receivements = receivingItem.receivements
+        formData.receivements.push(currentReceivement);
+        receiveValue(formData)
+      }
     }
 
+
+
+
   
-  };
+  } 
        
  
 
