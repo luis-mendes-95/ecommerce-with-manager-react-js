@@ -341,7 +341,7 @@ useEffect(() => {
 
 
 
-
+console.log(receivingItem)
 
 
 //FORM INPUTS, SELECTS AND BUTTONS
@@ -675,7 +675,7 @@ const renderForm = (
                                   <TableCell align="center">R$ {totalReceived.toFixed(2)}</TableCell>
                                   {
                                     canReceive &&
-                                    <TableCell align="center"><button style={{border:"none", padding:"15px", backgroundColor:"green", color:"white", fontWeight:"bold", borderRadius:"18px", cursor:"pointer", boxShadow:"1pt 1pt 5pt black"}} onClick={()=>{setReceivableMode(true); setReceivingItem(receivable)}}>Receber</button></TableCell>
+                                    <TableCell align="center"><button style={{border:"none", padding:"15px", backgroundColor:"green", color:"white", fontWeight:"bold", borderRadius:"18px", cursor:"pointer", boxShadow:"1pt 1pt 5pt black"}} onClick={()=>{ setReceivingItem(receivable); setReceivableMode(true);}}>Receber</button></TableCell>
                                   }
                                   {
                                     !canReceive &&

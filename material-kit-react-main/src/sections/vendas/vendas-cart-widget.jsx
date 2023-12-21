@@ -299,7 +299,7 @@ const receiveValue = async (createData) => {
   
         formData.dueDate = item;
         formData.status = "Pendente";
-        formData.amount = `${thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) - -dispatchValue);return total+subtotal;}, 0) / parcelas}`;
+        formData.amount = `${thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) + (dispatchValue / thisSale.itens.length));return total+subtotal;}, 0) / parcelas}`;
         formData.active = true;
         formData.receivements = [];
         formData.description = "Título gerado a partir de uma venda"
@@ -351,7 +351,7 @@ const receiveValue = async (createData) => {
   
         formData.dueDate = item;
         formData.status = "Pendente";
-        formData.amount = `${thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) - -dispatchValue);return total+subtotal;}, 0) / parcelas}`;
+        formData.amount = `${thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) + (dispatchValue / thisSale.itens.length));return total+subtotal;}, 0) / parcelas}`;
         formData.active = true;
         formData.receivements = [];
         formData.description = "Título gerado a partir de uma venda"
@@ -359,15 +359,12 @@ const receiveValue = async (createData) => {
         formData.user_id = user_id;
         formData.client_id = thisSale?.client_id;
         formData.venda_id = thisSale?.id;
+
+        console.log("ca estou")
+        console.log(formData)
   
         createReceivable(formData)
 
-        if (generateDispatch){
-          console.log("gera despacho")
-          console.log("editar venda e adicionar valor no dispatchValue")
-          console.log(thisSale.id)
-          console.log("edit sale")
-        }
       })
   
       setTimeout(() => {
