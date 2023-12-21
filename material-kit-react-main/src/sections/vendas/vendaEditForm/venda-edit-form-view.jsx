@@ -50,8 +50,12 @@ let url = "/produtos"
 //STATES FOR THIS COMPONENT
 const [receivableMode, setReceivableMode] = useState(false);
 const [receivingItem, setReceivingItem] = useState(null);
+const [receivingItemRemaining, setReceivingItemRemaining] = useState(0);
+const [receivingItemPayMethod, setReceivingItemPayMethod] = useState('');
 const [parcelas, setParcelas] = useState(1);
 const [formaPagamentoParcelas, setFormaPagamentoParcelas] = useState(Array(parcelas).fill([]));
+const [receivingItemAmount, setReceivingItemAmount] = useState(0);
+
 
 
 /** GET USER BY REQUEST IN BACKEND AND TAKES TOKEN FROM LOCALSTORAGE*/
@@ -286,21 +290,45 @@ const deleteSale = async (id) => {
 
 //DEAL WITH FORM OF PAYMENT
 const handleReceivablesChange = ( formaPagamento) => {
-  setFormaPagamentoParcelas(prevState => {
-    const updatedFormaPagamentoParcelas = [...prevState];
-    updatedFormaPagamentoParcelas[0] = formaPagamento;
-    return updatedFormaPagamentoParcelas;
-  });
+  setReceivingItemPayMethod(formaPagamento)
 };
 
 
 
+
+
+
+const handleReceivingItemChange = (receivable) => {
+
+  setReceivingItem(receivable); 
+ 
+  
+  setTimeout(() => {
+    setReceivableMode(true);
+  }, 1500);
+
+    // Obter o valor inicial de 'amount'
+  let totalAmount = parseFloat(receivable.amount);
+
+  // Iterar sobre os receivements e subtrair os valores correspondentes
+  receivable.receivements.forEach(receivement => {
+    const receivementParts = receivement.split(', ');
+    const amountPart = receivementParts.find(part => part.startsWith('amount:'));
+    
+    if (amountPart) {
+      const amountValue = parseFloat(amountPart.split(':')[1]);
+      totalAmount -= amountValue;
+    }
+  });
+
+  // Agora, 'totalAmount' contém o resultado da subtração
+  setReceivingItemRemaining(totalAmount)
+
+}
+
+
 //FORM SUBMIT
 const onFormSubmit = (formData) => {
-
-  console.log("chegano aqui pow")
-  console.log(formaPagamentoParcelas)
-  console.log()
 
   let currentReceivement = `data:${getDataAtualFormatada()}, amount:${formData.receivingAmount}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
   delete formData.amount;
@@ -532,17 +560,11 @@ const renderForm = (
                   <TableHead>
 
                         <TableRow>
-                          <TableCell align="center" colSpan={6}>Receba Valores</TableCell>
+                          <TableCell align="center" colSpan={6}>Receber este valor</TableCell>
                         </TableRow>
 
 
-                        <TableRow>
-                              <TableCell >Valor</TableCell>
-                              <TableCell align="left">Vencimento</TableCell>
-                              <TableCell align="left">Método</TableCell>
-                              <TableCell align="">Quantia</TableCell>
-                              <TableCell align="left"></TableCell>
-                        </TableRow> 
+
 
                   </TableHead>
 
@@ -554,7 +576,7 @@ const renderForm = (
                   {/**RENDERED RECEIVABLES
                    *  
                    **/}
-                  <TableBody>
+                  <Box>
 
 
 
@@ -562,11 +584,11 @@ const renderForm = (
                  *  RENDER THE CHOOSED RECEIVEMENT TO CHOOSE PAYMENT METHOD
                  **/}
                   {
-                    receivingItem &&
+                    receivableMode &&
 
-                      <form >
+                      <Box component="form" >
                           <TableRow key={receivingItem.id}>
-                          <TableCell>R$ </TableCell>
+                          <TableCell>R$ {receivingItemRemaining}</TableCell>
                           <TableCell align="right">{receivingItem.dueDate}</TableCell>
 
                           <TableCell align="right">
@@ -586,12 +608,12 @@ const renderForm = (
 
                           </TableCell>
                           <TableCell>
-                            <input placeholder="R$" style={{borderRadius:"8px", border:"none", backgroundColor:"lightgray", padding:"5px"}} {...register("receivingAmount")}/>
+                            <input placeholder="R$" style={{borderRadius:"8px", border:"none", backgroundColor:"lightgray", padding:"5px"}} onChange={(e)=>{setReceivingItemAmount(e.target.value)}}/>
                           </TableCell>
                           <TableCell>
-                            <form onSubmit={handleSubmit(onFormSubmit)}>
-                              <button type='submit'>Receber</button>
-                            </form>
+                            <Box>/
+                              <p onClick={()=>{receiveValue({data: getDataAtualFormatada(), amount: receivingItemAmount, type: receivingItemPayMethod, user: user_name});}} style={{cursor:"pointer", border:"2pt solid black", padding:"4px", borderRadius:"8px"}}>Receber</p>
+                            </Box>
 
                           </TableCell>
       
@@ -599,7 +621,7 @@ const renderForm = (
       
                         </TableRow>
                                                     
-                      </form>
+                      </Box>
 
 
                       
@@ -615,7 +637,7 @@ const renderForm = (
                   
                   <button style={{backgroundColor:"green", color:"white", border:"none", borderRadius:"8px", padding:"10px", margin:"10px", cursor:"pointer"}} onClick={()=>{window.location.reload()}}>Concluir</button>
 
-                  </TableBody>
+                  </Box>
 
 
 
@@ -675,11 +697,11 @@ const renderForm = (
                                   <TableCell align="center">R$ {totalReceived.toFixed(2)}</TableCell>
                                   {
                                     canReceive &&
-                                    <TableCell align="center"><button style={{border:"none", padding:"15px", backgroundColor:"green", color:"white", fontWeight:"bold", borderRadius:"18px", cursor:"pointer", boxShadow:"1pt 1pt 5pt black"}} onClick={()=>{ setReceivingItem(receivable); setReceivableMode(true);}}>Receber</button></TableCell>
+                                    <TableCell align="center"><p style={{border:"none", padding:"15px", backgroundColor:"green", color:"white", fontWeight:"bold", borderRadius:"18px", cursor:"pointer", boxShadow:"1pt 1pt 5pt black"}} onClick={()=>{ handleReceivingItemChange(receivable); console.log("fui clicado") }}>Receber</p></TableCell>
                                   }
                                   {
                                     !canReceive &&
-                                    <TableCell align="center"><button style={{border:"none", padding:"15px", backgroundColor:"lightblue", color:"black", fontWeight:"bold", borderRadius:"18px", cursor:"pointer", boxShadow:"1pt 1pt 5pt black"}}>OK</button></TableCell>
+                                    <TableCell align="center"><p style={{border:"none", padding:"15px", backgroundColor:"lightblue", color:"black", fontWeight:"bold", borderRadius:"18px", cursor:"pointer", boxShadow:"1pt 1pt 5pt black"}}>OK</p></TableCell>
                                   }
                                   
                       </TableRow>
