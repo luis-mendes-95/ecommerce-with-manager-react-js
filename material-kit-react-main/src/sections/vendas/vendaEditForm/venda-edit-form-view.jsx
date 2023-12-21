@@ -46,6 +46,14 @@ export default function VendaEditFormView(saleToEdit) {
 let url = "/produtos"
 
 
+
+//STATES FOR THIS COMPONENT
+const [receivableMode, setReceivableMode] = useState(false);
+const [receivingItem, setReceivingItem] = useState(null);
+const [parcelas, setParcelas] = useState(1);
+const [formaPagamentoParcelas, setFormaPagamentoParcelas] = useState(Array(parcelas).fill([]));
+
+
 /** GET USER BY REQUEST IN BACKEND AND TAKES TOKEN FROM LOCALSTORAGE*/
 const user_id = localStorage.getItem('tejas.app.user_id');
 const token = localStorage.getItem('tejas.app.token');
@@ -82,8 +90,43 @@ const { register, handleSubmit } = useForm({
 });
 
 
+/**PATCH REQUEST TO ADD RECEIVEMENT TO A RECEIVABLE */
+const receiveValue = async (createData) => {
+
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const response = await api.patch(`/receivables/${receivingItem.id}`, createData, config);
+
+    if (response.status === 200) {
+      toast.success();
+      toast.success("Valor recebido com sucesso!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+
+      getUser();
+      setReceivingItem(null);
+      reset();
+      
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao receber valor");
+  }
+};
 
 const edit = async (createData) => {
+  console.log("chegano aqui")
   try {
     // Define o cabeçalho da solicitação com o token de autenticação
     const config = {
@@ -200,14 +243,71 @@ const deleteItem = async () => {
 
 
 
+/**DELETE SALE AND CHECK IF THERE'S ANY RECEIVABLED PAID, IF TRUE, IT GENERATES CREDIT INSIDE THE CLIENT*/
+const deleteSale = async (id) => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.delete(`vendas/${id}`, config);
+      if (response.status === 200) {
+        toast.success("Venda deletada com sucesso!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao deletar venda!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+    }
+};
+
+
+
+
+
+//DEAL WITH FORM OF PAYMENT
+const handleReceivablesChange = ( formaPagamento) => {
+  setFormaPagamentoParcelas(prevState => {
+    const updatedFormaPagamentoParcelas = [...prevState];
+    updatedFormaPagamentoParcelas[0] = formaPagamento;
+    return updatedFormaPagamentoParcelas;
+  });
+};
+
 
 
 //FORM SUBMIT
 const onFormSubmit = (formData) => {
 
-  console.log(formData)
+  console.log("chegano aqui pow")
+  console.log(formaPagamentoParcelas)
+  console.log()
 
-  //edit(formData);
+  let currentReceivement = `data:${getDataAtualFormatada()}, amount:${formData.receivingAmount}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
+  delete formData.amount;
+  delete formData.receivingAmount;
+  formData.receivements = receivingItem.receivements
+  formData.receivements.push(currentReceivement);
+  receiveValue(formData)
 
  }
       
@@ -306,11 +406,6 @@ const renderForm = (
 
 
 
-
-
-
-
-
           {/**TABLE ITEMS */}
           <Box>
             <Table sx={{ minWidth: 600, marginTop: "25px" }} aria-label="spanning table">
@@ -398,10 +493,15 @@ const renderForm = (
               {
               <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Total R$ {sale?.itens.reduce((acc, item) => {
                 const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
+                const desconto = parseFloat(item.disccount);
                 const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                const itemTotal = preco * qty;
+                const itemTotal = (preco - desconto) * qty;
                 return acc + itemTotal;
               }, 0)}</TableCell>
+              }
+              {
+                sale?.dispatchValue !== "0" &&
+              <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Frete R$ {sale?.dispatchValue}</TableCell>
               }
 
             </Table>
@@ -420,6 +520,115 @@ const renderForm = (
 
           {/**TABLE RECEIVABLES */}
           <Box>
+          {
+
+              receivableMode && (
+
+                /**TABLE*/
+                <Table sx={{ minWidth: 600, maxHeight: 100 }} aria-label="spanning table">
+
+
+                {/**TABLE HEADER */}
+                  <TableHead>
+
+                        <TableRow>
+                          <TableCell align="center" colSpan={6}>Receba Valores</TableCell>
+                        </TableRow>
+
+
+                        <TableRow>
+                              <TableCell >Valor</TableCell>
+                              <TableCell align="left">Vencimento</TableCell>
+                              <TableCell align="left">Método</TableCell>
+                              <TableCell align="">Quantia</TableCell>
+                              <TableCell align="left"></TableCell>
+                        </TableRow> 
+
+                  </TableHead>
+
+
+
+
+
+
+                  {/**RENDERED RECEIVABLES
+                   *  
+                   **/}
+                  <TableBody>
+
+
+
+                {/**RECEIVING ITEM 
+                 *  RENDER THE CHOOSED RECEIVEMENT TO CHOOSE PAYMENT METHOD
+                 **/}
+                  {
+                    receivingItem &&
+
+                      <form >
+                          <TableRow key={receivingItem.id}>
+                          <TableCell>R$ </TableCell>
+                          <TableCell align="right">{receivingItem.dueDate}</TableCell>
+
+                          <TableCell align="right">
+
+
+
+                              <select style={{borderRadius:"8px", border:"none", backgroundColor:"lightgray", padding:"5px", cursor: "pointer"}}
+                                onChange={(e) => handleReceivablesChange(e.target.value)}
+                              >
+                                <option value="">Forma de Pagamento</option>
+                                <option value="A Vista">A Vista</option>
+                                <option value="Pix">Pix</option>
+                                <option value="Cartão Débito">Cartão Débito</option>
+                                <option value="Cartão Crédito">Cartão Crédito</option>
+                                <option value="A Prazo">A Prazo</option>
+                              </select>
+
+                          </TableCell>
+                          <TableCell>
+                            <input placeholder="R$" style={{borderRadius:"8px", border:"none", backgroundColor:"lightgray", padding:"5px"}} {...register("receivingAmount")}/>
+                          </TableCell>
+                          <TableCell>
+                            <form onSubmit={handleSubmit(onFormSubmit)}>
+                              <button type='submit'>Receber</button>
+                            </form>
+
+                          </TableCell>
+      
+          
+      
+                        </TableRow>
+                                                    
+                      </form>
+
+
+                      
+
+
+
+
+
+                  }
+
+
+
+                  
+                  <button style={{backgroundColor:"green", color:"white", border:"none", borderRadius:"8px", padding:"10px", margin:"10px", cursor:"pointer"}} onClick={()=>{window.location.reload()}}>Concluir</button>
+
+                  </TableBody>
+
+
+
+
+
+
+
+                </Table>
+              )
+
+          }
+          {
+            !receivableMode &&
             <Table sx={{ minWidth: 600, marginTop: "25px" }} aria-label="spanning table">
             <TableHead>
 
@@ -442,9 +651,6 @@ const renderForm = (
 
               {
                 sale?.receivables.map((receivable)=>{
-
-                  console.log("dae djow")
-                  console.log(receivable.receivements)
 
                   const dataArray = receivable.receivements;
                   let totalReceived = 0;
@@ -469,7 +675,7 @@ const renderForm = (
                                   <TableCell align="center">R$ {totalReceived.toFixed(2)}</TableCell>
                                   {
                                     canReceive &&
-                                    <TableCell align="center"><button style={{border:"none", padding:"15px", backgroundColor:"green", color:"white", fontWeight:"bold", borderRadius:"18px", cursor:"pointer", boxShadow:"1pt 1pt 5pt black"}}>Receber</button></TableCell>
+                                    <TableCell align="center"><button style={{border:"none", padding:"15px", backgroundColor:"green", color:"white", fontWeight:"bold", borderRadius:"18px", cursor:"pointer", boxShadow:"1pt 1pt 5pt black"}} onClick={()=>{setReceivableMode(true); setReceivingItem(receivable)}}>Receber</button></TableCell>
                                   }
                                   {
                                     !canReceive &&
@@ -488,6 +694,7 @@ const renderForm = (
                 })
               }
             </Table>
+          }
           </Box>
 
 
@@ -517,7 +724,7 @@ const renderForm = (
                 <Button
                   variant="contained"
                   sx={{ mt: 3, mb: 2, mr: 3, bgcolor: "black", color: "white" }}
-                  onClick={deleteItem}
+                  onClick={()=>{deleteSale(sale?.id)}}
                 >
                   Cancelar Venda
                 </Button>

@@ -100,6 +100,46 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
 
 
 
+  /**CREATE VENDA REQUEST IN BACKEND */
+  const addDispatchValue = async (id, createData) => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.patch(`vendas/${id}`, createData, config);
+      if (response.data) {
+        toast.success("Valor do frete adicionado!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao adicionar frete!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+    }
+  };
+
+
+
+
+
+
+
 
  /** GET USER BY REQUEST IN BACKEND AND TAKES TOKEN FROM LOCALSTORAGE*/
   const getUser = async () => {
@@ -131,6 +171,14 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
 
 /**CREATE RECEIVABLE REQUEST IN BACKEND */
   const createReceivable = async (createData) => {
+    console.log("agora verifica a cacilda do valor do frete")
+    console.log(thisSale.dispatchValue)
+    console.log(dispatchValue.toString())
+
+    if(thisSale.dispatchValue === "0") {
+      addDispatchValue(thisSale.id, {dispatchValue: dispatchValue.toString()})
+    }
+
     try {
       // Define o cabeçalho da solicitação com o token de autenticação
       const config = {
@@ -504,7 +552,6 @@ const receiveValue = async (createData) => {
                         </TableRow>
 
 
-
                         <TableRow>
                               <TableCell >Valor</TableCell>
                               <TableCell align="left">Vencimento</TableCell>
@@ -733,7 +780,7 @@ const receiveValue = async (createData) => {
                         />
                       ))}
                     </FormGroup>
-                    <p>Valor da parcela: R$ {((thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) - -dispatchValue);return total+subtotal;}, 0))  / parcelas).toFixed(2)}</p>
+                    <p>Valor da parcela: R$ { (thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty));return total+subtotal;}, 0) - -dispatchValue) / parcelas  }</p>
                   </Box>
               )
             }
@@ -746,9 +793,9 @@ const receiveValue = async (createData) => {
                     <div style={{ display: "flex", flexDirection:"row", backgroundColor:"lightgray", width:"25%" }}>
                       <p>Parcela {index + 1} : R$ {((thisSale?.itens.reduce((total, item) => {
                         const precoComDesconto = item.produto.preco - item.disccount;
-                        const subtotal = ((precoComDesconto * item.qty) - -dispatchValue);
+                        const subtotal = ((precoComDesconto * item.qty));
                         return total + subtotal;
-                      }, 0)) / parcelas).toFixed(2)}</p>
+                      }, 0)) / parcelas + (dispatchValue / parcelas)).toFixed(2)}</p>
                       <FormGroup sx={{ margin: "0 0" }} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px", flexWrap: "nowrap", maxHeight:"80px" }}>
                         {/* Substituir os Checkbox por Select */}
 
