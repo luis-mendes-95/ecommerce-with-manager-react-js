@@ -460,7 +460,7 @@ const getSale = async (id) => {
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await api.delete(`itemVendas/${itemId}`, config);
+      const response = await api.delete(`itemVendas0/${itemId}`, config);
       if (response.status === 200) {
         
         toast.success("Item deletado com sucesso!");
@@ -823,12 +823,11 @@ const getSale = async (id) => {
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort by createdAt in descending order
               .map((row) => {
                 const formattedDate = row.createdAt.split('-').reverse().join('/'); // Change date format back to "DD/MM/YYYY"
-
                 if (regsSituation === "all") {
                   const total = row.itens.reduce((acc, item) => {
                     const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
                     const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                    const itemTotal = preco * qty;
+                    const itemTotal = (preco - parseFloat(item.disccount)) * qty;
                     return acc + itemTotal;
                   }, 0);
 
@@ -837,7 +836,7 @@ const getSale = async (id) => {
                     key={row.id}
                     data={formattedDate} // Use the formatted date
                     nome_razao_social={row.client.nome_razao_social}
-                    total={`R$ ${total.toFixed(2)}`}
+                    total={`R$ ${(total + parseInt(row.dispatchValue)).toFixed(2)}`}
                     handleSaleToEdit={handleSaleToEdit}
 
                     />
@@ -846,7 +845,7 @@ const getSale = async (id) => {
                   const total = row.itens.reduce((acc, item) => {
                     const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
                     const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                    const itemTotal = preco * qty;
+                    const itemTotal = (preco - parseFloat(item.disccount)) * qty;
                     return acc + itemTotal;
                   }, 0);
 
@@ -855,7 +854,7 @@ const getSale = async (id) => {
                     key={row.id}
                     data={formattedDate} // Use the formatted date
                     nome_razao_social={row.client.nome_razao_social}
-                    total={`R$ ${total.toFixed(2)}`}
+                    total={`R$ ${(total + parseInt(row.dispatchValue)).toFixed(2)}`}
                     handleSaleToEdit={handleSaleToEdit}
                     />
                   );
@@ -863,7 +862,7 @@ const getSale = async (id) => {
                   const total = row.itens.reduce((acc, item) => {
                     const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
                     const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                    const itemTotal = preco * qty;
+                    const itemTotal = (preco - parseFloat(item.disccount)) * qty;
                     return acc + itemTotal;
                   }, 0);
 
@@ -873,7 +872,7 @@ const getSale = async (id) => {
                       id={row.id}
                       data={formattedDate} // Use the formatted date
                       nome_razao_social={row.client.nome_razao_social}
-                      total={`R$ ${total.toFixed(2)}`}
+                      total={`R$ ${(total + parseInt(row.dispatchValue)).toFixed(2)}`}
                       handleSaleToEdit={handleSaleToEdit}
                     />
                   );
