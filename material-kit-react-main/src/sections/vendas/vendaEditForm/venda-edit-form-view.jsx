@@ -97,36 +97,52 @@ const { register, handleSubmit } = useForm({
 /**PATCH REQUEST TO ADD RECEIVEMENT TO A RECEIVABLE */
 const receiveValue = async (createData) => {
 
-  try {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-
-    const response = await api.patch(`/receivables/${receivingItem.id}`, createData, config);
-
-    if (response.status === 200) {
-      toast.success();
-      toast.success("Valor recebido com sucesso!", {
-        position: "bottom-right", 
-        autoClose: 3000, 
-        hideProgressBar: false, 
-        closeOnClick: true, 
-        pauseOnHover: true, 
-        draggable: true, 
-        progress: undefined, 
-      });
-
-      getUser();
-      setReceivingItem(null);
-      reset();
-      
+  if (receivingItemAmount <= receivingItemRemaining && receivingItemAmount > 0) {
+    let receivements = {
+      receivements: receivingItem?.receivements
+  
     }
-  } catch (err) {
-    console.error(err);
-    toast.error("Erro ao receber valor");
+  
+    receivements.receivements.push(createData)
+  
+  
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+  
+      const response = await api.patch(`/receivables/${receivingItem.id}`, receivements, config);
+  
+      if (response.status === 200) {
+        toast.success();
+        toast.success("Valor recebido com sucesso!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+  
+        getUser();
+        getSale(saleToEdit.id);
+        setReceivingItem(null);
+        setReceivableMode(false);
+        
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao receber valor");
+    }
+  } else {
+    toast.error("Verifique o valor restante, e o valor que está sendo recebido!")
   }
+
+
+
 };
 
 const edit = async (createData) => {
@@ -295,6 +311,85 @@ const handleReceivablesChange = ( formaPagamento) => {
 
 
 
+const handlePaymentChange = (payment) => {
+  // Handle the change as needed
+  console.log('Payment Change:', payment);
+};
+
+const renderPaymentRow = (payment) => {
+  const dataArray = payment.payments; // Assuming payments is the correct field
+  let totalReceived = 0;
+
+  dataArray.forEach((item) => {
+    const amountMatch = item.match(/amount:(\d+)/);
+    if (amountMatch && amountMatch[1]) {
+      totalReceived += parseInt(amountMatch[1], 10);
+    }
+  });
+
+  const canReceive = payment.amount - totalReceived !== 0;
+
+  return (
+    <TableBody style={{ height: "100px", overflow: "scroll" }}>
+      <TableRow key={payment.id}>
+        <TableCell align="center">{payment.dueDate}</TableCell>
+        <TableCell align="center">R$ {parseFloat(payment.amount).toFixed(2)}</TableCell>
+        <TableCell align="center">R$ {totalReceived.toFixed(2)}</TableCell>
+        {canReceive && (
+          <TableCell align="center">
+            <p
+              style={{
+                border: "none",
+                padding: "15px",
+                backgroundColor: "green",
+                color: "white",
+                fontWeight: "bold",
+                borderRadius: "18px",
+                cursor: "pointer",
+                boxShadow: "1pt 1pt 5pt black",
+              }}
+              onClick={() => {
+                const paymentData = `data:${getDataAtualFormatada()}, amount:${receivingItemAmount}, type:${receivingItemPayMethod}, user:${user_name}`;
+                handlePayment(
+                  getDataAtualFormatada(),
+                  receivingItemAmount,
+                  receivingItemPayMethod,
+                  user_name
+                );
+                receiveValue(paymentData);
+              }}
+            >
+              Receber
+            </p>
+          </TableCell>
+        )}
+        {!canReceive && (
+          <TableCell align="center">
+            <p
+              style={{
+                border: "none",
+                padding: "15px",
+                backgroundColor: "lightblue",
+                color: "black",
+                fontWeight: "bold",
+                borderRadius: "18px",
+                cursor: "pointer",
+                boxShadow: "1pt 1pt 5pt black",
+              }}
+            >
+              OK
+            </p>
+          </TableCell>
+        )}
+      </TableRow>
+    </TableBody>
+  );
+};
+
+
+
+
+
 
 
 
@@ -335,6 +430,7 @@ const onFormSubmit = (formData) => {
   delete formData.receivingAmount;
   formData.receivements = receivingItem.receivements
   formData.receivements.push(currentReceivement);
+
   receiveValue(formData)
 
  }
@@ -367,9 +463,6 @@ useEffect(() => {
 
 }, [])
 
-
-
-console.log(receivingItem)
 
 
 //FORM INPUTS, SELECTS AND BUTTONS
@@ -587,9 +680,9 @@ const renderForm = (
                     receivableMode &&
 
                       <Box component="form" >
-                          <TableRow key={receivingItem.id}>
+                          <TableRow key={receivingItem?.id}>
                           <TableCell>R$ {receivingItemRemaining}</TableCell>
-                          <TableCell align="right">{receivingItem.dueDate}</TableCell>
+                          <TableCell align="right">{receivingItem?.dueDate}</TableCell>
 
                           <TableCell align="right">
 
@@ -611,8 +704,8 @@ const renderForm = (
                             <input placeholder="R$" style={{borderRadius:"8px", border:"none", backgroundColor:"lightgray", padding:"5px"}} onChange={(e)=>{setReceivingItemAmount(e.target.value)}}/>
                           </TableCell>
                           <TableCell>
-                            <Box>/
-                              <p onClick={()=>{receiveValue({data: getDataAtualFormatada(), amount: receivingItemAmount, type: receivingItemPayMethod, user: user_name});}} style={{cursor:"pointer", border:"2pt solid black", padding:"4px", borderRadius:"8px"}}>Receber</p>
+                            <Box>
+                              <p onClick={()=>{receiveValue(`data:${getDataAtualFormatada()}, amount:${receivingItemAmount}, type:${receivingItemPayMethod}, user:${user_name}`)}} style={{cursor:"pointer", border:"2pt solid black", padding:"4px", borderRadius:"8px"}}>Receber</p>
                             </Box>
 
                           </TableCell>
@@ -622,13 +715,6 @@ const renderForm = (
                         </TableRow>
                                                     
                       </Box>
-
-
-                      
-
-
-
-
 
                   }
 
@@ -671,12 +757,15 @@ const renderForm = (
 
 
 
-              {
-                sale?.receivables.map((receivable)=>{
-
+            {
+              sale?.receivables
+              .slice() // Cria uma cópia para não modificar o array original
+              .sort((a, b) => new Date(a.dueDate.split('/').reverse().join('-')) - new Date(b.dueDate.split('/').reverse().join('-')))
+              .map((receivable) => {
                   const dataArray = receivable.receivements;
                   let totalReceived = 0;
-                  dataArray.forEach(item => {
+
+                  dataArray.forEach((item) => {
                     const amountMatch = item.match(/amount:(\d+)/);
                     if (amountMatch && amountMatch[1]) {
                       totalReceived += parseInt(amountMatch[1], 10);
@@ -685,39 +774,139 @@ const renderForm = (
 
                   const canReceive = receivable.amount - totalReceived !== 0;
 
-                  return(
-
-                    <>
-
-                      <TableBody style={{height:"100px", overflow:"scroll"}}>
-      
+                  return (
+                    <TableBody style={{ height: "100px", overflow: "scroll" }}>
                       <TableRow key={receivable.id}>
-                                  <TableCell align="center">{receivable.dueDate}</TableCell>
-                                  <TableCell align="center">R$ {parseFloat(receivable.amount).toFixed(2)}</TableCell>
-                                  <TableCell align="center">R$ {totalReceived.toFixed(2)}</TableCell>
-                                  {
-                                    canReceive &&
-                                    <TableCell align="center"><p style={{border:"none", padding:"15px", backgroundColor:"green", color:"white", fontWeight:"bold", borderRadius:"18px", cursor:"pointer", boxShadow:"1pt 1pt 5pt black"}} onClick={()=>{ handleReceivingItemChange(receivable); console.log("fui clicado") }}>Receber</p></TableCell>
-                                  }
-                                  {
-                                    !canReceive &&
-                                    <TableCell align="center"><p style={{border:"none", padding:"15px", backgroundColor:"lightblue", color:"black", fontWeight:"bold", borderRadius:"18px", cursor:"pointer", boxShadow:"1pt 1pt 5pt black"}}>OK</p></TableCell>
-                                  }
-                                  
+                        <TableCell align="center">{receivable.dueDate}</TableCell>
+                        <TableCell align="center">R$ {parseFloat(receivable.amount).toFixed(2)}</TableCell>
+                        <TableCell align="center">R$ {totalReceived.toFixed(2)}</TableCell>
+                        {canReceive && (
+                          <TableCell align="center">
+                            <p
+                              style={{
+                                border: "none",
+                                padding: "15px",
+                                backgroundColor: "green",
+                                color: "white",
+                                fontWeight: "bold",
+                                borderRadius: "18px",
+                                cursor: "pointer",
+                                boxShadow: "1pt 1pt 5pt black",
+                              }}
+                              onClick={() => {
+                                handleReceivingItemChange(receivable);
+                              }}
+                            >
+                              Receber
+                            </p>
+                          </TableCell>
+                        )}
+                        {!canReceive && (
+                          <TableCell align="center">
+                            <p
+                              style={{
+                                border: "none",
+                                padding: "15px",
+                                backgroundColor: "lightblue",
+                                color: "black",
+                                fontWeight: "bold",
+                                borderRadius: "18px",
+                                cursor: "pointer",
+                                boxShadow: "1pt 1pt 5pt black",
+                              }}
+                            >
+                              OK
+                            </p>
+                          </TableCell>
+                        )}
                       </TableRow>
-
-      
                     </TableBody>
-                    </>
-      
-
-
-                  )
+                  );
                 })
-              }
+            }
+
             </Table>
           }
           </Box>
+
+
+
+
+
+
+
+
+
+          {/**TABLE PAYMENTS */}
+          <Box>
+
+          {
+            !receivableMode &&
+            <Table sx={{ minWidth: 600, marginTop: "25px" }} aria-label="spanning table">
+            <TableHead>
+
+              <TableRow>
+                <TableCell align="center" colSpan={6}>PAGAMENTOS</TableCell>
+              </TableRow>
+
+
+
+              <TableRow>
+                    <TableCell align="center">Data</TableCell>
+                    <TableCell align="center">Quantia</TableCell>
+                    <TableCell align="center">Método</TableCell>
+                    <TableCell align="center">Usuário</TableCell>
+              </TableRow> 
+
+            </TableHead>
+
+
+
+            {
+              sale?.receivables.map((receivable, index) => (
+                <TableBody key={index} style={{ height: "100px", overflow: "scroll" }}>
+                  <TableRow style={{ borderBottom: "1px solid #ccc" }}>
+
+                    <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
+                      {receivable.receivements.map((payment, paymentIndex) => (
+                        <div key={paymentIndex} style={{ marginTop: "10px" }}>
+                          <div style={{ marginBottom: "5px", fontSize: "14px" }}>Data: {payment.split(', ')[0].split(':')[1]}</div>
+                        </div>
+                      ))}
+                    </TableCell>
+
+                    <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
+                      {receivable.receivements.map((payment, paymentIndex) => (
+                        <div key={paymentIndex} style={{ marginTop: "10px" }}>
+                          <div style={{ marginBottom: "5px", fontSize: "14px" }}>R$ {payment.split(', ')[1].split(':')[1]}</div>
+                        </div>
+                      ))}
+                    </TableCell>
+
+                    <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
+                      {receivable.receivements.map((payment, paymentIndex) => (
+                        <div key={paymentIndex} style={{ marginTop: "10px" }}>
+                          <div style={{ marginBottom: "5px", fontSize: "14px" }}>Tipo: {payment.split(', ')[2].split(':')[1]}</div>
+                        </div>
+                      ))}
+                    </TableCell>
+
+                    <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
+                      {receivable.receivements.map((payment, paymentIndex) => (
+                        <div key={paymentIndex} style={{ marginTop: "10px" }}>
+                          <div style={{ marginBottom: "5px", fontSize: "14px" }}>Usuário: {payment.split(', ')[3].split(':')[1]}</div>
+                        </div>
+                      ))}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              ))
+            }
+
+            </Table>
+          }
+          </Box>
+
 
 
 

@@ -902,7 +902,7 @@ const getSale = async (id) => {
 
     {
       showEdit &&
-      <VendaEditFormView saleToEdit={saleToEdit}/>
+      <VendaEditFormView saleToEdit={saleToEdit} updateSale={getSale}/>
     }
 
 
