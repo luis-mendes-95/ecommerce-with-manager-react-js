@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import DashboardLayout from 'src/layouts/dashboard';
+import OsPage from 'src/pages/os';
 import VendasPage from 'src/pages/vendas';
 
 export const IndexPage = lazy(() => import('src/pages/app'));
@@ -29,6 +30,7 @@ export default function Router() {
         { path: 'user', element: <UserPage /> },
         { path: 'products', element: <ProductsPage /> },
         { path: 'vendas', element: <VendasPage /> },
+        { path: 'os', element: <OsPage /> },
         { path: 'blog', element: <BlogPage /> },
       ],
     },
