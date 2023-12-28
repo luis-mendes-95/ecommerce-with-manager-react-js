@@ -42,7 +42,7 @@ function getDataAtualFormatada() {
 }
 
 
-export default function ShopProductCard({ product, handleEditProduct, handleGetSale, thisSale, thisOs, submitType, setSubmitType, thisClient, handleSetClient, handleSetModalVenda, showModalVenda, handleSetShowCart, generateOs }) {
+export default function ShopProductCard({ product, handleEditProduct, handleGetSale, handleGetOs, thisSale, thisOs, submitType, setSubmitType, thisClient, handleSetClient, handleSetModalVenda, showModalVenda, handleSetShowCart, generateOs }) {
 
 
 
@@ -63,9 +63,11 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
   /**VARIABLES TO CUSTOM THIS COMPONENT */
   const url = "vendas"
+  const urlOs = "os"
   const urlEdit = url + `/${thisSale?.id}`;
+  const urlEditOs = url + `/${thisOs?.id}`;
   const urlItemVenda = "itemVendas";
-
+  const urlItemOs = "itemOs";
 
 
 
@@ -95,6 +97,9 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
     let filesToAdd = createData.files;
     delete createData.files;
 
+    console.log(filesToAdd)
+
+    createData.client_id = thisClient.id;
     createData.active = true;
     createData.filename = product.nome + "-" + thisClient.nome_razao_social + "-FILE-COMPONENT";
     createData.filetype = "PDF";
@@ -157,12 +162,26 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
   }
 
 
-
-
-
-
-
-
+  
+  /** GET OS BY REQUEST IN BACKEND*/
+  const getOs = async (id) => {
+    try {
+      const response = await api.get(`/os/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if(response.data){
+          setThisOs(response.data); 
+          setOsToEdit(response.data.id)
+      }
+    } catch (err) {
+      console.log(err);
+      setThisOs(null);
+    }
+    console.log("fluiu tudo, saca só")
+    console.log(thisOs)
+  }; 
 
 
 
@@ -172,7 +191,12 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
   const createItemOs = async (createData) => {
 
 
-    createData.descricao = createData.description;
+    createData.createdAt = getDataAtualFormatada();
+    createData.lastEditted = getDataAtualFormatada();
+    createData.changeMaker = user_name;
+
+
+    createData.descricao = "eae";
     delete createData.description;
     createData.qtd = createData.qty;
     delete createData.qty;
@@ -194,7 +218,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
       if (response.data) {
         createData.itemOs_id = response.data.id;
         if(createData.files[0]) {
-          createData.files = createData.files[0].split(",")
+          createData.files = createData.files.split(",")
           createFiles(createData)
         }
 
@@ -211,7 +235,8 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
           handleSetShowCart(true);
           getUser();
           reset();
-          handleGetSale(response.data.venda_id);
+          console.log(response.data)
+          handleGetOs(response.data.os_id);
         }, 1500);
       }
     } catch (err) {
@@ -227,12 +252,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
       });
     } 
   };
-
-
-
-
-
-
 
 
 
@@ -296,15 +315,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
 
 
-
-
-
-
-
-
-
-
-
   
 
   /**AFTER LOAD THIS COMPONENT, RUN THESE CODES */
@@ -322,9 +332,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
   });
 
   const onFormSubmit = (formData) => {
-
-
-
 
 
     if (submitType === "createSale") {
@@ -366,6 +373,8 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
       createItemVenda(formData);
 
+    } else if (submitType === "createItemOs") { 
+      createItemOs(formData);
     }
 
     
@@ -453,14 +462,13 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
       
 
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit(onFormSubmit)(e); }} id="demo">
-            <span style={{fontWeight:"bolder", fontSize: "px"}}> Adicionar ao carrinho: </span>
+            <span style={{fontWeight:"bolder", fontSize: "px"}}> Adicionar à OS: </span>
             {
-              thisSale &&
+              thisOs &&
               <div>
               <TextField style={{width:"100%", marginTop:"8px"}} required fullWidth {...register("qty")} label="Quantidade" id="qty" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
-              <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("disccount")} label="Desconto unitário" id="disccount" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
               {
-                generateOs &&
+                thisOs &&
                 <>
                   <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("itemDescription")} label="Instruções" id="description" inputProps={{ maxLength: 4000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
                   <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("files")} label="Anexar Arquivos" id="files" inputProps={{ maxLength: 4000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>

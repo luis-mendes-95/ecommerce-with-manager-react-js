@@ -49,7 +49,7 @@ function getDataAtualFormatada() {
 
 
 
-export default function CartWidget({thisSale, deleteItemVenda}) {
+export default function CartWidget({thisSale, deleteItemVenda, thisOs}) {
   //FORM INPUTS CONFIGURATIONS
   let url = "/clientes"
 
@@ -408,8 +408,8 @@ const receiveValue = async (createData) => {
     <>
     <ToastContainer/>
     <StyledRoot onClick={cartModalFlipFlop}>
-      <Badge showZero badgeContent={thisSale?.itens.length || 0} color="error" max={99}>
-        <Iconify icon="eva:shopping-cart-fill" width={24} height={24} />
+      <Badge showZero badgeContent={thisOs?.itens.length || 0} color="error" max={99}>
+        <Iconify icon="eva:file-text-outline" width={24} height={24} />
       </Badge>
     </StyledRoot>
 
@@ -463,23 +463,22 @@ const receiveValue = async (createData) => {
                */
             }
             {
-              !receivableMode &&
               <Table sx={{ minWidth: 600 }} aria-label="spanning table">
 
               <TableHead>
                 <TableRow>
                   <TableCell align="center" colSpan={6}>
-                    Confira os itens
+                    Itens da Ordem de Serviço
                   </TableCell>
-                  <TableCell align="right">Valor</TableCell>
+                  <TableCell align="right"></TableCell>
                 </TableRow>
                 <TableRow style={{height:"100%", padding:"0"}}>
                   <TableCell>Item</TableCell>
                   <TableCell align="right">Qtd</TableCell>
-                  <TableCell align="right">Valor Unit</TableCell>
-                  <TableCell align="right">Desconto Unit</TableCell>
-                  <TableCell align="right">Valor com Desc</TableCell>
-                  <TableCell align="right">Sub Total</TableCell>
+                  <TableCell align="center">Descrição</TableCell>
+                  <TableCell align="center">Tipo de Arte</TableCell>
+                  <TableCell align="center">Status</TableCell>
+                  <TableCell align="right"></TableCell>
                   <TableCell align="right">...</TableCell>
                 </TableRow>
               </TableHead>
@@ -487,14 +486,14 @@ const receiveValue = async (createData) => {
               <TableBody style={{height:"100px", overflow:"scroll"}}>
 
 
-                {thisSale?.itens.map((row) => (
+                {thisOs?.itens.map((row) => (
                   <TableRow key={row.id}> 
                     <TableCell>{row.produto.nome}</TableCell>
-                    <TableCell align="right">{row.qty}</TableCell>
-                    <TableCell align="right">R${row.produto.preco}</TableCell>
-                    <TableCell align="right">R${row.disccount}</TableCell>
-                    <TableCell align="right">R${row.produto.preco - row.disccount}</TableCell>
-                    <TableCell align="right">R${(row.qty * row.produto.preco) - (row.disccount * row.qty)}</TableCell>
+                    <TableCell align="right">{row.qtd}</TableCell>
+                    <TableCell align="center">{row.descricao}</TableCell>
+                    <TableCell align="center">{row.tipo_arte}</TableCell>
+                    <TableCell align="center">{row.status}</TableCell>
+                    <TableCell align="right"></TableCell>
                     <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemVenda(row.id); setParcelas(0); setFormaPagamentoParcelas([]); setCheckoutStep(0);}} >X</button></TableCell>
 
                   </TableRow>
@@ -533,210 +532,6 @@ const receiveValue = async (createData) => {
                * WHEN RECEIVABLE MODE IS ON, IS BECAUSE RECEIVABLE IS CREATED AND THEN IT'S TIME TO RECEIVE IT 
                * RENDER ALL INSIDE THIS BLOCK OF CODE
                */
-            }
-            {
-              receivableMode && (
-
-                /**TABLE*/
-                <Table sx={{ minWidth: 600, maxHeight: 100 }} aria-label="spanning table">
-
-
-                {/**TABLE HEADER */}
-                  <TableHead>
-
-                        <TableRow>
-                          <TableCell align="center" colSpan={6}>Receba Valores</TableCell>
-                        </TableRow>
-
-
-                        <TableRow>
-                              <TableCell >Valor</TableCell>
-                              <TableCell align="left">Vencimento</TableCell>
-                              <TableCell align="left">Método</TableCell>
-                              <TableCell align="">Quantia</TableCell>
-                              <TableCell align="left"></TableCell>
-                        </TableRow> 
-
-                  </TableHead>
-
-
-
-
-
-
-                  {/**RENDERED RECEIVABLES
-                   *  
-                   **/}
-                  <TableBody>
-
-
-
-                   {/**WHEN RECEIVING ITEM IS NOT CHOOSED YET */}
-                  {
-                    !receivingItem && (
-
-                      user?.receivables.map((receivable) => {
-                        let valueToRender = parseFloat(receivable.amount);
-                        let index = -1;
-                      
-                        if (receivablesToGet.includes(receivable.id) && receivable.dueDate === new Date().toLocaleDateString()) {
-                          receivable.receivements.map((receivement) => {
-                            let keyValuePairs = receivement.split(', ');
-                      
-                            let receivableObject = {};
-                      
-                            for (let i = 0; i < keyValuePairs.length; i++) {
-                              let pair = keyValuePairs[i].split(':');
-                              let key = pair[0];
-                              let value = pair[1];
-                              receivableObject[key] = value;
-                            }
-                      
-                            let amount = receivableObject['amount'];
-                      
-                            valueToRender -= amount;
-                          });
-                      
-                          index += 1;
-                      
-                          if (valueToRender > 0) {
-
-                            return (
-                              <>
-                                <TableRow key={receivable.id}>
-                                  <TableCell>R$ {valueToRender.toFixed(2)}</TableCell>
-                                  <TableCell align="left">{receivable.dueDate}</TableCell>
-                                  <TableCell align="left">
-                                    {!choosePayMethod && (
-                                      <button onClick={() => {setReceivingItem(receivable); setChoosePayMethod(!choosePayMethod); }}>Receber</button>
-                                    )}
-                                  </TableCell>
-                                </TableRow>
-                              </>
-                            );
-
-                          } else {
-                            window.location.reload();
-                          }
-
-                        }
-                      })
-                    )
-                  }
-
-
-
-
-
-
-
-
-
-                {/**RECEIVING ITEM 
-                 *  RENDER THE CHOOSED RECEIVEMENT TO CHOOSE PAYMENT METHOD
-                 **/}
-                  {
-                    receivingItem &&
-
-
-                    user?.receivables.map((receivable) => {
-
-
-                      if(receivable.id === receivingItem.id) {
-
-                        let valueToRender = parseFloat(receivable.amount);
-
-                        receivable.receivements.map((receivement) => {
-                        
-                          let keyValuePairs = receivement.split(', ');
-  
-                          let receivableObject = {};
-  
-                          for (let i = 0; i < keyValuePairs.length; i++) {
-                            let pair = keyValuePairs[i].split(':');
-                            let key = pair[0];
-                            let value = pair[1];
-                            receivableObject[key] = value;
-                          }
-  
-                          let amount = receivableObject['amount'];
-  
-                          valueToRender -= amount;
-  
-  
-                        })
-
-
-                        return (
-                          <>
-                          <TableRow key={receivingItem.id}>
-                          <TableCell>R$ {valueToRender.toFixed(2)}</TableCell>
-                          <TableCell align="right">{receivingItem.dueDate}</TableCell>
-
-                          <TableCell align="right">
-                            {
-                              !choosePayMethod &&
-                              <button onClick={()=>{ }}>Receber</button>
-                            }
-
-                            {
-                              choosePayMethod &&
-                              <select style={{borderRadius:"8px", border:"none", backgroundColor:"lightgray", padding:"5px", cursor: "pointer"}}
-                                onChange={(e) => handleReceivablesChange(e.target.value)}
-                              >
-                                <option value="">Forma de Pagamento</option>
-                                <option value="A Vista">A Vista</option>
-                                <option value="Pix">Pix</option>
-                                <option value="Cartão Débito">Cartão Débito</option>
-                                <option value="Cartão Crédito">Cartão Crédito</option>
-                                <option value="A Prazo">A Prazo</option>
-                              </select>
-                            }
-                          </TableCell>
-                          <TableCell>
-                            <input placeholder="R$" style={{borderRadius:"8px", border:"none", backgroundColor:"lightgray", padding:"5px"}} {...register("receivingAmount")}/>
-                          </TableCell>
-                          <TableCell>
-                            <form onSubmit={handleSubmit(onFormSubmit)}>
-                              <button type='submit' onClick={()=>{setChoosePayMethod(!choosePayMethod);}}>Receber</button>
-                            </form>
-
-                          </TableCell>
-      
-          
-      
-                        </TableRow>
-                                                    
-                        </>
-                        )
-                      }
-
-
-                    })
-
-                      
-
-
-
-
-
-                  }
-
-
-
-                  
-                  <button style={{backgroundColor:"green", color:"white", border:"none", borderRadius:"8px", padding:"10px", margin:"10px", cursor:"pointer"}} onClick={()=>{window.location.reload()}}>Concluir</button>
-
-                  </TableBody>
-
-
-
-
-
-
-
-                </Table>
-              )
             }
 
 

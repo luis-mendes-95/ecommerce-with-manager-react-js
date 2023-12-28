@@ -254,15 +254,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
 
 
-
-
-
-
-
-
-
-
-
         toast.success("Item adicionado ao carrinho!", {
           position: "bottom-right", 
           autoClose: 3000, 

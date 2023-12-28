@@ -68,9 +68,32 @@ export default function VendasView() {
 
 
 
+      const filterProducts = (searchText) => {
+        if (!searchText) {
+          setFilteredProducts(user?.produtos || []);
+        } else {
+          const filtered = user?.produtos.filter(
+            (item) =>
+              item.nome.toLowerCase().includes(searchText.toLowerCase()) ||
+              item.cod.toLowerCase().includes(searchText.toLowerCase())
+          );
+          setFilteredProducts(filtered || []);
+        }
+      };
+
+
+
+
+      
       /**FILTER STUFF FUNCTIONS */
       const handleChangeregsSituation = (event) => {    setRegsSituation(event.target.value);  };
 
+
+      const handleFilterByName = (event) => {
+        const searchText = event.target.value;
+        setFilterName(searchText);
+        filterProducts(searchText);
+      };
 
 
       /**FILTER STUFF VARIABLES */
@@ -649,7 +672,7 @@ const getSale = async (id) => {
       <Box sx={{display:"flex", flexWrap:"wrap", justifyContent:"center", alignContent:"center", alignItems:"center", bgcolor:"white", borderRadius:"8px"}}>
         {
           thisSale &&
-          <ProductTableToolbar filterName={productFilterName} />
+          <ProductTableToolbar numSelected={0} filterName={filterName} onFilterName={handleFilterByName} />
         }
         {
           !thisSale &&
