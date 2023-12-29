@@ -237,7 +237,6 @@ export default function OsView() {
     const handleSetModalOs = (bool) => {
       setShowModalOs(bool);
     }
-
     const handleSetClient = (data) => {
       setThisClient(data);
     }
@@ -537,8 +536,6 @@ const getOs = async (id) => {
     console.log(err);
     setThisOs(null);
   }
-  console.log("fluiu tudo, saca só")
-  console.log(thisOs)
 }; 
 
 
@@ -839,7 +836,7 @@ const getOs = async (id) => {
         {filteredProducts?.map((product) => (
             regsSituation === "all" &&
             <Grid key={product.id} xs={12} sm={6} md={3} >
-              <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} handleGetOs={handleGetOs} thisSale={thisSale} thisOs={thisOs} ubmitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
+              <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} handleGetOs={handleGetOs} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
   
             </Grid>
           ))}
@@ -916,7 +913,7 @@ const getOs = async (id) => {
                     key={row.id}
                     data={formattedDate} // Use the formatted date
                     nome_razao_social={row.client.nome_razao_social}
-                    total={row.status}
+                    total={row.status.toUpperCase()}
                     handleSaleToEdit={handleSaleToEdit}
 
                     />
@@ -934,7 +931,7 @@ const getOs = async (id) => {
                     key={row.id}
                     data={formattedDate} // Use the formatted date
                     nome_razao_social={row.client.nome_razao_social}
-                    total={row.status}
+                    total={row.status.toUpperCase()}
                     handleSaleToEdit={handleSaleToEdit}
                     />
                   );
@@ -952,7 +949,7 @@ const getOs = async (id) => {
                       id={row.id}
                       data={formattedDate} // Use the formatted date
                       nome_razao_social={row.client.nome_razao_social}
-                      total={row.status}                  handleSaleToEdit={handleSaleToEdit}
+                      total={row.status.toUpperCase()}                handleSaleToEdit={handleSaleToEdit}
                     />
                   );
                 }

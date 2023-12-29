@@ -191,12 +191,17 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
   const createItemOs = async (createData) => {
 
 
+    console.log("chego eu aqui")
+    console.log(createData)
+
+    createData.descricao = createData.itemDescription;
+    createData.mockup = "";
+
+
     createData.createdAt = getDataAtualFormatada();
     createData.lastEditted = getDataAtualFormatada();
     createData.changeMaker = user_name;
 
-
-    createData.descricao = "eae";
     delete createData.description;
     createData.qtd = createData.qty;
     delete createData.qty;
@@ -257,6 +262,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
 
   const createItemVenda = async (createData) => {
+
 
 
     try {

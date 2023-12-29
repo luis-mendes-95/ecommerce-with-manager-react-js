@@ -277,7 +277,7 @@ const receiveValue = async (createData) => {
 
 
     if (dueDates.length < parcelas) {
-      console.log("gere parcelas automaticas")
+
       for (let i = 0; i < parcelas; i++) { 
       let currentDueDate = getDataAtualFormatada();
       newArrayDueDates.push(currentDueDate);
@@ -468,7 +468,7 @@ const receiveValue = async (createData) => {
               <TableHead>
                 <TableRow>
                   <TableCell align="center" colSpan={6}>
-                    Itens da Ordem de Serviço
+                    ITENS DA ORDEM DE SERVIÇO
                   </TableCell>
                   <TableCell align="right"></TableCell>
                 </TableRow>
@@ -478,7 +478,7 @@ const receiveValue = async (createData) => {
                   <TableCell align="center">Descrição</TableCell>
                   <TableCell align="center">Tipo de Arte</TableCell>
                   <TableCell align="center">Status</TableCell>
-                  <TableCell align="right"></TableCell>
+                  <TableCell align="right">Mockup</TableCell>
                   <TableCell align="right">...</TableCell>
                 </TableRow>
               </TableHead>
@@ -492,8 +492,11 @@ const receiveValue = async (createData) => {
                     <TableCell align="right">{row.qtd}</TableCell>
                     <TableCell align="center">{row.descricao}</TableCell>
                     <TableCell align="center">{row.tipo_arte}</TableCell>
-                    <TableCell align="center">{row.status}</TableCell>
-                    <TableCell align="right"></TableCell>
+                    <TableCell align="center" style={{backgroundColor: row.status === "Aguardando Arte" && 'orange'}}>{row.status}</TableCell>
+                    <TableCell align="right" style={{display:"flex", flexDirection:"column", justifyContent:"center", alignContent:"center", alignItems:"center"}}>
+                      <img style={{height:"80px", margin:"5px"}} src={row.mockup === "" ? "https://img.freepik.com/psd-gratuitas/molduras-de-fotos_53876-57749.jpg?size=626&ext=jpg&ga=GA1.1.1546980028.1703116800&semt=ais" : row.mockup}/>
+                      <button>+</button>
+                    </TableCell>
                     <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemVenda(row.id); setParcelas(0); setFormaPagamentoParcelas([]); setCheckoutStep(0);}} >X</button></TableCell>
 
                   </TableRow>
@@ -516,7 +519,7 @@ const receiveValue = async (createData) => {
 
 
 
-                  <TableCell style={{width:"150px"}} align="right"> Total R$ { thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty));return total+subtotal;}, 0) - -dispatchValue  }</TableCell>
+                 
                 </TableRow>
 
               </TableBody>
@@ -524,6 +527,46 @@ const receiveValue = async (createData) => {
               </Table>
             }
 
+{
+              <Table sx={{ minWidth: 600 }} aria-label="spanning table">
+
+              <TableHead>
+                <TableRow>
+                <TableCell align="center" colSpan={6}>
+                    INSTRUÇÕES
+                  </TableCell>
+                  <TableCell align="center" colSpan={6}>
+                    <button style={{backgroundColor:"green", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer"}}>+ Nova Instrução</button>
+                  </TableCell>
+                  <TableCell align="right"></TableCell>
+                </TableRow>
+              </TableHead>
+
+              <TableBody style={{height:"100px", overflow:"scroll"}}>
+
+
+                {thisOs?.instrucoes.map((row) => (
+                  <TableRow key={row.id}> 
+                    <TableCell>{row.produto.nome}</TableCell>
+                    <TableCell align="right">{row.qtd}</TableCell>
+                    <TableCell align="center">{row.descricao}</TableCell>
+                    <TableCell align="center">{row.tipo_arte}</TableCell>
+                    <TableCell align="center" style={{backgroundColor: row.status === "Aguardando Arte" && 'orange'}}>{row.status}</TableCell>
+                    <TableCell align="right"></TableCell>
+                    <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemVenda(row.id); setParcelas(0); setFormaPagamentoParcelas([]); setCheckoutStep(0);}} >X</button></TableCell>
+
+                  </TableRow>
+                ))}
+
+                <TableRow >
+
+                 
+                </TableRow>
+
+              </TableBody>
+
+              </Table>
+            }
 
 
 
@@ -543,39 +586,8 @@ const receiveValue = async (createData) => {
              *  1) GENERATE NUMBER OF INSTALLMENTS /
              *  2) CHOOSE DUE DATES
              **/}
-            {
-              checkoutStep === 0 && (
-                <FormGroup sx={{margin:"40px 0"}}>
-                <FormControlLabel control={<Checkbox checked={generateReceivables} onChange={()=>{setGenerateReceivables(!generateReceivables)}}/>} label="Gerar Títulos A Receber" />
 
-                <FormControlLabel control={<Checkbox checked={generateDispatch} onChange={()=>{setGenerateDispatch(!generateDispatch)}}/>} label="Despacho por Transportadora" />
-    
-                </FormGroup>
-              )
-            }
-            {
-              checkoutStep === 1 && (
-                  <Box>
-                                        <Label>Qtd Parcelas</Label>
-                    <FormGroup sx={{ margin: "40px 0" }} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px", flexWrap:"nowrap" }}>
 
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12].map((parcela) => (
-                        <FormControlLabel
-                          key={parcela}
-                          control={
-                            <Checkbox
-                              checked={parcelas === parcela} 
-                              onChange={() => setParcelas(parcelas === parcela ? 0 : parcela)} 
-                            />
-                          }
-                          label={parcela.toString()}
-                        />
-                      ))}
-                    </FormGroup>
-                    <p>Valor da parcela: R$ { (thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty));return total+subtotal;}, 0) - -dispatchValue) / parcelas  }</p>
-                  </Box>
-              )
-            }
             {
               checkoutStep === 2 && (
                 <Box>
