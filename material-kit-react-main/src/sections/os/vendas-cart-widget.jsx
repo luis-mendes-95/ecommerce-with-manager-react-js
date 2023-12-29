@@ -79,11 +79,19 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
   const [choosePayMethod, setChoosePayMethod] = useState(false);
   const [receivingItem, setReceivingItem] = useState(null);
   const [addInstructions, setAddInstructions] = useState(false);
+  const [addFiles, setAddFiles] = useState(false);
   const [currentInstruction, setCurrentInstruction] = useState(null);
   const [addingMockup, setAddingMockup] = useState(false);
   const [itemAddingMockup, setItemAddingMockup] = useState(null);
+  const [urlAddingMockup, setUrlAddingMockup] = useState(null);
   let newArrayDueDates = []
 
+
+
+
+  const handleUrlMockup = (value) => {
+    setUrlAddingMockup(value)
+  }
 
 
 
@@ -157,6 +165,51 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
   }
 
 
+  const addOrChangeMockup = async (id) => {
+
+    let createData = {
+      mockup: urlAddingMockup,
+      status: "Aguardando Cliente"
+    }
+
+
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.patch(`itemOs/${id}`, createData, config);
+      if (response.data) {
+        toast.success("Mockup editado!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+        setAddingMockup(!addingMockup);
+        handleGetOs(thisOs.id);
+        
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao editar mockup!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+    }
+  }
+
+
 
 
   const handleAddInstruction = () => {
@@ -179,7 +232,42 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
   }
 
 
+  
 
+  const deleteInstruction = async (id) => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.delete(`instrucoes/${id}`, config);
+      if (response.status === 200) {
+        console.log("deu liga")
+        toast.success("Instrução deletada!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+        handleGetOs(thisOs.id);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao deletar instrução!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+    }
+  }
 
 
 
@@ -578,7 +666,15 @@ const receiveValue = async (createData) => {
                     <TableCell align="right">{row.qtd}</TableCell>
                     <TableCell align="center">{row.descricao}</TableCell>
                     <TableCell align="center">{row.tipo_arte}</TableCell>
-                    <TableCell align="center" style={{backgroundColor: row.status === "Aguardando Arte" && 'orange'}}>{row.status}</TableCell>
+                    {
+                      row.status === "Aguardando Arte" &&
+                      <TableCell align="center" style={{backgroundColor:'orange'}}>{row.status}</TableCell>
+                    }
+                    {
+                      row.status === "Aguardando Cliente" &&
+                      <TableCell align="center" style={{backgroundColor:'lightblue'}}>{row.status}</TableCell>
+                    }
+
                     <TableCell align="right" style={{display:"flex", flexDirection:"column", justifyContent:"center", alignContent:"center", alignItems:"center"}}>
                       <img style={{height:"80px", margin:"5px"}} src={row.mockup === "" ? row.produto.imagem_principal : row.mockup}/>
                       {
@@ -589,11 +685,12 @@ const receiveValue = async (createData) => {
                       {
                         addingMockup && itemAddingMockup === row.id &&
                         <Box style={{display:"flex", alignItems:"center", flexDirection:"column"}}>
-                            <TextField label="Url da imagem"></TextField>
+                            <TextField label="Url da imagem" onInput={(e)=>{handleUrlMockup(e.target.value)}}></TextField>
 
                             ou
 
                             <button style={{padding:"10px"}}>Fazer Upload de Imagem</button>
+                            <button style={{padding:"5px", margin:"5px", backgroundColor:"green", color:"white", border:"none", borderRadius:"8px", cursor:"pointer"}} onClick={()=>{addOrChangeMockup(row.id)}}>Enviar</button>
                             <button style={{padding:"5px", margin:"5px", backgroundColor:"brown", color:"white", border:"none", borderRadius:"8px", cursor:"pointer"}} onClick={()=>{setAddingMockup(false); setItemAddingMockup(null);}}>Cancelar</button>
                         </Box>
                       }
@@ -646,7 +743,9 @@ const receiveValue = async (createData) => {
                     <TableRow key={row.id}> 
                       <TableCell>{row.createdAt}</TableCell>
                       <TableCell align="right"><h4>{row.changeMaker}:</h4> {row.descricao}</TableCell>
-     
+                      <TableCell>
+                        <button style={{backgroundColor:"brown", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer"}} onClick={()=>{deleteInstruction(row.id)}}>X</button>
+                      </TableCell>   
                      
 
                     </TableRow>
@@ -658,6 +757,80 @@ const receiveValue = async (createData) => {
 
                 {
                   addInstructions &&
+                  <TableRow >
+                      <TableCell>
+                        <TextField value={getDataAtualFormatada()} style={{width:"25%"}}></TextField>
+                      </TableCell>
+
+                      <TableCell align="left">
+                        <TextField label="Digite a Instrução" style={{width:"100%"}} onChange={(e)=>{handleNewInstruction(e.target.value)}}></TextField>
+                      </TableCell>
+
+                      <TableCell>
+                        <button style={{backgroundColor:"green", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer"}} onClick={addInstruction}>Salvar</button>
+                      </TableCell>                  
+                  </TableRow>
+                }
+
+              </TableBody>
+
+              </Table>
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+            {
+              <Table sx={{ minWidth: 600 }} aria-label="spanning table">
+
+              <TableHead>
+                <TableRow>
+                <TableCell align="center" colSpan={4}>
+                    ARQUIVOS
+                  </TableCell>
+                  <TableCell align="center" colSpan={4}>
+                   {
+                    !addFiles &&
+                    <button style={{backgroundColor:"green", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer"}} onClick={handleAddInstruction}>+ Subir Arquivo</button>
+                   }
+                  </TableCell>
+                  <TableCell align="right"></TableCell>
+                </TableRow>
+              </TableHead>
+
+              <TableBody style={{height:"100px", overflow:"scroll"}}>
+
+
+
+
+                {
+
+                  !addFiles &&
+                
+                  thisOs?.files.map((row) => (
+                    <TableRow key={row.id}> 
+                      <TableCell>{row.createdAt}</TableCell>
+                      <TableCell align="right"><h4>{row.changeMaker}:</h4> {row.descricao}</TableCell>
+     
+                     
+
+                    </TableRow>
+                  ))
+                
+                }
+
+
+
+                {
+                  addFiles &&
                   <TableRow >
                       <TableCell>
                         <TextField value={getDataAtualFormatada()} style={{width:"25%"}}></TextField>
