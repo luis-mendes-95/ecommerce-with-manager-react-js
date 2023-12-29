@@ -476,7 +476,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
               {
                 thisOs &&
                 <>
-                  <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("itemDescription")} label="Instruções" id="description" inputProps={{ maxLength: 4000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
+                  <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("itemDescription")} label="Descrição" id="description" inputProps={{ maxLength: 4000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
                   <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("files")} label="Anexar Arquivos" id="files" inputProps={{ maxLength: 4000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
                 </>
               }

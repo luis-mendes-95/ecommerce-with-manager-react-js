@@ -49,7 +49,7 @@ function getDataAtualFormatada() {
 
 
 
-export default function CartWidget({thisSale, deleteItemVenda, thisOs}) {
+export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thisOs}) {
   //FORM INPUTS CONFIGURATIONS
   let url = "/clientes"
 
@@ -424,7 +424,7 @@ const receiveValue = async (createData) => {
  */}
     {
       showCartModal && 
-      <div style={{backgroundColor:"black", position:"fixed", top:"0",left:"0", width:"100vw", height:"100%", zIndex:"9999", display:"flex", justifyContent:"center", alignItems:"flex-start"}}>
+      <div style={{backgroundColor:"black", position:"fixed", top:"0",left:"0", width:"100vw", zIndex:"9999", display:"flex", justifyContent:"center", alignItems:"flex-start"}}>
 
 
 
@@ -444,7 +444,7 @@ const receiveValue = async (createData) => {
 
 
 {/**TABLE WITH CART CONTENT */}
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} style={{ height:"100vh"}}>
             
 
 
@@ -483,7 +483,7 @@ const receiveValue = async (createData) => {
                 </TableRow>
               </TableHead>
 
-              <TableBody style={{height:"100px", overflow:"scroll"}}>
+              <TableBody style={{Maxheight:"50px", overflowY:"scroll"}}>
 
 
                 {thisOs?.itens.map((row) => (
@@ -497,7 +497,7 @@ const receiveValue = async (createData) => {
                       <img style={{height:"80px", margin:"5px"}} src={row.mockup === "" ? "https://img.freepik.com/psd-gratuitas/molduras-de-fotos_53876-57749.jpg?size=626&ext=jpg&ga=GA1.1.1546980028.1703116800&semt=ais" : row.mockup}/>
                       <button>+</button>
                     </TableCell>
-                    <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemVenda(row.id); setParcelas(0); setFormaPagamentoParcelas([]); setCheckoutStep(0);}} >X</button></TableCell>
+                    <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemOs(row.id); }} >X</button></TableCell>
 
                   </TableRow>
                 ))}
@@ -527,7 +527,7 @@ const receiveValue = async (createData) => {
               </Table>
             }
 
-{
+            {
               <Table sx={{ minWidth: 600 }} aria-label="spanning table">
 
               <TableHead>
@@ -567,6 +567,8 @@ const receiveValue = async (createData) => {
 
               </Table>
             }
+
+
 
 
 

@@ -548,7 +548,7 @@ const getOs = async (id) => {
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await api.delete(`itemVendas0/${itemId}`, config);
+      const response = await api.delete(`itemVendas/${itemId}`, config);
       if (response.status === 200) {
         
         toast.success("Item deletado com sucesso!");
@@ -561,6 +561,37 @@ const getOs = async (id) => {
       toast.error("Erro ao deletar item");
     }
 };
+
+
+
+
+
+  /**DELETE ITEM IN CART */
+  const deleteItemOs = async (itemId) => {
+    
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.delete(`itemOs/${itemId}`, config);
+      if (response.status === 200) {
+        
+        toast.success("Item deletado com sucesso!");
+        setTimeout(() => {
+          getOs(thisOs.id)
+        }, 1500);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao deletar item");
+    }
+};
+
+
+
+
 
 
   /**HANDLE SALE TO EDIT */
@@ -984,7 +1015,7 @@ const getOs = async (id) => {
 
    {
     !showAdd && !showEdit &&
-    <ProductCartWidget thisSale={thisSale} deleteItemVenda={deleteItemVenda} thisOs={thisOs}/>
+    <ProductCartWidget thisSale={thisSale} deleteItemVenda={deleteItemVenda} deleteItemOs={deleteItemOs}  thisOs={thisOs}/>
    }
    
     </Container>
