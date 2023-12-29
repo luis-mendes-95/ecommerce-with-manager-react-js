@@ -357,6 +357,18 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
 
   /**INCOMPLETE FINNISH IT */
   const addFile = async () => {
+
+    let createData = {
+      createdAt: getDataAtualFormatada(),
+      lastEditted: getDataAtualFormatada(),
+      changeMaker: user_name,
+
+      active: true,
+      filename: thisOs.client.nome_razao_social
+    }
+
+
+
     try {
       const config = {
         headers: {
