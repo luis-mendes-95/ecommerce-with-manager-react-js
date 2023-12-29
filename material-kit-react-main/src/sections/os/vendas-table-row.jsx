@@ -22,7 +22,7 @@ export default function VendasTableRow({
   id,
   data,
   nome_razao_social,
-  total,
+  status,
   selected,
   handleSaleToEdit
 }) {
@@ -46,7 +46,11 @@ export default function VendasTableRow({
 
         <TableCell>{nome_razao_social}</TableCell>
 
-        <TableCell>{total}</TableCell>
+        {
+          status === "AGUARDANDO ARTE" &&
+          <TableCell style={{backgroundColor: "orange"}}>{status}</TableCell>
+        }
+
 
       </TableRow>
 

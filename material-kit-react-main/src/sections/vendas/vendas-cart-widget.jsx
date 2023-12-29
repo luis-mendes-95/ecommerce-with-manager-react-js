@@ -444,7 +444,7 @@ const receiveValue = async (createData) => {
 
 
 {/**TABLE WITH CART CONTENT */}
-          <TableContainer component={Paper}>
+          <TableContainer component={Paper} style={{ height:"100vh"}}>
             
 
 
@@ -471,7 +471,7 @@ const receiveValue = async (createData) => {
                   <TableCell align="center" colSpan={6}>
                     Confira os itens
                   </TableCell>
-                  <TableCell align="right">Valor</TableCell>
+                  <TableCell align="right"></TableCell>
                 </TableRow>
                 <TableRow style={{height:"100%", padding:"0"}}>
                   <TableCell>Item</TableCell>

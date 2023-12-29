@@ -483,7 +483,7 @@ const getSale = async (id) => {
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await api.delete(`itemVendas0/${itemId}`, config);
+      const response = await api.delete(`itemVendas/${itemId}`, config);
       if (response.status === 200) {
         
         toast.success("Item deletado com sucesso!");

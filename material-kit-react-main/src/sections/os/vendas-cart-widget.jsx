@@ -49,7 +49,7 @@ function getDataAtualFormatada() {
 
 
 
-export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thisOs}) {
+export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thisOs, handleGetOs}) {
   //FORM INPUTS CONFIGURATIONS
   let url = "/clientes"
 
@@ -78,12 +78,98 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
   const [receivablesToGet, setReceivablesToGet] = useState([]);
   const [choosePayMethod, setChoosePayMethod] = useState(false);
   const [receivingItem, setReceivingItem] = useState(null);
+  const [addInstructions, setAddInstructions] = useState(false);
+  const [currentInstruction, setCurrentInstruction] = useState(null);
+  const [addingMockup, setAddingMockup] = useState(false);
+  const [itemAddingMockup, setItemAddingMockup] = useState(null);
   let newArrayDueDates = []
 
 
 
 
 
+  const handleAddOrChangeMockup = (id) => {
+    setAddingMockup(!addingMockup)
+    setItemAddingMockup(id);
+  }
+
+
+  function getDataAtualFormatadaInstruction() {
+    var data = new Date();
+    var dia = data.getDate().toString().padStart(2, '0');
+    var mes = (data.getMonth() + 1).toString().padStart(2, '0'); // Adiciona 1 porque os meses começam do 0
+    var ano = data.getFullYear();
+    var horas = data.getHours().toString().padStart(2, '0');
+    var minutos = data.getMinutes().toString().padStart(2, '0');
+    
+    return dia + '/' + mes + '/' + ano + ' | ' + horas + ':' + minutos;
+  }
+  
+
+  const addInstruction = async () => {
+
+    let createData = {
+      createdAt: getDataAtualFormatadaInstruction(),
+      lastEditted: getDataAtualFormatadaInstruction(),
+      changeMaker: user_name,
+
+      descricao: currentInstruction,
+
+      //itemOs_id: null,
+      os_id: thisOs.id
+    }
+
+
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.post(`instrucoes`, createData, config);
+      if (response.data) {
+        toast.success("Instrução adicionada!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+        setAddInstructions(!addInstructions);
+        handleGetOs(thisOs.id);
+        
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao adicionar instrução!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+    }
+  }
+
+
+
+
+  const handleAddInstruction = () => {
+    setAddInstructions(!addInstructions)
+    console.log(addInstructions)
+  }
+
+
+
+  const handleNewInstruction = (value) => {
+    console.log(value)
+    setCurrentInstruction(value);
+  }
 
 
 
@@ -478,7 +564,7 @@ const receiveValue = async (createData) => {
                   <TableCell align="center">Descrição</TableCell>
                   <TableCell align="center">Tipo de Arte</TableCell>
                   <TableCell align="center">Status</TableCell>
-                  <TableCell align="right">Mockup</TableCell>
+                  <TableCell align="center">Mockup</TableCell>
                   <TableCell align="right">...</TableCell>
                 </TableRow>
               </TableHead>
@@ -494,8 +580,24 @@ const receiveValue = async (createData) => {
                     <TableCell align="center">{row.tipo_arte}</TableCell>
                     <TableCell align="center" style={{backgroundColor: row.status === "Aguardando Arte" && 'orange'}}>{row.status}</TableCell>
                     <TableCell align="right" style={{display:"flex", flexDirection:"column", justifyContent:"center", alignContent:"center", alignItems:"center"}}>
-                      <img style={{height:"80px", margin:"5px"}} src={row.mockup === "" ? "https://img.freepik.com/psd-gratuitas/molduras-de-fotos_53876-57749.jpg?size=626&ext=jpg&ga=GA1.1.1546980028.1703116800&semt=ais" : row.mockup}/>
-                      <button>+</button>
+                      <img style={{height:"80px", margin:"5px"}} src={row.mockup === "" ? row.produto.imagem_principal : row.mockup}/>
+                      {
+                        !addingMockup && 
+                         <button onClick={()=>{handleAddOrChangeMockup(row.id)}} style={{backgroundColor:"lightgreen", width:"90px", color:"black", fontWeight:"bold", border:"none", padding:"8px", cursor:"pointer"}}>+</button>
+                      }
+
+                      {
+                        addingMockup && itemAddingMockup === row.id &&
+                        <Box style={{display:"flex", alignItems:"center", flexDirection:"column"}}>
+                            <TextField label="Url da imagem"></TextField>
+
+                            ou
+
+                            <button style={{padding:"10px"}}>Fazer Upload de Imagem</button>
+                            <button style={{padding:"5px", margin:"5px", backgroundColor:"brown", color:"white", border:"none", borderRadius:"8px", cursor:"pointer"}} onClick={()=>{setAddingMockup(false); setItemAddingMockup(null);}}>Cancelar</button>
+                        </Box>
+                      }
+
                     </TableCell>
                     <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemOs(row.id); }} >X</button></TableCell>
 
@@ -503,20 +605,6 @@ const receiveValue = async (createData) => {
                 ))}
 
                 <TableRow >
-
-
-
-
-
-                  {
-                    generateDispatch &&
-                    <TableCell align='right'> 
-                    <TextField style={{width:"110px"}} align="right" label='Valor Frete' onChange={(e)=>{setDispatchValue(e.target.value)}}/> 
-                  </TableCell>
-                  }
-
-
-
 
 
                  
@@ -532,11 +620,14 @@ const receiveValue = async (createData) => {
 
               <TableHead>
                 <TableRow>
-                <TableCell align="center" colSpan={6}>
+                <TableCell align="center" colSpan={4}>
                     INSTRUÇÕES
                   </TableCell>
-                  <TableCell align="center" colSpan={6}>
-                    <button style={{backgroundColor:"green", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer"}}>+ Nova Instrução</button>
+                  <TableCell align="center" colSpan={4}>
+                   {
+                    !addInstructions &&
+                    <button style={{backgroundColor:"green", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer"}} onClick={handleAddInstruction}>+ Nova Instrução</button>
+                   }
                   </TableCell>
                   <TableCell align="right"></TableCell>
                 </TableRow>
@@ -545,23 +636,42 @@ const receiveValue = async (createData) => {
               <TableBody style={{height:"100px", overflow:"scroll"}}>
 
 
-                {thisOs?.instrucoes.map((row) => (
-                  <TableRow key={row.id}> 
-                    <TableCell>{row.produto.nome}</TableCell>
-                    <TableCell align="right">{row.qtd}</TableCell>
-                    <TableCell align="center">{row.descricao}</TableCell>
-                    <TableCell align="center">{row.tipo_arte}</TableCell>
-                    <TableCell align="center" style={{backgroundColor: row.status === "Aguardando Arte" && 'orange'}}>{row.status}</TableCell>
-                    <TableCell align="right"></TableCell>
-                    <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemVenda(row.id); setParcelas(0); setFormaPagamentoParcelas([]); setCheckoutStep(0);}} >X</button></TableCell>
 
+
+                {
+
+                  !addInstructions &&
+                
+                  thisOs?.instrucoes.map((row) => (
+                    <TableRow key={row.id}> 
+                      <TableCell>{row.createdAt}</TableCell>
+                      <TableCell align="right"><h4>{row.changeMaker}:</h4> {row.descricao}</TableCell>
+     
+                     
+
+                    </TableRow>
+                  ))
+                
+                }
+
+
+
+                {
+                  addInstructions &&
+                  <TableRow >
+                      <TableCell>
+                        <TextField value={getDataAtualFormatada()} style={{width:"25%"}}></TextField>
+                      </TableCell>
+
+                      <TableCell align="left">
+                        <TextField label="Digite a Instrução" style={{width:"100%"}} onChange={(e)=>{handleNewInstruction(e.target.value)}}></TextField>
+                      </TableCell>
+
+                      <TableCell>
+                        <button style={{backgroundColor:"green", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer"}} onClick={addInstruction}>Salvar</button>
+                      </TableCell>                  
                   </TableRow>
-                ))}
-
-                <TableRow >
-
-                 
-                </TableRow>
+                }
 
               </TableBody>
 
@@ -583,60 +693,12 @@ const receiveValue = async (createData) => {
 
 
 
-            {/**CHECKOUT STEPS
-             *  0) GENERATE ITEMS / 
-             *  1) GENERATE NUMBER OF INSTALLMENTS /
-             *  2) CHOOSE DUE DATES
-             **/}
 
 
             {
-              checkoutStep === 2 && (
-                <Box>
-                  {/* ... (outros elementos) */}
-                  <form onSubmit={handleSubmit(onFormSubmit)} style={{height:"100%", overflow:"scroll", }}>
-                  {Array.from({ length: parcelas }).map((_, index) => (
-                    <div style={{ display: "flex", flexDirection:"row", backgroundColor:"lightgray", width:"25%" }}>
-                      <p>Parcela {index + 1} : R$ {((thisSale?.itens.reduce((total, item) => {
-                        const precoComDesconto = item.produto.preco - item.disccount;
-                        const subtotal = ((precoComDesconto * item.qty));
-                        return total + subtotal;
-                      }, 0)) / parcelas + (dispatchValue / parcelas)).toFixed(2)}</p>
-                      <FormGroup sx={{ margin: "0 0" }} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px", flexWrap: "nowrap", maxHeight:"80px" }}>
-                        {/* Substituir os Checkbox por Select */}
 
-                        <TextField
-                          placeholder='01/01/2018'
-                          label='Data Vencimento'
-                          defaultValue={getDataAtualFormatada()}
-                          style={{margin:"10px 0"}}
-                          value={dueDates[index]}
-                          onChange={(e) => {
-                            const newDueDates = [...dueDates];
-                            newDueDates[index] = e.target.value;
-                            setDueDates(newDueDates);
-                          }}
-                        />
-                      </FormGroup>
-                    </div>
-                  ))}
+              <Button sx={{bgcolor:"green", color:"white", margin:"15px"}} onClick={()=>{window.location.reload()}} >Concluir</Button>
 
-                  <Button sx={{bgcolor:"green", color:"white"}} type='submit' >Continuar</Button>
-                  </form>
-                </Box>
-              )
-            }
-
-            {
-              checkoutStep !== 2 && checkoutStep !== 4 && !receivableMode && (
-              <Button sx={{bgcolor:"#1877F2", color:"white", margin:"0 10px"}} onClick={()=>{if(checkoutStep > 0){setCheckoutStep(checkoutStep - 1);}}} >Voltar</Button>
-              )
-            }
-
-            {
-              checkoutStep !== 2 && checkoutStep !== 4 && !receivableMode && (
-              <Button sx={{bgcolor:"green", color:"white"}} onClick={()=>{setCheckoutStep(checkoutStep + 1);}} >Continuar</Button>
-              )
             }
 
 

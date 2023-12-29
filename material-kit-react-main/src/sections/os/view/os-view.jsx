@@ -430,39 +430,17 @@ export default function OsView() {
 
   /**DELETE VENDA REQUEST IN BACKEND */
   const deleteVenda = async () => {
-      try {
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
-        const response = await api.delete(`${url}/${thisSale.id}`, config);
-        console.log("to deletano")
-        console.log(response)
-        if (response.status === 200) {
-          toast.success("Venda cancelada!", {
-            position: "bottom-right", 
-            autoClose: 3000, 
-            hideProgressBar: false, 
-            closeOnClick: true, 
-            pauseOnHover: true, 
-            draggable: true, 
-            progress: undefined, 
-          });
-          handleSetModalVenda(false);
-          setThisSale(null);
-          setThisOs(null);
-          setThisClient(null);
-
-          setTimeout(() => {
-            setSubmitType("createOs");
-            reset();
-            getUser();
-          }, 1500);
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Erro ao cancelar venda!", {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.delete(`${url}/${thisSale.id}`, config);
+      console.log("to deletano")
+      console.log(response)
+      if (response.status === 200) {
+        toast.success("Venda cancelada!", {
           position: "bottom-right", 
           autoClose: 3000, 
           hideProgressBar: false, 
@@ -471,12 +449,37 @@ export default function OsView() {
           draggable: true, 
           progress: undefined, 
         });
-        setSubmitType("createOs")
+        handleSetModalVenda(false);
         setThisSale(null);
         setThisOs(null);
         setThisClient(null);
+
+        setTimeout(() => {
+          setSubmitType("createOs");
+          reset();
+          getUser();
+        }, 1500);
       }
-  };
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao cancelar venda!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+      setSubmitType("createOs")
+      setThisSale(null);
+      setThisOs(null);
+      setThisClient(null);
+    }
+};
+
+
+
 
 
 
@@ -754,7 +757,7 @@ const getOs = async (id) => {
               thisOs &&
               <>
                 <p style={{fontWeight:"bold"}}>{thisOs?.client?.nome_razao_social}</p>
-                <Button variant="contained" color="inherit" style={{backgroundColor:"brown"}} onClick={()=>{deleteVenda()}}>
+                <Button variant="contained" color="inherit" style={{backgroundColor:"brown"}} onClick={()=>{deleteOs()}}>
                   Cancelar Os
                 </Button>
               </>
@@ -944,7 +947,7 @@ const getOs = async (id) => {
                     key={row.id}
                     data={formattedDate} // Use the formatted date
                     nome_razao_social={row.client.nome_razao_social}
-                    total={row.status.toUpperCase()}
+                    status={row.status.toUpperCase()}
                     handleSaleToEdit={handleSaleToEdit}
 
                     />
@@ -962,7 +965,7 @@ const getOs = async (id) => {
                     key={row.id}
                     data={formattedDate} // Use the formatted date
                     nome_razao_social={row.client.nome_razao_social}
-                    total={row.status.toUpperCase()}
+                    status={row.status.toUpperCase()}
                     handleSaleToEdit={handleSaleToEdit}
                     />
                   );
@@ -980,7 +983,7 @@ const getOs = async (id) => {
                       id={row.id}
                       data={formattedDate} // Use the formatted date
                       nome_razao_social={row.client.nome_razao_social}
-                      total={row.status.toUpperCase()}                handleSaleToEdit={handleSaleToEdit}
+                      status={row.status.toUpperCase()}                handleSaleToEdit={handleSaleToEdit}
                     />
                   );
                 }
@@ -1015,7 +1018,7 @@ const getOs = async (id) => {
 
    {
     !showAdd && !showEdit &&
-    <ProductCartWidget thisSale={thisSale} deleteItemVenda={deleteItemVenda} deleteItemOs={deleteItemOs}  thisOs={thisOs}/>
+    <ProductCartWidget thisSale={thisSale} deleteItemVenda={deleteItemVenda} deleteItemOs={deleteItemOs}  thisOs={thisOs} handleGetOs={handleGetOs}/>
    }
    
     </Container>

@@ -239,6 +239,8 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
   const createItemVenda = async (createData) => {
 
+    createData.mockup = "";
+
 
     try {
       const config = {
