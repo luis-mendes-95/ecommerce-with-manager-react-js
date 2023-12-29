@@ -51,6 +51,11 @@ export default function VendasTableRow({
           <TableCell style={{backgroundColor: "orange"}}>{status}</TableCell>
         }
 
+{
+          status === "AGUARDANDO CLIENTE" &&
+          <TableCell style={{backgroundColor: "lightblue"}}>{status}</TableCell>
+        }
+
 
       </TableRow>
 

@@ -84,6 +84,7 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
   const [addingMockup, setAddingMockup] = useState(false);
   const [itemAddingMockup, setItemAddingMockup] = useState(null);
   const [urlAddingMockup, setUrlAddingMockup] = useState(null);
+  const [urlAddingFile, setUrlAddingFile] = useState(null);
   let newArrayDueDates = []
 
 
@@ -174,6 +175,8 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
 
 
 
+
+
     try {
       const config = {
         headers: {
@@ -193,7 +196,7 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
         });
         setAddingMockup(!addingMockup);
         handleGetOs(thisOs.id);
-        
+        handleOsStatusByItems();
       }
     } catch (err) {
       console.error(err);
@@ -211,16 +214,96 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
 
 
 
+  const handleOsStatusByItems = async () => {
+
+    let aguardandoArte = 0
+    let aguardandoCliente = 0
+    let aprovado = 0
+    let emProducao = 0
+    let concluido = 0
+
+    let osStatus = "";
+
+    thisOs.itens.map((item)=>{
+      console.log(item.status)
+      if(item.status === "Aguardando Arte") {
+        aguardandoArte += 1;
+      } else if (item.status === "Aguardando Cliente") {
+        aguardandoCliente += 1;
+      } else if (item.status === "Aprovado") {
+        aprovado += 1;
+      } else if (item.status === "Em produção") {
+        emProducao += 1;
+      } else if (item.status === "Concluído") {
+        concluido += 1;
+      }  
+    })
+
+    if (aguardandoArte > 0) {
+      osStatus = "Aguardando Arte"
+    } else if (aguardandoArte === 0 && aguardandoCliente > 0) {
+      osStatus = "Aguardando Cliente"
+    } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado > 0) {
+      osStatus = "Aprovado"
+    } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado === 0 && emProducao > 0) {
+      osStatus = "Em Produção"
+    } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado === 0 && emProducao === 0 && concluido > 0) {
+      osStatus = "Concluído"
+    }
+
+    let createData = {
+      status: osStatus
+    }
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.patch(`os/${thisOs.id}`, createData, config);
+      if (response.data) {
+        toast.success("Status atualizado!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+        console.log("deu ?")
+        handleGetOs(thisOs.id);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao atualizar status!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+    }
+  }
+
+
+
 
   const handleAddInstruction = () => {
     setAddInstructions(!addInstructions)
-    console.log(addInstructions)
+  }
+
+
+  const handleAddFile = () => {
+    setAddFiles(!addFiles);
   }
 
 
 
   const handleNewInstruction = (value) => {
-    console.log(value)
     setCurrentInstruction(value);
   }
 
@@ -271,6 +354,50 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
 
 
 
+
+  /**INCOMPLETE FINNISH IT */
+  const addFile = async () => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.post(`files`, config);
+      if (response.data) {
+        toast.success("Arquivo adicionado!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+        handleGetOs(thisOs.id);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao deletar instrução!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+    }
+  }
+
+
+
+
+
+
+  const handleNewFile = (value) => {
+    setUrlAddingFile(value);
+  }
 
 
 
@@ -767,7 +894,8 @@ const receiveValue = async (createData) => {
                       </TableCell>
 
                       <TableCell>
-                        <button style={{backgroundColor:"green", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer"}} onClick={addInstruction}>Salvar</button>
+                      <button style={{backgroundColor:"green", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer"}} onClick={addInstruction}>Salvar</button>
+                      <button style={{backgroundColor:"brown", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer", margin:"0 10px"}} onClick={()=>{setAddInstructions(!addInstructions)}}>Cancelar</button>
                       </TableCell>                  
                   </TableRow>
                 }
@@ -799,7 +927,7 @@ const receiveValue = async (createData) => {
                   <TableCell align="center" colSpan={4}>
                    {
                     !addFiles &&
-                    <button style={{backgroundColor:"green", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer"}} onClick={handleAddInstruction}>+ Subir Arquivo</button>
+                    <button style={{backgroundColor:"green", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer"}} onClick={handleAddFile}>+ Subir Arquivo</button>
                    }
                   </TableCell>
                   <TableCell align="right"></TableCell>
@@ -832,16 +960,18 @@ const receiveValue = async (createData) => {
                 {
                   addFiles &&
                   <TableRow >
-                      <TableCell>
-                        <TextField value={getDataAtualFormatada()} style={{width:"25%"}}></TextField>
+
+
+                      <TableCell align="left" style={{display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center"}}>
+                        <TextField label="URL do arquivo" style={{width:"100%"}} onChange={(e)=>{handleNewFile(e.target.value)}}></TextField>
+                        ou
+                        <button>Subir Arquivo</button>
+
                       </TableCell>
 
-                      <TableCell align="left">
-                        <TextField label="Digite a Instrução" style={{width:"100%"}} onChange={(e)=>{handleNewInstruction(e.target.value)}}></TextField>
-                      </TableCell>
-
                       <TableCell>
-                        <button style={{backgroundColor:"green", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer"}} onClick={addInstruction}>Salvar</button>
+                        <button style={{backgroundColor:"green", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer"}} onClick={addFile}>Salvar</button>
+                        <button style={{backgroundColor:"brown", color:"white", border:"none", padding:"8px", borderRadius:"8px", margin:'8px'}} onClick={()=>{setAddFiles(!addFiles)}}>Cancelar</button>
                       </TableCell>                  
                   </TableRow>
                 }
