@@ -36,7 +36,7 @@ function getDataAtualFormatada() {
   return dia + '/' + mes + '/' + ano;
 }
 
-export default function VendaEditFormView(saleToEdit) {
+export default function VendaEditFormView({osToEdit, getOs, thisOs}) {
   
   const theme = useTheme();
   const router = useRouter();
@@ -55,6 +55,13 @@ const [receivingItemPayMethod, setReceivingItemPayMethod] = useState('');
 const [parcelas, setParcelas] = useState(1);
 const [formaPagamentoParcelas, setFormaPagamentoParcelas] = useState(Array(parcelas).fill([]));
 const [receivingItemAmount, setReceivingItemAmount] = useState(0);
+const [addingMockup, setAddingMockup] = useState(false);
+const [addingPrintFile, setAddingPrintFile] = useState(null);
+const [itemAddingMockup, setItemAddingMockup] = useState(null);
+const [itemAddingPrintFile, setItemAddingPrintFile] = useState(null);
+const [urlAddingMockup, setUrlAddingMockup] = useState(null);
+const [urlAddingFile, setUrlAddingFile] = useState(null);
+const [urlAddingPrintFile, setUrlAddingPrintFile] = useState(null);
 
 
 
@@ -85,7 +92,16 @@ const getUser = async () => {
 }; 
 
 
+const handleUrlMockup = (value) => {
+  setUrlAddingMockup(value)
+}
 
+
+
+
+const handleUrlPrintFile = (value) => {
+  setUrlAddingPrintFile(value)
+}
 
 
 //USE FORM CALLING FUNCTIONS
@@ -128,7 +144,7 @@ const receiveValue = async (createData) => {
         });
   
         getUser();
-        getSale(saleToEdit.id);
+        getSale(osToEdit.id);
         setReceivingItem(null);
         setReceivableMode(false);
         
@@ -263,6 +279,8 @@ const deleteItem = async () => {
 
 
 
+
+
 /**DELETE SALE AND CHECK IF THERE'S ANY RECEIVABLED PAID, IF TRUE, IT GENERATES CREDIT INSIDE THE CLIENT*/
 const deleteSale = async (id) => {
     try {
@@ -301,6 +319,42 @@ const deleteSale = async (id) => {
 };
 
 
+/**DELETE OS */
+const deleteOs = async (id) => {
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await api.delete(`os/${id}`, config);
+    if (response.status === 200) {
+      toast.success("Ordem de Serviço deletada com sucesso!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao deletar ordem de serviço!", {
+      position: "bottom-right", 
+      autoClose: 3000, 
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      progress: undefined, 
+    });
+  }
+};
 
 
 
@@ -388,8 +442,205 @@ const renderPaymentRow = (payment) => {
 
 
 
+/**HANDLE GET OS */
+const handleGetOs = (id) => {
+  getOs(id)
+}
 
 
+const addOrChangeMockup = async (id) => {
+
+  let createData = {
+    mockup: urlAddingMockup,
+    status: "Aguardando Cliente"
+  }
+
+
+
+
+
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await api.patch(`itemOs/${id}`, createData, config);
+    if (response.data) {
+      toast.success("Mockup editado!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+      setAddingMockup(!addingMockup);
+      handleGetOs(response.data.id);
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao editar mockup!", {
+      position: "bottom-right", 
+      autoClose: 3000, 
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      progress: undefined, 
+    });
+  }
+
+  handleOsStatusByItems();
+}
+
+
+
+
+const addOrChangePrintFile = async (id) => {
+
+  let createData = {
+    printFile: urlAddingPrintFile,
+    status: "Aguardando Impressão"
+  }
+
+
+
+
+
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await api.patch(`itemOs/${id}`, createData, config);
+    if (response.data) {
+      toast.success("Arquivo de impressão inserido!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+      setAddingPrintFile(!addingPrintFile);
+      handleGetOs(response.data.id);
+      handleOsStatusByItems();
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao inserir arquivo de impressão!", {
+      position: "bottom-right", 
+      autoClose: 3000, 
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      progress: undefined, 
+    });
+  }
+}
+
+
+
+const handleOsStatusByItems = async () => {
+
+  let aguardandoArte = 0
+  let aguardandoCliente = 0
+  let aprovado = 0
+  let aguardandoImpressao = 0
+  let emProducao = 0
+  let concluido = 0
+
+  let osStatus = "";
+
+  thisOs.itens.map((item)=>{
+
+    if(item.status === "Aguardando Arte" || item.status === "AGUARDANDO ARTE") {
+      aguardandoArte += 1;
+    } else if (item.status === "Aguardando Cliente" || item.status === "AGUARDANDO CLIENTE") {
+      aguardandoCliente += 1;
+    } else if (item.status === "APROVADO" || item.status === "Aprovado") {
+      aprovado += 1;
+    } else if (item.status === "Aguardando Impressão" || item.status === "AGUARDANDO IMPRESSÃO") {
+      aguardandoImpressao += 1;
+    } else if (item.status === "EM PRODUÇÃO" || item.status === "Em Produção") {
+      emProducao += 1;
+    } else if (item.status === "CONCLUÍDO" || item.status === "Concluído") {
+      concluido += 1;
+    }  
+  })
+
+  if (aguardandoArte > 0) {
+    osStatus = "Aguardando Arte"
+  } else if (aguardandoArte === 0 && aguardandoCliente > 0) {
+    osStatus = "Aguardando Cliente"
+  } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado > 0) {
+    osStatus = "Aprovado"
+  } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado === 0 && aguardandoImpressao > 0) {
+    osStatus = "Aguardando Impressão"
+  } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado === 0 && aguardandoImpressao > 0 && emProducao > 0) {
+    osStatus = "Em Produção"
+  } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado === 0 && aguardandoImpressao > 0 && emProducao === 0 && concluido > 0) {
+    osStatus = "Concluído"
+  }
+
+  let createData = {
+    status: osStatus
+  }
+
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await api.patch(`os/${thisOs.id}`, createData, config);
+    if (response.data) {
+      toast.success("Status atualizado!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+      handleGetOs(thisOs.id);
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao atualizar status!", {
+      position: "bottom-right", 
+      autoClose: 3000, 
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      progress: undefined, 
+    });
+  }
+}
+
+
+
+
+
+const handleAddOrChangeMockup = (id) => {
+  setAddingMockup(!addingMockup)
+  setItemAddingMockup(id);
+}
+
+
+
+
+const handleAddOrChangePrintFile = (id) => {
+  setAddingPrintFile(!addingPrintFile)
+  setItemAddingPrintFile(id);
+}
 
 
 
@@ -438,28 +689,11 @@ const onFormSubmit = (formData) => {
 
 
 
- /** GET SALE BY REQUEST IN BACKEND*/
-const [sale, setSale] = useState(null);
-const getSale = async (id) => {
-      try {
-        const response = await api.get(`/vendas/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if(response.data){
-            setSale(response.data); 
-        }
-      } catch (err) {
-        console.log(err);
-        setThisSale(null);
-      }
-}; 
 
 
 useEffect(() => {
 
-  getSale(saleToEdit.saleToEdit)
+  getOs(osToEdit.osToEdit)
 
 }, [])
 
@@ -470,12 +704,12 @@ const renderForm = (
   <>
     <Stack spacing={3} style={{display:"flex", flexDirection:"row", alignItems:"center", justifyContent:"center", alignContent:"center", gap:"15px", flexWrap:"wrap"}}>
 
-    <TextField style={{width:"200px"}} autoComplete="given-name" {...register("createdAt")} value={sale?.createdAt} defaultValue={" "} name="createdAt" required fullWidth id="createdAt" label="Data de cadastro" autoFocus/>
-    <TextField style={{width:"200px", marginTop:"0"}} required fullWidth id="lastEditted" value={sale?.lastEditted} defaultValue={" "} label="Última Edição" {...register("lastEditted")} name="lastEditted" autoComplete="family-name"/>
+    <TextField style={{width:"200px"}} autoComplete="given-name" {...register("createdAt")} value={thisOs?.createdAt} defaultValue={" "} name="createdAt" required fullWidth id="createdAt" label="Data de cadastro" autoFocus/>
+    <TextField style={{width:"200px", marginTop:"0"}} required fullWidth id="lastEditted" value={thisOs?.lastEditted} defaultValue={" "} label="Última Edição" {...register("lastEditted")} name="lastEditted" autoComplete="family-name"/>
     <TextField style={{width:"200px", marginTop:"0"}} required fullWidth id="changeMaker"lastEditted label="Colaborador" {...register("changeMaker")} name="changeMaker" autoComplete="family-name" value={user_name}/>
    
-    <TextField style={{width:"630px", marginTop:"0"}} required fullWidth id="description"lastEditted label="Cliente" value={sale?.client.nome_razao_social} defaultValue={" "}  name="client" autoComplete="family-name"/>
-    <TextField style={{width:"630px", marginTop:"0"}} required fullWidth id="description"lastEditted label="Descrição" value={sale?.description} defaultValue={" "} name="description" autoComplete="family-name"/>
+    <TextField style={{width:"630px", marginTop:"0"}} required fullWidth id="description"lastEditted label="Cliente" value={thisOs?.client.nome_razao_social} defaultValue={" "}  name="client" autoComplete="family-name"/>
+    <TextField style={{width:"630px", marginTop:"0"}} required fullWidth id="description"lastEditted label="Descrição" value={thisOs?.descricao} defaultValue={" "} name="description" autoComplete="family-name"/>
   
    
 
@@ -514,7 +748,7 @@ const renderForm = (
             >
               Voltar
             </Button>
-          <Typography variant="h4">Venda</Typography>
+          <Typography variant="h4">Ordem de Serviço</Typography>
 
 
           <Box component="form" onSubmit={handleSubmit(onFormSubmit)} noValidate sx={{ mt: 1 }}>
@@ -533,34 +767,28 @@ const renderForm = (
 
                     <TableHead>
                       <TableRow>
-                        <TableCell align="center" colSpan={6}>
+                        <TableCell align="center" colSpan={7}>
                           ITENS
                         </TableCell>
-                        <TableCell align="center"></TableCell>
+
                       </TableRow>
                       <TableRow style={{height:"100%", padding:"0"}}>
-                        <TableCell>Item</TableCell>
+                      <TableCell>Item</TableCell>
+                        <TableCell align="center">Descrição</TableCell>
                         <TableCell align="center">Qtd</TableCell>
-                        <TableCell align="center">Valor Unit</TableCell>
-                        <TableCell align="center">Desconto Unit</TableCell>
-                        <TableCell align="center">Valor com Desc</TableCell>
-                        <TableCell align="center">Sub Total</TableCell>
-                        <TableCell align="center"></TableCell>
+                        <TableCell align="center">Mockup</TableCell>
+                        <TableCell align="center">Arquivo para Impressão</TableCell>
+                        <TableCell align="center">Tipo de Arte</TableCell>
+                        <TableCell align="center">Status</TableCell>
                       </TableRow>
                     </TableHead>
 
 
 
               {
-                sale?.itens.map((item)=>{
+                thisOs?.itens.map((item)=>{
 
-                  const total = sale.itens.reduce((acc, item) => {
-                    const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
-                    const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                    const itemTotal = preco * qty;
-                    return acc + itemTotal;
-                  }, 0);
-
+                  console.log(item)
 
 
                   return(
@@ -576,12 +804,89 @@ const renderForm = (
 
                         <TableRow key={item.id}> 
                           <TableCell>{item.produto.nome}</TableCell>
-                          <TableCell align="center">{item.qty}</TableCell>
-                          <TableCell align="center">R${item.produto.preco}</TableCell>
-                          <TableCell align="center">R${item.disccount}</TableCell>
-                          <TableCell align="center">R${item.produto.preco - item.disccount}</TableCell>
-                          <TableCell align="center">R${(item.qty * item.produto.preco) - (item.disccount * item.qty)}</TableCell>
-                          <TableCell align="center"></TableCell>
+                          <TableCell align="center">{item.descricao}</TableCell>
+                          <TableCell align="center">{item.qtd}</TableCell>
+                          <TableCell align="center">
+                            <img style={{width:"150px"}} src={item.mockup}/>
+                            {
+                              !addingMockup && 
+                              <button onClick={()=>{handleAddOrChangeMockup(item.id)}} style={{backgroundColor:"lightgreen", width:"90px", color:"black", fontWeight:"bold", border:"none", padding:"8px", cursor:"pointer"}}>+</button>
+                            }
+
+                            {
+                              addingMockup && itemAddingMockup === item.id &&
+                              <Box style={{display:"flex", alignItems:"center", flexDirection:"column"}}>
+                                  <TextField label="Url da imagem" onInput={(e)=>{handleUrlMockup(e.target.value)}}></TextField>
+
+                                  ou
+
+                                  <button style={{padding:"10px"}}>Fazer Upload de Imagem</button>
+                                  <button style={{padding:"5px", margin:"5px", backgroundColor:"green", color:"white", border:"none", borderRadius:"8px", cursor:"pointer"}} onClick={()=>{addOrChangeMockup(item.id)}}>Enviar</button>
+                                  <button style={{padding:"5px", margin:"5px", backgroundColor:"brown", color:"white", border:"none", borderRadius:"8px", cursor:"pointer"}} onClick={()=>{setAddingMockup(false); setItemAddingMockup(null);}}>Cancelar</button>
+                              </Box>
+                            }
+                          </TableCell>
+                          <TableCell align="center">
+
+
+
+
+
+                            {
+                              item.printFile !== "" &&
+                              <button>Baixar</button>
+                            }
+                            {
+                              item.printFile === "" &&
+                              <p>Nenhum</p>
+                            }
+
+
+
+
+
+
+
+                            {
+                              !addingPrintFile && 
+                              <button onClick={()=>{handleAddOrChangePrintFile(item.id)}} style={{backgroundColor:"lightgreen", width:"90px", color:"black", fontWeight:"bold", border:"none", padding:"8px", cursor:"pointer"}}>+</button>
+                            }
+
+                            {
+                              addingPrintFile && itemAddingPrintFile === item.id &&
+                              <Box style={{display:"flex", alignItems:"center", flexDirection:"column"}}>
+                                  <TextField label="Url do arquivo" onInput={(e)=>{handleUrlPrintFile(e.target.value)}}></TextField>
+
+                                  ou
+
+                                  <button style={{padding:"10px"}}>Fazer Upload do arquivo</button>
+                                  <button style={{padding:"5px", margin:"5px", backgroundColor:"green", color:"white", border:"none", borderRadius:"8px", cursor:"pointer"}} onClick={()=>{addOrChangePrintFile(item.id)}}>Enviar</button>
+                                  <button style={{padding:"5px", margin:"5px", backgroundColor:"brown", color:"white", border:"none", borderRadius:"8px", cursor:"pointer"}} onClick={()=>{setAddingPrintFile(false); setItemAddingPrintFile(null);}}>Cancelar</button>
+                              </Box>
+                            } 
+
+
+
+
+
+                          </TableCell>
+                          <TableCell align="center">{item.tipo_arte}</TableCell>
+  
+
+                          {
+                            item.status === "Aguardando Arte" &&
+                            <TableCell align="center" style={{backgroundColor:"orange"}}>{item.status.toUpperCase()}</TableCell>
+                          }
+
+
+                          {
+                            item.status === "Aguardando Cliente" &&
+                            <TableCell align="center" style={{backgroundColor:"lightblue"}}>{item.status}</TableCell>
+                          }
+
+
+
+
       
                         </TableRow>
 
@@ -611,19 +916,7 @@ const renderForm = (
                 })
                 
               }
-              {
-              <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Total R$ {sale?.itens.reduce((acc, item) => {
-                const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
-                const desconto = parseFloat(item.disccount);
-                const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                const itemTotal = (preco - desconto) * qty;
-                return acc + itemTotal;
-              }, 0)}</TableCell>
-              }
-              {
-                sale?.dispatchValue !== "0" &&
-              <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Frete R$ {sale?.dispatchValue}</TableCell>
-              }
+
 
             </Table>
           </Box>
@@ -638,196 +931,6 @@ const renderForm = (
 
 
 
-
-          {/**TABLE RECEIVABLES */}
-          <Box>
-          {
-
-              receivableMode && (
-
-                /**TABLE*/
-                <Table sx={{ minWidth: 600, maxHeight: 100 }} aria-label="spanning table">
-
-
-                {/**TABLE HEADER */}
-                  <TableHead>
-
-                        <TableRow>
-                          <TableCell align="center" colSpan={6}>Receber este valor</TableCell>
-                        </TableRow>
-
-
-
-
-                  </TableHead>
-
-
-
-
-
-
-                  {/**RENDERED RECEIVABLES
-                   *  
-                   **/}
-                  <Box>
-
-
-
-                {/**RECEIVING ITEM 
-                 *  RENDER THE CHOOSED RECEIVEMENT TO CHOOSE PAYMENT METHOD
-                 **/}
-                  {
-                    receivableMode &&
-
-                      <Box component="form" >
-                          <TableRow key={receivingItem?.id}>
-                          <TableCell>R$ {receivingItemRemaining}</TableCell>
-                          <TableCell align="right">{receivingItem?.dueDate}</TableCell>
-
-                          <TableCell align="right">
-
-
-
-                              <select style={{borderRadius:"8px", border:"none", backgroundColor:"lightgray", padding:"5px", cursor: "pointer"}}
-                                onChange={(e) => handleReceivablesChange(e.target.value)}
-                              >
-                                <option value="">Forma de Pagamento</option>
-                                <option value="A Vista">A Vista</option>
-                                <option value="Pix">Pix</option>
-                                <option value="Cartão Débito">Cartão Débito</option>
-                                <option value="Cartão Crédito">Cartão Crédito</option>
-                                <option value="A Prazo">A Prazo</option>
-                              </select>
-
-                          </TableCell>
-                          <TableCell>
-                            <input placeholder="R$" style={{borderRadius:"8px", border:"none", backgroundColor:"lightgray", padding:"5px"}} onChange={(e)=>{setReceivingItemAmount(e.target.value)}}/>
-                          </TableCell>
-                          <TableCell>
-                            <Box>
-                              <p onClick={()=>{receiveValue(`data:${getDataAtualFormatada()}, amount:${receivingItemAmount}, type:${receivingItemPayMethod}, user:${user_name}`)}} style={{cursor:"pointer", border:"2pt solid black", padding:"4px", borderRadius:"8px"}}>Receber</p>
-                            </Box>
-
-                          </TableCell>
-      
-          
-      
-                        </TableRow>
-                                                    
-                      </Box>
-
-                  }
-
-
-
-                  
-                  <button style={{backgroundColor:"green", color:"white", border:"none", borderRadius:"8px", padding:"10px", margin:"10px", cursor:"pointer"}} onClick={()=>{window.location.reload()}}>Concluir</button>
-
-                  </Box>
-
-
-
-
-
-
-
-                </Table>
-              )
-
-          }
-          {
-            !receivableMode &&
-            <Table sx={{ minWidth: 600, marginTop: "25px" }} aria-label="spanning table">
-            <TableHead>
-
-              <TableRow>
-                <TableCell align="center" colSpan={6}>PARCELAS</TableCell>
-              </TableRow>
-
-
-
-              <TableRow>
-                    <TableCell align="center">Vencimento</TableCell>
-                    <TableCell align="center">Quantia</TableCell>
-                    <TableCell align="center">Recebido</TableCell>
-                    <TableCell align="center">...</TableCell>
-              </TableRow> 
-
-            </TableHead>
-
-
-
-            {
-              sale?.receivables
-              .slice() // Cria uma cópia para não modificar o array original
-              .sort((a, b) => new Date(a.dueDate.split('/').reverse().join('-')) - new Date(b.dueDate.split('/').reverse().join('-')))
-              .map((receivable) => {
-                  const dataArray = receivable.receivements;
-                  let totalReceived = 0;
-
-                  dataArray.forEach((item) => {
-                    const amountMatch = item.match(/amount:(\d+)/);
-                    if (amountMatch && amountMatch[1]) {
-                      totalReceived += parseInt(amountMatch[1], 10);
-                    }
-                  });
-
-                  const canReceive = receivable.amount - totalReceived !== 0;
-
-                  return (
-                    <TableBody style={{ height: "100px", overflow: "scroll" }}>
-                      <TableRow key={receivable.id}>
-                        <TableCell align="center">{receivable.dueDate}</TableCell>
-                        <TableCell align="center">R$ {parseFloat(receivable.amount).toFixed(2)}</TableCell>
-                        <TableCell align="center">R$ {totalReceived.toFixed(2)}</TableCell>
-                        {canReceive && (
-                          <TableCell align="center">
-                            <p
-                              style={{
-                                border: "none",
-                                padding: "15px",
-                                backgroundColor: "green",
-                                color: "white",
-                                fontWeight: "bold",
-                                borderRadius: "18px",
-                                cursor: "pointer",
-                                boxShadow: "1pt 1pt 5pt black",
-                              }}
-                              onClick={() => {
-                                handleReceivingItemChange(receivable);
-                              }}
-                            >
-                              Receber
-                            </p>
-                          </TableCell>
-                        )}
-                        {!canReceive && (
-                          <TableCell align="center">
-                            <p
-                              style={{
-                                border: "none",
-                                padding: "15px",
-                                backgroundColor: "lightblue",
-                                color: "black",
-                                fontWeight: "bold",
-                                borderRadius: "18px",
-                                cursor: "pointer",
-                                boxShadow: "1pt 1pt 5pt black",
-                              }}
-                            >
-                              OK
-                            </p>
-                          </TableCell>
-                        )}
-                      </TableRow>
-                    </TableBody>
-                  );
-                })
-            }
-
-            </Table>
-          }
-          </Box>
 
 
 
@@ -840,22 +943,21 @@ const renderForm = (
           {/**TABLE PAYMENTS */}
           <Box>
 
-          {
-            !receivableMode &&
+
             <Table sx={{ minWidth: 600, marginTop: "25px" }} aria-label="spanning table">
             <TableHead>
 
               <TableRow>
-                <TableCell align="center" colSpan={6}>PAGAMENTOS</TableCell>
+                <TableCell align="center" colSpan={6}>INSTRUÇÕES</TableCell>
               </TableRow>
 
 
 
               <TableRow>
-                    <TableCell align="center">Data</TableCell>
-                    <TableCell align="center">Quantia</TableCell>
-                    <TableCell align="center">Método</TableCell>
-                    <TableCell align="center">Usuário</TableCell>
+                    <TableCell align="left">Data</TableCell>
+                    <TableCell align="left">Usuário</TableCell>
+                    <TableCell align="center">Descrição</TableCell>
+
               </TableRow> 
 
             </TableHead>
@@ -863,48 +965,21 @@ const renderForm = (
 
 
             {
-              sale?.receivables.map((receivable, index) => (
-                <TableBody key={index} style={{ height: "100px", overflow: "scroll" }}>
+              thisOs?.instrucoes.map((instrucao, index) => (
+                <TableBody key={index} style={{ height: "10px", overflow: "scroll" }}>
                   <TableRow style={{ borderBottom: "1px solid #ccc" }}>
 
-                    <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
-                      {receivable.receivements.map((payment, paymentIndex) => (
-                        <div key={paymentIndex} style={{ marginTop: "10px" }}>
-                          <div style={{ marginBottom: "5px", fontSize: "14px" }}>Data: {payment.split(', ')[0].split(':')[1]}</div>
-                        </div>
-                      ))}
-                    </TableCell>
+                  <TableCell align="left" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>{instrucao.createdAt}</TableCell>
+                  <TableCell align="left" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>{instrucao.changeMaker}</TableCell>
+                  <TableCell align="center" style={{  }}>{instrucao.descricao}</TableCell>
 
-                    <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
-                      {receivable.receivements.map((payment, paymentIndex) => (
-                        <div key={paymentIndex} style={{ marginTop: "10px" }}>
-                          <div style={{ marginBottom: "5px", fontSize: "14px" }}>R$ {payment.split(', ')[1].split(':')[1]}</div>
-                        </div>
-                      ))}
-                    </TableCell>
-
-                    <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
-                      {receivable.receivements.map((payment, paymentIndex) => (
-                        <div key={paymentIndex} style={{ marginTop: "10px" }}>
-                          <div style={{ marginBottom: "5px", fontSize: "14px" }}>Tipo: {payment.split(', ')[2].split(':')[1]}</div>
-                        </div>
-                      ))}
-                    </TableCell>
-
-                    <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
-                      {receivable.receivements.map((payment, paymentIndex) => (
-                        <div key={paymentIndex} style={{ marginTop: "10px" }}>
-                          <div style={{ marginBottom: "5px", fontSize: "14px" }}>Usuário: {payment.split(', ')[3].split(':')[1]}</div>
-                        </div>
-                      ))}
-                    </TableCell>
                   </TableRow>
                 </TableBody>
               ))
             }
 
             </Table>
-          }
+
           </Box>
 
 
@@ -935,9 +1010,9 @@ const renderForm = (
                 <Button
                   variant="contained"
                   sx={{ mt: 3, mb: 2, mr: 3, bgcolor: "black", color: "white" }}
-                  onClick={()=>{deleteSale(sale?.id)}}
+                  onClick={()=>{deleteOs(thisOs?.id)}}
                 >
-                  Cancelar Venda
+                  Cancelar Ordem de Serviço
                 </Button>
             </Box>
 

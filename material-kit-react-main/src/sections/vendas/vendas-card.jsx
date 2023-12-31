@@ -173,6 +173,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
 
     createData.descricao = createData.description;
+    createData.printFile = "";
     delete createData.description;
     createData.qtd = createData.qty;
     delete createData.qty;

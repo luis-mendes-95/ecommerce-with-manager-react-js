@@ -24,7 +24,7 @@ export default function VendasTableRow({
   nome_razao_social,
   status,
   selected,
-  handleSaleToEdit
+  handleOsToEdit
 }) {
 
   const [open, setOpen] = useState(null);
@@ -37,23 +37,46 @@ export default function VendasTableRow({
     setOpen(null);
   };
 
+  console.log(status)
+
 
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected} sx={{cursor:"pointer"}} onClick={()=>{handleSaleToEdit(id);}}>
+      <TableRow hover tabIndex={-1} role="checkbox" selected={selected} sx={{cursor:"pointer"}} onClick={()=>{handleOsToEdit(id);}}>
      
         <TableCell>{data}</TableCell>
 
         <TableCell>{nome_razao_social}</TableCell>
+        
 
         {
+          status === "Aguardando Arte" &&
+          <TableCell style={{backgroundColor: "orange"}}>{status}</TableCell>
+        }
+
+{
           status === "AGUARDANDO ARTE" &&
           <TableCell style={{backgroundColor: "orange"}}>{status}</TableCell>
         }
 
 {
+          status === "Aguardando Cliente" &&
+          <TableCell style={{backgroundColor: "lightblue"}}>{status}</TableCell>
+        }
+
+{
           status === "AGUARDANDO CLIENTE" &&
           <TableCell style={{backgroundColor: "lightblue"}}>{status}</TableCell>
+        }
+
+{
+          status === "Aguardando Impressão" || status === "Aguardando Impressão" &&
+          <TableCell style={{backgroundColor: "gold"}}>{status}</TableCell>
+        }
+
+{
+          status === "AGUARDANDO IMPRESSÃO" || status === "Aguardando Impressão" &&
+          <TableCell style={{backgroundColor: "gold"}}>{status}</TableCell>
         }
 
 

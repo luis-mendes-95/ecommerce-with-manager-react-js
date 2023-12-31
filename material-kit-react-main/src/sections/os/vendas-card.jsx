@@ -197,7 +197,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
     createData.descricao = createData.itemDescription;
     createData.mockup = "";
 
-
+    createData.printFile = "";
     createData.createdAt = getDataAtualFormatada();
     createData.lastEditted = getDataAtualFormatada();
     createData.changeMaker = user_name;

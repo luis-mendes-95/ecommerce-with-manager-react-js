@@ -16,7 +16,7 @@ import Scrollbar from 'src/components/scrollbar';
 import UserTableHead from 'src/sections/clients/clients-table-head';
 import { emptyRows } from '../../clients/utils';
 import TableEmptyRows from 'src/sections/clients/table-empty-rows';
-import VendasTableRow from '../vendas-table-row';
+import VendasTableRow from '../os-table-row';
 import { VendaEditFormView } from '../vendaEditForm';
 
 
@@ -607,6 +607,16 @@ const getOs = async (id) => {
 
 
 
+    /**HANDLE OS TO EDIT */
+    const handleOsToEdit = (id) => {
+      getOs(id);
+      setOsToEdit(id);
+      setShowEdit(true);
+      setShowAdd(false);
+    }
+
+
+
   /**HANDLE GET SALE */
   const handleGetSale = (id) => {
     getSale(id)
@@ -933,6 +943,7 @@ const getOs = async (id) => {
               }))
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort by createdAt in descending order
               .map((row) => {
+                console.log(row)
                 const formattedDate = row.createdAt.split('-').reverse().join('/'); // Change date format back to "DD/MM/YYYY"
                 if (regsSituation === "all") {
                   const total = row.itens.reduce((acc, item) => {
@@ -948,7 +959,7 @@ const getOs = async (id) => {
                     data={formattedDate} // Use the formatted date
                     nome_razao_social={row.client.nome_razao_social}
                     status={row.status.toUpperCase()}
-                    handleSaleToEdit={handleSaleToEdit}
+                    handleOsToEdit={handleOsToEdit}
 
                     />
                   );
@@ -966,7 +977,7 @@ const getOs = async (id) => {
                     data={formattedDate} // Use the formatted date
                     nome_razao_social={row.client.nome_razao_social}
                     status={row.status.toUpperCase()}
-                    handleSaleToEdit={handleSaleToEdit}
+                    handleOsToEdit={handleOsToEdit}
                     />
                   );
                 } else if (regsSituation === "active" && row.active === true) {
@@ -983,7 +994,8 @@ const getOs = async (id) => {
                       id={row.id}
                       data={formattedDate} // Use the formatted date
                       nome_razao_social={row.client.nome_razao_social}
-                      status={row.status.toUpperCase()}                handleSaleToEdit={handleSaleToEdit}
+                      status={row.status.toUpperCase()}               
+                      handleOsToEdit={handleOsToEdit}
                     />
                   );
                 }
@@ -1012,7 +1024,7 @@ const getOs = async (id) => {
 
     {
       showEdit &&
-      <VendaEditFormView saleToEdit={saleToEdit} updateSale={getSale}/>
+      <VendaEditFormView osToEdit={osToEdit} getOs={getOs} thisOs={thisOs}/>
     }
 
 

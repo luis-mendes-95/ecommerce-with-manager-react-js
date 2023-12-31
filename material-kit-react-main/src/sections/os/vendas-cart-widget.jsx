@@ -219,42 +219,47 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
     let aguardandoArte = 0
     let aguardandoCliente = 0
     let aprovado = 0
+    let aguardandoImpressao = 0
     let emProducao = 0
     let concluido = 0
-
+  
     let osStatus = "";
-
+  
     thisOs.itens.map((item)=>{
-      console.log(item.status)
+  
       if(item.status === "Aguardando Arte") {
         aguardandoArte += 1;
       } else if (item.status === "Aguardando Cliente") {
         aguardandoCliente += 1;
       } else if (item.status === "Aprovado") {
         aprovado += 1;
+      } else if (item.status === "Aguardando Impressão") {
+        aguardandoImpressao += 1;
       } else if (item.status === "Em produção") {
-        emProducao += 1;
+        concluido += 1;
       } else if (item.status === "Concluído") {
         concluido += 1;
       }  
     })
-
+  
     if (aguardandoArte > 0) {
       osStatus = "Aguardando Arte"
     } else if (aguardandoArte === 0 && aguardandoCliente > 0) {
       osStatus = "Aguardando Cliente"
     } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado > 0) {
       osStatus = "Aprovado"
-    } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado === 0 && emProducao > 0) {
+    } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado === 0 && aguardandoImpressao > 0) {
+      osStatus = "Aguardando Impressão"
+    } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado === 0 && aguardandoImpressao > 0 && emProducao > 0) {
       osStatus = "Em Produção"
-    } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado === 0 && emProducao === 0 && concluido > 0) {
+    } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado === 0 && aguardandoImpressao > 0 && emProducao === 0 && concluido > 0) {
       osStatus = "Concluído"
     }
-
+  
     let createData = {
       status: osStatus
     }
-
+  
     try {
       const config = {
         headers: {
@@ -358,13 +363,23 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
   /**INCOMPLETE FINNISH IT */
   const addFile = async () => {
 
+    console.log("dae brownson")
+
     let createData = {
       createdAt: getDataAtualFormatada(),
       lastEditted: getDataAtualFormatada(),
       changeMaker: user_name,
 
       active: true,
-      filename: thisOs.client.nome_razao_social
+      filename: `${thisOs.client.nome_razao_social}-File`,
+      filetype: "pdf",
+      filesize: "15mb",
+      link: urlAddingFile,
+
+      user_id: user_id,
+      client_id: thisOs.client.id,
+      os_id: thisOs.id
+
     }
 
 
@@ -375,7 +390,7 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await api.post(`files`, config);
+      const response = await api.post(`files`, createData, config);
       if (response.data) {
         toast.success("Arquivo adicionado!", {
           position: "bottom-right", 
@@ -387,6 +402,7 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
           progress: undefined, 
         });
         handleGetOs(thisOs.id);
+        setAddFiles(!addFiles);
       }
     } catch (err) {
       console.error(err);
@@ -956,10 +972,10 @@ const receiveValue = async (createData) => {
                   !addFiles &&
                 
                   thisOs?.files.map((row) => (
-                    <TableRow key={row.id}> 
+                    <TableRow key={row.id} style={{display:"flex", justifyContent:"space-between", alignContent:"space-between"}}> 
                       <TableCell>{row.createdAt}</TableCell>
-                      <TableCell align="right"><h4>{row.changeMaker}:</h4> {row.descricao}</TableCell>
-     
+                      <TableCell align="right">{row.filename}.{row.filetype}</TableCell>
+                      <button style={{}}>Baixar</button>
                      
 
                     </TableRow>
