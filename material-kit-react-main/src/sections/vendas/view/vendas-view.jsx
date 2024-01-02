@@ -200,7 +200,6 @@ export default function VendasView() {
     const handleSetModalVenda = (bool) => {
       setShowModalVenda(bool);
     }
-
     const handleSetClient = (data) => {
       setThisClient(data);
     }
@@ -635,290 +634,290 @@ const getSale = async (id) => {
 
 
 
-    {!showAdd && !showEdit &&
-    <>
-      <Box sx={{display:"flex", justifyContent:"space-between", alignContent:"flex-start", alignItems:"flex-start"}}>
-        <Typography variant="h4" sx={{ mb: 5 }}>
-              Vendas
-            </Typography>
+      {!showAdd && !showEdit &&
+      <>
+        <Box sx={{display:"flex", justifyContent:"space-between", alignContent:"flex-start", alignItems:"flex-start"}}>
+          <Typography variant="h4" sx={{ mb: 5 }}>
+                Vendas
+              </Typography>
 
-            {
-              !thisSale &&
-              <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{handleSetModalVenda(true)}}>
-                Nova Venda
-              </Button>
-            }
-
-{
-              thisSale &&
-              <>
-                <p style={{fontWeight:"bold"}}>{thisSale.client.nome_razao_social}</p>
-                <Button variant="contained" color="inherit" style={{backgroundColor:"brown"}} onClick={()=>{deleteVenda()}}>
-                  Cancelar Venda
+              {
+                !thisSale &&
+                <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{handleSetModalVenda(true)}}>
+                  Nova Venda
                 </Button>
-              </>
-            }
+              }
 
-{
-  /**
-   *         <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{setShowAdd(true); setShowEdit(false);}}>
-            Nova Venda
-        </Button>
-   */
-}
-      </Box>
+  {
+                thisSale &&
+                <>
+                  <p style={{fontWeight:"bold"}}>{thisSale.client.nome_razao_social}</p>
+                  <Button variant="contained" color="inherit" style={{backgroundColor:"brown"}} onClick={()=>{deleteVenda()}}>
+                    Cancelar Venda
+                  </Button>
+                </>
+              }
+
+  {
+    /**
+     *         <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{setShowAdd(true); setShowEdit(false);}}>
+              Nova Venda
+          </Button>
+    */
+  }
+        </Box>
 
 
-      <Box sx={{display:"flex", flexWrap:"wrap", justifyContent:"center", alignContent:"center", alignItems:"center", bgcolor:"white", borderRadius:"8px"}}>
+        <Box sx={{display:"flex", flexWrap:"wrap", justifyContent:"center", alignContent:"center", alignItems:"center", bgcolor:"white", borderRadius:"8px"}}>
+          {
+            thisSale &&
+            <ProductTableToolbar numSelected={0} filterName={filterName} onFilterName={handleFilterByName} />
+          }
+          {
+            !thisSale &&
+            <>
+              <OutlinedInput
+                value={filtroNomeCliente}
+                onChange={(e) => setFiltroNomeCliente(e.target.value)}
+                placeholder="Procurar cliente..."
+                startAdornment={
+                  <InputAdornment position="start">
+                    <Iconify
+                      icon="eva:search-fill"
+                      sx={{ color: 'text.disabled', width: 20, height: 20 }}
+                    />
+                  </InputAdornment>
+                }
+              />
+            <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
+                        <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Situação</InputLabel>
+                        <Select
+                          style={{minWidth: "200px"}}
+                          labelId="demo-simple-select-label"
+                          id="demo-simple-select"
+                          value={regsSituation}
+                          label="Age"
+                          onChange={handleChangeregsSituation}
+                        >
+                          <MenuItem value={"active"}>Ativos</MenuItem>
+                          <MenuItem value={"inactive"}>Inativos</MenuItem>
+                          <MenuItem value={"all"}>Todos</MenuItem>
+                        </Select>
+          </FormControl>
+          <FormControl style={{display:"flex", flexDirection:"column"}}>
+              <div>
+                <label>Dia:</label>
+                <select value={filtroDia} onChange={(e) => setFiltroDia(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}} >
+                  <option value="">Todos</option>
+                  {Array.from({ length: 31 }, (_, index) => <option key={index + 1} value={`${index + 1 < 10 ? '0' : ''}${index + 1}`}>{index + 1}</option>)}
+                </select>
+              </div>
+              <div>
+                <label>Mês:</label>
+                <select value={filtroMes} onChange={(e) => setFiltroMes(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}}>
+                  <option value="">Todos</option>
+                  <option value="01">Janeiro</option>
+                  <option value="02">Fevereiro</option>
+                  <option value="03">Março</option>
+                  <option value="04">Abril</option>
+                  <option value="05">Maio</option>
+                  <option value="06">Junho</option>
+                  <option value="07">Julho</option>
+                  <option value="08">Agosto</option>
+                  <option value="09">Setembro</option>
+                  <option value="10">Outubro</option>
+                  <option value="11">Novembro</option>
+                  <option value="12">Dezembro</option>
+                </select>
+              </div>
+              <div>
+                <label>Ano:</label>
+                <select value={filtroAno} onChange={(e) => setFiltroAno(e.target.value)} style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}}>
+                  <option value="">Todos</option>
+                  <option value="2023">2023</option>
+                  <option value="2022">2022</option>
+                </select>
+              </div>
+
+          </FormControl>
+          </>
+          }
+
+        </Box>
+
+        <Stack direction="row" alignItems="center" flexWrap="wrap-reverse" justifyContent="flex-end" sx={{ mb: 5 }} >
+          <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
+    {/** <ProductFilters openFilter={openFilter} onOpenFilter={handleOpenFilter} onCloseFilter={handleCloseFilter} /> */}
+
+            {/**<ProductSort /> */}
+          </Stack>
+        </Stack>
+
+
+
+
+
+
+        {/**GRID WITH PRODUCTS TO CHOOSE TO ADD IN SALE */}
         {
           thisSale &&
-          <ProductTableToolbar numSelected={0} filterName={filterName} onFilterName={handleFilterByName} />
+          <Grid container spacing={3}>
+          {filteredProducts?.map((product) => (
+              regsSituation === "all" &&
+              <Grid key={product.id} xs={12} sm={6} md={3} >
+                <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} ubmitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
+    
+              </Grid>
+            ))}
+    
+            {filteredProducts?.map((product) => (
+              regsSituation === "active" && product.active &&
+              <Grid key={product.id} xs={12} sm={6} md={3} >
+                <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
+              </Grid>
+            ))}
+            
+            {filteredProducts?.map((product) => (
+              regsSituation === "inactive" && product.active === false &&
+              <Grid key={product.id} xs={12} sm={6} md={3} >
+                <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
+              </Grid>
+            ))
+            }
+    
+            {
+              filteredProducts.length === 0 &&
+                regsSituation === "all" &&
+                  user?.produtos.map((product) => (
+                    <Grid key={product.id} xs={12} sm={6} md={3} >
+                    <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
+                  </Grid>
+                  ))
+            }
+    
+            {
+              filteredProducts.length === 0 &&
+                regsSituation === "active" &&
+                  user?.produtos.map((product) => (
+                    product.active &&
+                      <Grid key={product.id} xs={12} sm={6} md={3} >
+                        <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
+                      </Grid>
+                  ))
+            }
+    
+            {
+              filteredProducts.length === 0 &&
+                regsSituation === "inactive" &&
+                  user?.produtos.map((product) => (
+                    product.active  === false &&
+                      <Grid key={product.id} xs={12} sm={6} md={3} >
+                        <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
+                      </Grid>
+                  ))
+            }
+    
+          </Grid>
         }
+
+
         {
           !thisSale &&
-          <>
-            <OutlinedInput
-              value={filtroNomeCliente}
-              onChange={(e) => setFiltroNomeCliente(e.target.value)}
-              placeholder="Procurar cliente..."
-              startAdornment={
-                <InputAdornment position="start">
-                  <Iconify
-                    icon="eva:search-fill"
-                    sx={{ color: 'text.disabled', width: 20, height: 20 }}
-                  />
-                </InputAdornment>
-              }
-            />
-          <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
-                      <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Situação</InputLabel>
-                      <Select
-                        style={{minWidth: "200px"}}
-                        labelId="demo-simple-select-label"
-                        id="demo-simple-select"
-                        value={regsSituation}
-                        label="Age"
-                        onChange={handleChangeregsSituation}
-                      >
-                        <MenuItem value={"active"}>Ativos</MenuItem>
-                        <MenuItem value={"inactive"}>Inativos</MenuItem>
-                        <MenuItem value={"all"}>Todos</MenuItem>
-                      </Select>
-        </FormControl>
-        <FormControl style={{display:"flex", flexDirection:"column"}}>
-             <div>
-               <label>Dia:</label>
-               <select value={filtroDia} onChange={(e) => setFiltroDia(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}} >
-                 <option value="">Todos</option>
-                 {Array.from({ length: 31 }, (_, index) => <option key={index + 1} value={`${index + 1 < 10 ? '0' : ''}${index + 1}`}>{index + 1}</option>)}
-               </select>
-             </div>
-             <div>
-               <label>Mês:</label>
-               <select value={filtroMes} onChange={(e) => setFiltroMes(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}}>
-                 <option value="">Todos</option>
-                 <option value="01">Janeiro</option>
-                 <option value="02">Fevereiro</option>
-                 <option value="03">Março</option>
-                 <option value="04">Abril</option>
-                 <option value="05">Maio</option>
-                 <option value="06">Junho</option>
-                 <option value="07">Julho</option>
-                 <option value="08">Agosto</option>
-                 <option value="09">Setembro</option>
-                 <option value="10">Outubro</option>
-                 <option value="11">Novembro</option>
-                 <option value="12">Dezembro</option>
-               </select>
-             </div>
-             <div>
-               <label>Ano:</label>
-               <select value={filtroAno} onChange={(e) => setFiltroAno(e.target.value)} style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}}>
-                 <option value="">Todos</option>
-                 <option value="2023">2023</option>
-                 <option value="2022">2022</option>
-               </select>
-             </div>
-
-        </FormControl>
-        </>
-        }
-
-      </Box>
-
-      <Stack direction="row" alignItems="center" flexWrap="wrap-reverse" justifyContent="flex-end" sx={{ mb: 5 }} >
-        <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
-   {/** <ProductFilters openFilter={openFilter} onOpenFilter={handleOpenFilter} onCloseFilter={handleCloseFilter} /> */}
-
-          {/**<ProductSort /> */}
-        </Stack>
-      </Stack>
+          <Scrollbar>
+          <TableContainer sx={{ overflow: 'unset' }}>
+            <Table sx={{ minWidth: 800 }}>
 
 
+              <UserTableHead rowCount={user?.clientes.length} 
+                headLabel={[
+                  { id: 'data', label: 'Data' },
+                  { id: 'nome_razao_social', label: 'Nome / Razão Social' },
+                  { id: 'total', label: 'Total' },
+                ]}
+              />
 
 
+              <TableBody>
+                {vendasFiltradas?.map(row => ({
+                  ...row,
+                  createdAt: row.createdAt.split('/').reverse().join('-') // Change date format to "YYYY-MM-DD"
+                }))
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort by createdAt in descending order
+                .map((row) => {
+                  const formattedDate = row.createdAt.split('-').reverse().join('/'); // Change date format back to "DD/MM/YYYY"
+                  if (regsSituation === "all") {
+                    const total = row.itens.reduce((acc, item) => {
+                      const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
+                      const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
+                      const itemTotal = (preco - parseFloat(item.disccount)) * qty;
+                      return acc + itemTotal;
+                    }, 0);
 
-
-      {/**GRID WITH PRODUCTS TO CHOOSE TO ADD IN SALE */}
-      {
-        thisSale &&
-        <Grid container spacing={3}>
-        {filteredProducts?.map((product) => (
-            regsSituation === "all" &&
-            <Grid key={product.id} xs={12} sm={6} md={3} >
-              <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} ubmitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-  
-            </Grid>
-          ))}
-  
-          {filteredProducts?.map((product) => (
-            regsSituation === "active" && product.active &&
-            <Grid key={product.id} xs={12} sm={6} md={3} >
-              <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-            </Grid>
-          ))}
-          
-          {filteredProducts?.map((product) => (
-            regsSituation === "inactive" && product.active === false &&
-            <Grid key={product.id} xs={12} sm={6} md={3} >
-              <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-            </Grid>
-          ))
-          }
-  
-          {
-            filteredProducts.length === 0 &&
-              regsSituation === "all" &&
-                user?.produtos.map((product) => (
-                  <Grid key={product.id} xs={12} sm={6} md={3} >
-                  <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-                </Grid>
-                ))
-          }
-  
-          {
-            filteredProducts.length === 0 &&
-              regsSituation === "active" &&
-                user?.produtos.map((product) => (
-                  product.active &&
-                    <Grid key={product.id} xs={12} sm={6} md={3} >
-                      <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-                    </Grid>
-                ))
-          }
-  
-          {
-            filteredProducts.length === 0 &&
-              regsSituation === "inactive" &&
-                user?.produtos.map((product) => (
-                  product.active  === false &&
-                    <Grid key={product.id} xs={12} sm={6} md={3} >
-                      <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-                    </Grid>
-                ))
-          }
-  
-        </Grid>
-      }
-
-
-      {
-        !thisSale &&
-        <Scrollbar>
-        <TableContainer sx={{ overflow: 'unset' }}>
-          <Table sx={{ minWidth: 800 }}>
-
-
-            <UserTableHead rowCount={user?.clientes.length} 
-              headLabel={[
-                { id: 'data', label: 'Data' },
-                { id: 'nome_razao_social', label: 'Nome / Razão Social' },
-                { id: 'total', label: 'Total' },
-              ]}
-            />
-
-
-            <TableBody>
-              {vendasFiltradas?.map(row => ({
-                ...row,
-                createdAt: row.createdAt.split('/').reverse().join('-') // Change date format to "YYYY-MM-DD"
-              }))
-              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort by createdAt in descending order
-              .map((row) => {
-                const formattedDate = row.createdAt.split('-').reverse().join('/'); // Change date format back to "DD/MM/YYYY"
-                if (regsSituation === "all") {
-                  const total = row.itens.reduce((acc, item) => {
-                    const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
-                    const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                    const itemTotal = (preco - parseFloat(item.disccount)) * qty;
-                    return acc + itemTotal;
-                  }, 0);
-
-                  return (
-                    <VendasTableRow
-                    key={row.id}
-                    data={formattedDate} // Use the formatted date
-                    nome_razao_social={row.client.nome_razao_social}
-                    total={`R$ ${(total + parseInt(row.dispatchValue)).toFixed(2)}`}
-                    handleSaleToEdit={handleSaleToEdit}
-
-                    />
-                  );
-                } else if (regsSituation === "inactive" && row.active === false) {
-                  const total = row.itens.reduce((acc, item) => {
-                    const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
-                    const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                    const itemTotal = (preco - parseFloat(item.disccount)) * qty;
-                    return acc + itemTotal;
-                  }, 0);
-
-                  return (
-                    <VendasTableRow
-                    key={row.id}
-                    data={formattedDate} // Use the formatted date
-                    nome_razao_social={row.client.nome_razao_social}
-                    total={`R$ ${(total + parseInt(row.dispatchValue)).toFixed(2)}`}
-                    handleSaleToEdit={handleSaleToEdit}
-                    />
-                  );
-                } else if (regsSituation === "active" && row.active === true) {
-                  const total = row.itens.reduce((acc, item) => {
-                    const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
-                    const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                    const itemTotal = (preco - parseFloat(item.disccount)) * qty;
-                    return acc + itemTotal;
-                  }, 0);
-
-                  return (
-                    <VendasTableRow
+                    return (
+                      <VendasTableRow
                       key={row.id}
-                      id={row.id}
                       data={formattedDate} // Use the formatted date
                       nome_razao_social={row.client.nome_razao_social}
                       total={`R$ ${(total + parseInt(row.dispatchValue)).toFixed(2)}`}
                       handleSaleToEdit={handleSaleToEdit}
-                    />
-                  );
-                }
-              })}
+
+                      />
+                    );
+                  } else if (regsSituation === "inactive" && row.active === false) {
+                    const total = row.itens.reduce((acc, item) => {
+                      const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
+                      const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
+                      const itemTotal = (preco - parseFloat(item.disccount)) * qty;
+                      return acc + itemTotal;
+                    }, 0);
+
+                    return (
+                      <VendasTableRow
+                      key={row.id}
+                      data={formattedDate} // Use the formatted date
+                      nome_razao_social={row.client.nome_razao_social}
+                      total={`R$ ${(total + parseInt(row.dispatchValue)).toFixed(2)}`}
+                      handleSaleToEdit={handleSaleToEdit}
+                      />
+                    );
+                  } else if (regsSituation === "active" && row.active === true) {
+                    const total = row.itens.reduce((acc, item) => {
+                      const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
+                      const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
+                      const itemTotal = (preco - parseFloat(item.disccount)) * qty;
+                      return acc + itemTotal;
+                    }, 0);
+
+                    return (
+                      <VendasTableRow
+                        key={row.id}
+                        id={row.id}
+                        data={formattedDate} // Use the formatted date
+                        nome_razao_social={row.client.nome_razao_social}
+                        total={`R$ ${(total + parseInt(row.dispatchValue)).toFixed(2)}`}
+                        handleSaleToEdit={handleSaleToEdit}
+                      />
+                    );
+                  }
+                })}
 
 
-              <TableEmptyRows
-                height={77}
-                emptyRows={emptyRows(page, user?.clientes.length)}
-              />
+                <TableEmptyRows
+                  height={77}
+                  emptyRows={emptyRows(page, user?.clientes.length)}
+                />
 
-              {/**              {notFound && <TableNoData query={filterName} />} */}
-            </TableBody>
+                {/**              {notFound && <TableNoData query={filterName} />} */}
+              </TableBody>
 
 
-          </Table>
-        </TableContainer>
-      </Scrollbar>
+            </Table>
+          </TableContainer>
+        </Scrollbar>
+        }
+
+      </>    
       }
-
-    </>    
-    }
 
 
 

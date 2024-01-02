@@ -97,8 +97,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
     let filesToAdd = createData.files;
     delete createData.files;
 
-    console.log(filesToAdd)
-
     createData.client_id = thisClient.id;
     createData.active = true;
     createData.filename = product.nome + "-" + thisClient.nome_razao_social + "-FILE-COMPONENT";
@@ -179,8 +177,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
       console.log(err);
       setThisOs(null);
     }
-    console.log("fluiu tudo, saca só")
-    console.log(thisOs)
   }; 
 
 
@@ -190,9 +186,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
  
   const createItemOs = async (createData) => {
 
-
-    console.log("chego eu aqui")
-    console.log(createData)
 
     createData.descricao = createData.itemDescription;
     createData.mockup = "";
@@ -240,7 +233,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
           handleSetShowCart(true);
           getUser();
           reset();
-          console.log(response.data)
           handleGetOs(response.data.os_id);
         }, 1500);
       }

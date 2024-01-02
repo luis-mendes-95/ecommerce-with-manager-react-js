@@ -35,8 +35,18 @@ function getDataAtualFormatada() {
   var ano = data.getFullYear();
   return dia + '/' + mes + '/' + ano;
 }
+function getDataAtualFormatadaInstruction() {
+  var data = new Date();
+  var dia = data.getDate().toString().padStart(2, '0');
+  var mes = (data.getMonth() + 1).toString().padStart(2, '0'); // Adiciona 1 porque os meses começam do 0
+  var ano = data.getFullYear();
+  var horas = data.getHours().toString().padStart(2, '0');
+  var minutos = data.getMinutes().toString().padStart(2, '0');
+  
+  return dia + '/' + mes + '/' + ano + ' | ' + horas + ':' + minutos;
+}
 
-export default function VendaEditFormView({osToEdit, getOs, thisOs}) {
+export default function VendaEditFormView({osToEdit}) {
   
   const theme = useTheme();
   const router = useRouter();
@@ -62,6 +72,11 @@ const [itemAddingPrintFile, setItemAddingPrintFile] = useState(null);
 const [urlAddingMockup, setUrlAddingMockup] = useState(null);
 const [urlAddingFile, setUrlAddingFile] = useState(null);
 const [urlAddingPrintFile, setUrlAddingPrintFile] = useState(null);
+const [thisOs, setThisOs] = useState(null);
+const [showMockupView, setShowMockupView] = useState(null);
+const [showAlterInstruction, setShowAlterInstruction] = useState(false);
+const [currentEdittingItem, setCurrentEdittingItem] = useState(null);
+const [currentInstructionToAdd, setCurrentInstructionToAdd] = useState(null);
 
 
 
@@ -81,7 +96,6 @@ const getUser = async () => {
       });
       if(response.data){
           setUser(response.data);
-          console.log(response.data)
       //se der erro setar botao logout
       }
     } catch (err) {
@@ -97,11 +111,27 @@ const handleUrlMockup = (value) => {
 }
 
 
-
-
 const handleUrlPrintFile = (value) => {
   setUrlAddingPrintFile(value)
 }
+
+
+const getOs = async (id) => {
+  try {
+    const response = await api.get(`/os/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if(response.data){
+        setThisOs(response.data); 
+    }
+  } catch (err) {
+    console.log(err);
+    setThisOs(null);
+  }
+}; 
+
 
 
 //USE FORM CALLING FUNCTIONS
@@ -162,7 +192,6 @@ const receiveValue = async (createData) => {
 };
 
 const edit = async (createData) => {
-  console.log("chegano aqui")
   try {
     // Define o cabeçalho da solicitação com o token de autenticação
     const config = {
@@ -249,8 +278,7 @@ const activate = async () => {
   }
 };
 const deleteItem = async () => {
-  console.log("sendo chamado pra deletar")
-  console.log(sale.sale.id);
+
   try {
     // Define o cabeçalho da solicitação com o token de autenticação
     const config = {
@@ -276,6 +304,64 @@ const deleteItem = async () => {
     // Lida com o erro de forma apropriada, como exibir uma mensagem de erro.
   }
 };
+
+
+const addInstruction = async () => {
+
+  let createData = {
+    createdAt: getDataAtualFormatadaInstruction(),
+    lastEditted: getDataAtualFormatadaInstruction(),
+    changeMaker: user_name,
+
+    descricao: currentInstructionToAdd,
+
+    //itemOs_id: null,
+    os_id: thisOs.id
+  }
+
+
+
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await api.post(`instrucoes`, createData, config);
+    if (response.data) {
+      toast.success("Instrução adicionada!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+      setShowMockupView(!showMockupView);
+      
+      handleGetOs(thisOs.id);
+      changeStatusItemOs(currentEdittingItem.id, "Aguardando Arte")
+      
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao adicionar instrução!", {
+      position: "bottom-right", 
+      autoClose: 3000, 
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      progress: undefined, 
+    });
+  }
+}
+
+
+
+
+
 
 
 
@@ -367,7 +453,7 @@ const handleReceivablesChange = ( formaPagamento) => {
 
 const handlePaymentChange = (payment) => {
   // Handle the change as needed
-  console.log('Payment Change:', payment);
+
 };
 
 const renderPaymentRow = (payment) => {
@@ -492,7 +578,6 @@ const addOrChangeMockup = async (id) => {
     });
   }
 
-  handleOsStatusByItems();
 }
 
 
@@ -528,7 +613,6 @@ const addOrChangePrintFile = async (id) => {
       });
       setAddingPrintFile(!addingPrintFile);
       handleGetOs(response.data.id);
-      handleOsStatusByItems();
     }
   } catch (err) {
     console.error(err);
@@ -546,51 +630,24 @@ const addOrChangePrintFile = async (id) => {
 
 
 
-const handleOsStatusByItems = async () => {
 
-  let aguardandoArte = 0
-  let aguardandoCliente = 0
-  let aprovado = 0
-  let aguardandoImpressao = 0
-  let emProducao = 0
-  let concluido = 0
+const handleAddOrChangeMockup = (id) => {
+  setAddingMockup(!addingMockup)
+  setItemAddingMockup(id);
+}
 
-  let osStatus = "";
 
-  thisOs.itens.map((item)=>{
 
-    if(item.status === "Aguardando Arte" || item.status === "AGUARDANDO ARTE") {
-      aguardandoArte += 1;
-    } else if (item.status === "Aguardando Cliente" || item.status === "AGUARDANDO CLIENTE") {
-      aguardandoCliente += 1;
-    } else if (item.status === "APROVADO" || item.status === "Aprovado") {
-      aprovado += 1;
-    } else if (item.status === "Aguardando Impressão" || item.status === "AGUARDANDO IMPRESSÃO") {
-      aguardandoImpressao += 1;
-    } else if (item.status === "EM PRODUÇÃO" || item.status === "Em Produção") {
-      emProducao += 1;
-    } else if (item.status === "CONCLUÍDO" || item.status === "Concluído") {
-      concluido += 1;
-    }  
-  })
 
-  if (aguardandoArte > 0) {
-    osStatus = "Aguardando Arte"
-  } else if (aguardandoArte === 0 && aguardandoCliente > 0) {
-    osStatus = "Aguardando Cliente"
-  } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado > 0) {
-    osStatus = "Aprovado"
-  } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado === 0 && aguardandoImpressao > 0) {
-    osStatus = "Aguardando Impressão"
-  } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado === 0 && aguardandoImpressao > 0 && emProducao > 0) {
-    osStatus = "Em Produção"
-  } else if (aguardandoArte === 0 && aguardandoCliente === 0 && aprovado === 0 && aguardandoImpressao > 0 && emProducao === 0 && concluido > 0) {
-    osStatus = "Concluído"
-  }
+const changeStatusItemOs = async (id, status) => {
 
   let createData = {
-    status: osStatus
+    status: status
   }
+
+
+
+
 
   try {
     const config = {
@@ -598,9 +655,9 @@ const handleOsStatusByItems = async () => {
         Authorization: `Bearer ${token}`,
       },
     };
-    const response = await api.patch(`os/${thisOs.id}`, createData, config);
+    const response = await api.patch(`itemOs/${id}`, createData, config);
     if (response.data) {
-      toast.success("Status atualizado!", {
+      toast.success("Status do item editado!", {
         position: "bottom-right", 
         autoClose: 3000, 
         hideProgressBar: false, 
@@ -613,7 +670,7 @@ const handleOsStatusByItems = async () => {
     }
   } catch (err) {
     console.error(err);
-    toast.error("Erro ao atualizar status!", {
+    toast.error("Erro ao editar status!", {
       position: "bottom-right", 
       autoClose: 3000, 
       hideProgressBar: false, 
@@ -623,15 +680,6 @@ const handleOsStatusByItems = async () => {
       progress: undefined, 
     });
   }
-}
-
-
-
-
-
-const handleAddOrChangeMockup = (id) => {
-  setAddingMockup(!addingMockup)
-  setItemAddingMockup(id);
 }
 
 
@@ -690,12 +738,11 @@ const onFormSubmit = (formData) => {
 
 
 
+useEffect(() => { 
 
-useEffect(() => {
+  getOs(osToEdit)
 
-  getOs(osToEdit.osToEdit)
-
-}, [])
+}, [thisOs])
 
 
 
@@ -738,16 +785,40 @@ const renderForm = (
     >
       <ToastContainer />
 
+
+
       <Stack alignItems="center" justifyContent="center" sx={{ height: 1, overflowX: "auto" }}>
-        <Card sx={{p: 5,width: 1,maxWidth: 820,}}      
-          >
-            <Button
-              variant="contained"
-              sx={{ mt: 3, mb: 2, mr: 3, bgcolor:"brown"}}
-              onClick={()=>{window.location.reload()}}
-            >
-              Voltar
-            </Button>
+
+
+
+        <Card sx={{p: 5,width: 1,maxWidth: 820,}}>
+
+        {
+        showMockupView &&
+        <Box style={{position:"absolute", top:"0", left:"0", width:"100%", height:"100%", backgroundColor:"white", zIndex:"999", display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center"}}>
+          <img src={showMockupView} style={{width:"35%", height:"35%", cursor:"not-allowed"}} onClick={()=>{setShowMockupView(null); setShowAlterInstruction(false);}} />
+          {
+            !showAlterInstruction &&
+          <button style={{backgroundColor:"green", color:"white", border:"none", padding:"12px", borderRadius:"8px", cursor:"Pointer", margin:"8px"}}>APROVAR</button>
+          }
+          {
+            !showAlterInstruction &&
+            <button style={{backgroundColor:"orange", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"Pointer", margin:"8px"}} onClick={()=>{setShowAlterInstruction(true);}}>SOLICITAR ALTERAÇÃO</button>
+          }
+
+          {
+            showAlterInstruction &&
+            <TextField label="Digite com detalhes a alteração desejada" style={{width:"80%", margin:"8px"}} onInput={(e)=>{setCurrentInstructionToAdd(e.target.value)}}></TextField>
+          }
+          {
+            showAlterInstruction &&
+            <Button style={{backgroundColor:"lightgreen", color:"black"}} onClick={()=>{addInstruction();}}>Enviar</Button>
+          }
+        </Box>
+      }
+          
+        <Button variant="contained" sx={{ mt: 3, mb: 2, mr: 3, bgcolor:"brown"}} onClick={()=>{window.location.reload()}}> Voltar </Button>
+
           <Typography variant="h4">Ordem de Serviço</Typography>
 
 
@@ -788,8 +859,6 @@ const renderForm = (
               {
                 thisOs?.itens.map((item)=>{
 
-                  console.log(item)
-
 
                   return(
 
@@ -807,7 +876,7 @@ const renderForm = (
                           <TableCell align="center">{item.descricao}</TableCell>
                           <TableCell align="center">{item.qtd}</TableCell>
                           <TableCell align="center">
-                            <img style={{width:"150px"}} src={item.mockup}/>
+                            <img style={{width:"150px", cursor:"pointer"}} src={item.mockup} onClick={()=>{setShowMockupView(item.mockup); setCurrentEdittingItem(item);}}/>
                             {
                               !addingMockup && 
                               <button onClick={()=>{handleAddOrChangeMockup(item.id)}} style={{backgroundColor:"lightgreen", width:"90px", color:"black", fontWeight:"bold", border:"none", padding:"8px", cursor:"pointer"}}>+</button>
@@ -881,11 +950,17 @@ const renderForm = (
 
                           {
                             item.status === "Aguardando Cliente" &&
-                            <TableCell align="center" style={{backgroundColor:"lightblue"}}>{item.status}</TableCell>
+                            <Box style={{backgroundColor:"lightblue" }}>
+                              <TableCell align="center" >{item.status}</TableCell>
+                              <button style={{width:"100%", backgroundColor:"lightgreen", border:"none", textAlign:"center", padding:"2px 8px", cursor:"pointer"}}> Enviar Amostra</button>
+                            </Box>
                           }
 
-
-
+                          {
+                            item.status === "Aguardando Impressão" &&
+                            <TableCell style={{backgroundColor: "gold"}}>{item.status}</TableCell>
+                                        
+                          }
 
       
                         </TableRow>
@@ -1019,6 +1094,7 @@ const renderForm = (
           </Stack>
 
         </Card>
+
       </Stack>
 
     </Box>

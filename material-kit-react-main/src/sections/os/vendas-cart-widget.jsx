@@ -277,7 +277,6 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
           draggable: true, 
           progress: undefined, 
         });
-        console.log("deu ?")
         handleGetOs(thisOs.id);
       }
     } catch (err) {
@@ -331,7 +330,6 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
       };
       const response = await api.delete(`instrucoes/${id}`, config);
       if (response.status === 200) {
-        console.log("deu liga")
         toast.success("Instrução deletada!", {
           position: "bottom-right", 
           autoClose: 3000, 
@@ -362,8 +360,6 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
 
   /**INCOMPLETE FINNISH IT */
   const addFile = async () => {
-
-    console.log("dae brownson")
 
     let createData = {
       createdAt: getDataAtualFormatada(),
@@ -500,9 +496,6 @@ export default function CartWidget({thisSale, deleteItemVenda, deleteItemOs, thi
 
 /**CREATE RECEIVABLE REQUEST IN BACKEND */
   const createReceivable = async (createData) => {
-    console.log("agora verifica a cacilda do valor do frete")
-    console.log(thisSale.dispatchValue)
-    console.log(dispatchValue.toString())
 
     if(thisSale.dispatchValue === "0") {
       addDispatchValue(thisSale.id, {dispatchValue: dispatchValue.toString()})
@@ -658,8 +651,6 @@ const receiveValue = async (createData) => {
 
 
     } else if (dueDates.length === parcelas) {
-      console.log("gere as dueDates digitadas: ")
-      console.log(dueDates)
       for (let i = 0; i < dueDates.length; i++) { 
       let currentDueDate = dueDates[i];
       newArrayDueDates.push(currentDueDate);
@@ -689,8 +680,6 @@ const receiveValue = async (createData) => {
         formData.client_id = thisSale?.client_id;
         formData.venda_id = thisSale?.id;
 
-        console.log("ca estou")
-        console.log(formData)
   
         createReceivable(formData)
 

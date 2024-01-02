@@ -37,7 +37,6 @@ export default function VendasTableRow({
     setOpen(null);
   };
 
-  console.log(status)
 
 
   return (
@@ -48,36 +47,39 @@ export default function VendasTableRow({
 
         <TableCell>{nome_razao_social}</TableCell>
         
-
+        <TableCell style={{display:"flex", flexDirection:"column"}}>
         {
-          status === "Aguardando Arte" &&
-          <TableCell style={{backgroundColor: "orange"}}>{status}</TableCell>
-        }
+          status.map((item)=>{  
 
-{
-          status === "AGUARDANDO ARTE" &&
-          <TableCell style={{backgroundColor: "orange"}}>{status}</TableCell>
-        }
+            console.log(item.status)
+            
+            if(item.status === "Aguardando Cliente") {
+              return(
+                <TableCell style={{backgroundColor: "lightblue"}}>{item.status} | {item.produto.nome}</TableCell>
+              )
+            } else if (item.status === "Aguardando Arte")  {
+              return(
+                <TableCell style={{backgroundColor: "orange"}}>{item.status} | {item.produto.nome}</TableCell>
+              )
+            } else if (item.status === "Aguardando Impressão")  {
+              return(
+                <TableCell style={{backgroundColor: "gold"}}>{item.status} | {item.produto.nome}</TableCell>
+              )
+            }                 
+            
+            
 
-{
-          status === "Aguardando Cliente" &&
-          <TableCell style={{backgroundColor: "lightblue"}}>{status}</TableCell>
-        }
 
-{
-          status === "AGUARDANDO CLIENTE" &&
-          <TableCell style={{backgroundColor: "lightblue"}}>{status}</TableCell>
-        }
 
-{
-          status === "Aguardando Impressão" || status === "Aguardando Impressão" &&
-          <TableCell style={{backgroundColor: "gold"}}>{status}</TableCell>
-        }
 
-{
-          status === "AGUARDANDO IMPRESSÃO" || status === "Aguardando Impressão" &&
-          <TableCell style={{backgroundColor: "gold"}}>{status}</TableCell>
+            
+
+          })
         }
+        </TableCell>
+
+
+
 
 
       </TableRow>
