@@ -63,9 +63,21 @@ export default function VendasTableRow({
               )
             } else if (item.status === "Aguardando Impressão")  {
               return(
-                <TableCell style={{backgroundColor: "gold"}}>{item.status} | {item.produto.nome}</TableCell>
+                <TableCell style={{backgroundColor: "orangered", color:"white"}}>{item.status} | {item.produto.nome}</TableCell>
               )
-            }                 
+            } else if (item.status === "Aprovado")  {
+              return(
+                <TableCell style={{backgroundColor: "lightgreen"}}>{item.status} | {item.produto.nome}</TableCell>
+              )
+            } else if (item.status === "Em Produção")  {
+              return(
+                <TableCell style={{backgroundColor: "brown", color:"white"}}>{item.status} | {item.produto.nome}</TableCell>
+              )
+            } else if (item.status === "Concluída")  {
+              return(
+                <TableCell style={{backgroundColor: "lightgreen"}}>{item.status} | {item.produto.nome}</TableCell>
+              )
+            }  
             
             
 

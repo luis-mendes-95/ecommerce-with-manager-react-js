@@ -77,6 +77,11 @@ const [showMockupView, setShowMockupView] = useState(null);
 const [showAlterInstruction, setShowAlterInstruction] = useState(false);
 const [currentEdittingItem, setCurrentEdittingItem] = useState(null);
 const [currentInstructionToAdd, setCurrentInstructionToAdd] = useState(null);
+const [currentFileToAdd, setCurrentFileToAdd] = useState(null);
+const [isFinalPrintFile, setIsFinalPrintFile] = useState(false);
+const [addNewInstruction, setAddNewInstruction] = useState(false);
+const [addNewFile, setAddNewFile] = useState(false);
+
 
 
 
@@ -109,6 +114,15 @@ const getUser = async () => {
 const handleUrlMockup = (value) => {
   setUrlAddingMockup(value)
 }
+
+
+
+
+const handleFinalPrintFileChange = () => {
+  setIsFinalPrintFile(!isFinalPrintFile); 
+};
+
+
 
 
 const handleUrlPrintFile = (value) => {
@@ -338,10 +352,65 @@ const addInstruction = async () => {
         draggable: true, 
         progress: undefined, 
       });
-      setShowMockupView(!showMockupView);
-      
+      if(currentEdittingItem !== null) {
+        setShowMockupView(!showMockupView);
+        changeStatusItemOs(currentEdittingItem?.id, "Aguardando Arte")
+      }
+
+      //setAddNewInstruction(!addNewInstruction);
       handleGetOs(thisOs.id);
-      changeStatusItemOs(currentEdittingItem.id, "Aguardando Arte")
+
+      
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao adicionar instrução!", {
+      position: "bottom-right", 
+      autoClose: 3000, 
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      progress: undefined, 
+    });
+  }
+}
+
+const addAvulseInstruction = async (description) => {
+
+  let createData = {
+    createdAt: getDataAtualFormatadaInstruction(),
+    lastEditted: getDataAtualFormatadaInstruction(),
+    changeMaker: user_name,
+
+    descricao: description,
+
+    //itemOs_id: null,
+    os_id: thisOs.id
+  }
+
+
+
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await api.post(`instrucoes`, createData, config);
+    if (response.data) {
+      toast.success("Instrução adicionada!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+
+      handleGetOs(thisOs.id);
+
       
     }
   } catch (err) {
@@ -360,7 +429,102 @@ const addInstruction = async () => {
 
 
 
+const addFile = async () => {
 
+  let createData = {
+    createdAt: getDataAtualFormatadaInstruction(),
+    lastEditted: getDataAtualFormatadaInstruction(),
+    changeMaker: user_name,
+
+
+    descricao: currentFileToAdd,
+		active: false,
+		filename: "Logotipo Nova",
+		filetype: "fbx",
+		filesize: "15.9mb",
+		link: "https://cloudinary.com",
+		user_id: user_id,
+		client_id: thisOs.client.id,
+    //itemOs_id: null,
+    os_id: thisOs.id
+  }
+
+
+
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await api.post(`files`, createData, config);
+    if (response.data) {
+      toast.success("Arquivo adicionado!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+
+      setAddNewFile(!addNewFile);
+      handleGetOs(thisOs.id);
+      addAvulseInstruction(`Efetuado upload de arquivo(s).`)
+
+      
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao adicionar arquivo!", {
+      position: "bottom-right", 
+      autoClose: 3000, 
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      progress: undefined, 
+    });
+  }
+}
+
+
+
+
+const deleteInstruction = async (id) => {
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await api.delete(`instrucoes/${id}`, config);
+    if (response.status === 200) {
+      toast.success("Instrução deletada!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+      handleGetOs(thisOs.id);
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao deletar instrução!", {
+      position: "bottom-right", 
+      autoClose: 3000, 
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      progress: undefined, 
+    });
+  }
+}
 
 
 
@@ -449,6 +613,108 @@ const handleReceivablesChange = ( formaPagamento) => {
   setReceivingItemPayMethod(formaPagamento)
 };
 
+
+
+
+
+const aprooveItemOs = async () => {
+
+  changeStatusItemOs(currentEdittingItem.id, "Aprovado");
+  handleGetOs(thisOs.id);
+
+
+
+  let createData = {
+    createdAt: getDataAtualFormatadaInstruction(),
+    lastEditted: getDataAtualFormatadaInstruction(),
+    changeMaker: user_name,
+    descricao: `Mockup aprovado`,
+    os_id: thisOs.id
+   }
+
+
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await api.post(`instrucoes`, createData, config);
+    if (response.data) {
+      toast.success("Instrução adicionada!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+      setShowMockupView(!showMockupView);
+      
+      handleGetOs(thisOs.id);
+      
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao adicionar instrução!", {
+      position: "bottom-right", 
+      autoClose: 3000, 
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      progress: undefined, 
+    });
+  }
+}
+
+
+const startProduction = (id) => {
+  changeStatusItemOs(id, "Em Produção");
+  addAvulseInstruction(`Produção Iniciada`);
+}
+
+
+const finnishProduction = (id) => {
+  changeStatusItemOs(id, "Concluída");
+  addAvulseInstruction(`Produção Concluída`);
+}
+
+
+const deleteFile = async (id) => {
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await api.delete(`files/${id}`, config);
+    if (response.status === 200) {
+      toast.success("Arquivo deletado!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+      handleGetOs(thisOs.id);
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao deletar arquivo!", {
+      position: "bottom-right", 
+      autoClose: 3000, 
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      progress: undefined, 
+    });
+  }
+}
 
 
 const handlePaymentChange = (payment) => {
@@ -564,6 +830,7 @@ const addOrChangeMockup = async (id) => {
       });
       setAddingMockup(!addingMockup);
       handleGetOs(response.data.id);
+      addAvulseInstruction(`Enviado um mockup, aguardando cliente aprovar amostra`)
     }
   } catch (err) {
     console.error(err);
@@ -585,9 +852,17 @@ const addOrChangeMockup = async (id) => {
 
 const addOrChangePrintFile = async (id) => {
 
+  
+
+
   let createData = {
     printFile: urlAddingPrintFile,
-    status: "Aguardando Impressão"
+  }
+
+  if (isFinalPrintFile) {
+    createData.status = "Aguardando Impressão"
+    setIsFinalPrintFile(false);
+    addAvulseInstruction(`Arquivo de impressão final enviado`)
   }
 
 
@@ -613,6 +888,7 @@ const addOrChangePrintFile = async (id) => {
       });
       setAddingPrintFile(!addingPrintFile);
       handleGetOs(response.data.id);
+      //changeStatusItemOs(id, "Aguardando Impressão")
     }
   } catch (err) {
     console.error(err);
@@ -667,6 +943,7 @@ const changeStatusItemOs = async (id, status) => {
         progress: undefined, 
       });
       handleGetOs(thisOs.id);
+      setShowMockupView(false);
     }
   } catch (err) {
     console.error(err);
@@ -798,8 +1075,8 @@ const renderForm = (
         <Box style={{position:"absolute", top:"0", left:"0", width:"100%", height:"100%", backgroundColor:"white", zIndex:"999", display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center"}}>
           <img src={showMockupView} style={{width:"35%", height:"35%", cursor:"not-allowed"}} onClick={()=>{setShowMockupView(null); setShowAlterInstruction(false);}} />
           {
-            !showAlterInstruction &&
-          <button style={{backgroundColor:"green", color:"white", border:"none", padding:"12px", borderRadius:"8px", cursor:"Pointer", margin:"8px"}}>APROVAR</button>
+            !showAlterInstruction && currentEdittingItem?.status === "Aguardando Cliente" &&
+          <button style={{backgroundColor:"green", color:"white", border:"none", padding:"12px", borderRadius:"8px", cursor:"Pointer", margin:"8px"}} onClick={()=>{aprooveItemOs();}}>APROVAR</button>
           }
           {
             !showAlterInstruction &&
@@ -812,7 +1089,7 @@ const renderForm = (
           }
           {
             showAlterInstruction &&
-            <Button style={{backgroundColor:"lightgreen", color:"black"}} onClick={()=>{addInstruction();}}>Enviar</Button>
+            <Button style={{backgroundColor:"lightgreen", color:"black"}} onClick={()=>{addInstruction(); setShowAlterInstruction(false);}}>Enviar</Button>
           }
         </Box>
       }
@@ -890,6 +1167,7 @@ const renderForm = (
                                   ou
 
                                   <button style={{padding:"10px"}}>Fazer Upload de Imagem</button>
+
                                   <button style={{padding:"5px", margin:"5px", backgroundColor:"green", color:"white", border:"none", borderRadius:"8px", cursor:"pointer"}} onClick={()=>{addOrChangeMockup(item.id)}}>Enviar</button>
                                   <button style={{padding:"5px", margin:"5px", backgroundColor:"brown", color:"white", border:"none", borderRadius:"8px", cursor:"pointer"}} onClick={()=>{setAddingMockup(false); setItemAddingMockup(null);}}>Cancelar</button>
                               </Box>
@@ -900,15 +1178,10 @@ const renderForm = (
 
 
 
-
-                            {
-                              item.printFile !== "" &&
-                              <button>Baixar</button>
-                            }
-                            {
-                              item.printFile === "" &&
-                              <p>Nenhum</p>
-                            }
+                              {
+                                !addingPrintFile &&
+                              <button style={{margin:"8px", cursor:"pointer"}} disabled={item.printFile === ""}>{item.printFile === "" ? "Nenhum" : "Baixar Arquivo Atual"}</button>
+                              }
 
 
 
@@ -916,10 +1189,11 @@ const renderForm = (
 
 
 
-                            {
-                              !addingPrintFile && 
-                              <button onClick={()=>{handleAddOrChangePrintFile(item.id)}} style={{backgroundColor:"lightgreen", width:"90px", color:"black", fontWeight:"bold", border:"none", padding:"8px", cursor:"pointer"}}>+</button>
-                            }
+                              {
+                                !addingPrintFile &&
+                                <button onClick={()=>{handleAddOrChangePrintFile(item.id)}} style={{backgroundColor:"lightgreen", width:"90px", color:"black", fontWeight:"bold", border:"none", padding:"8px", cursor:"pointer"}}>+ Subir ou Alterar Arquivo</button>
+                              }
+
 
                             {
                               addingPrintFile && itemAddingPrintFile === item.id &&
@@ -929,6 +1203,17 @@ const renderForm = (
                                   ou
 
                                   <button style={{padding:"10px"}}>Fazer Upload do arquivo</button>
+                                  <div>
+                                    <label style={{textAlign:"center"}}> 
+                                    Arquivo Final:
+                                      <input
+                                        type="checkbox"
+                                        checked={isFinalPrintFile}
+                                        onChange={handleFinalPrintFileChange}
+                                      />
+         
+                                    </label>
+                                  </div>
                                   <button style={{padding:"5px", margin:"5px", backgroundColor:"green", color:"white", border:"none", borderRadius:"8px", cursor:"pointer"}} onClick={()=>{addOrChangePrintFile(item.id)}}>Enviar</button>
                                   <button style={{padding:"5px", margin:"5px", backgroundColor:"brown", color:"white", border:"none", borderRadius:"8px", cursor:"pointer"}} onClick={()=>{setAddingPrintFile(false); setItemAddingPrintFile(null);}}>Cancelar</button>
                               </Box>
@@ -958,7 +1243,32 @@ const renderForm = (
 
                           {
                             item.status === "Aguardando Impressão" &&
-                            <TableCell style={{backgroundColor: "gold"}}>{item.status}</TableCell>
+                            <Box style={{backgroundColor: "orangered", color:"white", margin:"8px 0"}}> 
+                              <TableCell style={{color:"white", textAlign:"center"}}>{item.status}</TableCell>
+                              <button style={{width:"100%", border:"none", padding:"8px", cursor:"pointer"}} onClick={()=>{startProduction(item.id);}}>Iniciar Produção</button>
+                            </Box>
+                                        
+                          }
+
+                          {
+                            item.status === "Aprovado" &&
+                            <TableCell style={{backgroundColor: "lightgreen", textAlign:"center"}}>{item.status}</TableCell>
+                                        
+                          }
+
+                          { 
+                            item.status === "Em Produção" &&
+                           <Box style={{backgroundColor: "brown", textAlign:"center", color:"white"}}>
+                            <TableCell style={{backgroundColor: "brown", textAlign:"center", color:"white"}}>{item.status}</TableCell>
+                            <button style={{width:"100%", border:"none", padding:"8px", cursor:"pointer"}} onClick={()=>{finnishProduction(item.id)}}> Concluir</button>
+                           </Box>
+                                        
+                          }
+
+
+                          {
+                            item.status === "Concluída" &&
+                            <TableCell style={{backgroundColor: "lightgreen", textAlign:"center"}}>{item.status}</TableCell>
                                         
                           }
 
@@ -1015,7 +1325,7 @@ const renderForm = (
 
 
 
-          {/**TABLE PAYMENTS */}
+          {/**TABLE INSTRUCOES */}
           <Box>
 
 
@@ -1024,29 +1334,54 @@ const renderForm = (
 
               <TableRow>
                 <TableCell align="center" colSpan={6}>INSTRUÇÕES</TableCell>
+
+              </TableRow>
+              
+              <TableRow style={{display:"flex", justifyContent:"center", alignContent:"center", alignItems:"center"}}>
+                {
+                  !addNewInstruction &&
+                  <Button style={{backgroundColor:"lightgreen", color:"black", width:"100%"}} onClick={()=>{setAddNewInstruction(!addNewInstruction);}}>+ Nova Instrução</Button>
+                }
+
+                {
+                  addNewInstruction &&
+                  <Box style={{width:"100%"}}>
+                    <TextField style={{color:"black", width:"100%", margin:"18px 0"}} label="Digite a instrução" onInput={(e)=>{setCurrentInstructionToAdd(e.target.value)}}>+ Nova Instrução</TextField>
+                    <Button style={{backgroundColor:"green", color:"white", margin:"0 2px"}} onClick={()=>{addInstruction(); setAddNewInstruction(!addNewInstruction);}}>Salvar</Button>
+                    <Button style={{backgroundColor:"brown", color:"white", margin:"0 2px"}} onClick={()=>{setAddNewInstruction(!addNewInstruction);}} >Cancelar</Button>
+                  </Box>
+                }
+
               </TableRow>
 
 
-
+              {
+                  !addNewInstruction &&
               <TableRow>
                     <TableCell align="left">Data</TableCell>
                     <TableCell align="left">Usuário</TableCell>
                     <TableCell align="center">Descrição</TableCell>
+                    <TableCell align="center"></TableCell>
 
               </TableRow> 
-
+              }
             </TableHead>
 
 
 
             {
+              !addNewInstruction &&
               thisOs?.instrucoes.map((instrucao, index) => (
                 <TableBody key={index} style={{ height: "10px", overflow: "scroll" }}>
+                  
                   <TableRow style={{ borderBottom: "1px solid #ccc" }}>
 
                   <TableCell align="left" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>{instrucao.createdAt}</TableCell>
                   <TableCell align="left" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>{instrucao.changeMaker}</TableCell>
                   <TableCell align="center" style={{  }}>{instrucao.descricao}</TableCell>
+                  <TableCell align="center" style={{  }}>
+                    <Button style={{backgroundColor:"white", color:"red"}} onClick={()=>{deleteInstruction(instrucao.id)}}> X </Button>
+                  </TableCell>
 
                   </TableRow>
                 </TableBody>
@@ -1059,6 +1394,78 @@ const renderForm = (
 
 
 
+          {/**TABLE ARQUIVOS */}
+          <Box>
+
+
+            <Table sx={{ minWidth: 600, marginTop: "25px" }} aria-label="spanning table">
+            <TableHead>
+
+              <TableRow>
+                <TableCell align="center" colSpan={6}>ARQUIVOS</TableCell>
+
+              </TableRow>
+              
+              <TableRow style={{display:"flex", justifyContent:"center", alignContent:"center", alignItems:"center"}}>
+                {
+                  !addNewFile &&
+                  <Button style={{backgroundColor:"lightgreen", color:"black", width:"100%"}} onClick={()=>{setAddNewFile(!addNewFile);}}>+ Subir Arquivo</Button>
+                }
+
+                {
+                  addNewFile &&
+                  <Box style={{width:"100%"}}>
+                    <TextField style={{color:"black", width:"100%", margin:"18px 0"}} label="URL Do Arquivo" onInput={(e)=>{setCurrentFileToAdd(e.target.value)}}></TextField>
+                    <Button style={{backgroundColor:"green", color:"white", margin:"0 2px"}} onClick={()=>{addFile();}}>Salvar</Button>
+                    <Button style={{backgroundColor:"brown", color:"white", margin:"0 2px"}} onClick={()=>{setAddNewFile(!addNewFile);}} >Cancelar</Button>
+                  </Box>
+                }
+
+              </TableRow>
+
+
+              {
+                  !addNewFile &&
+              <TableRow>
+                    <TableCell align="left">Data</TableCell>
+
+                    <TableCell align="center">Nome</TableCell>
+                    <TableCell align="left">Tipo</TableCell>
+                    <TableCell align="center">Tamanho</TableCell>
+                    <TableCell align="center"></TableCell>
+                    <TableCell align="center"></TableCell>
+
+              </TableRow> 
+              }
+            </TableHead>
+
+
+
+            {
+              !addNewFile &&
+              thisOs?.files.map((file, index) => (
+                <TableBody key={index} style={{ height: "10px", overflow: "scroll" }}>
+                  <TableRow style={{ borderBottom: "1px solid #ccc" }}>
+
+                  <TableCell align="left" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>{file.createdAt}</TableCell>
+                  <TableCell align="left" style={{ padding: "10px", fontSize: "16px", }}>{file.filename}</TableCell>
+                  <TableCell align="center" style={{  }}>{file.filetype}</TableCell>
+                  <TableCell align="center" style={{  }}>{file.filesize}</TableCell>
+                  <TableCell align="center" style={{  }}>
+                    <Button style={{backgroundColor:"lightblue", color:"black"}} onClick={()=>{deleteInstruction(file.id)}}> Baixar </Button>
+                  </TableCell>
+                  <TableCell align="center" style={{  }}>
+                    <Button style={{backgroundColor:"white", color:"red"}} onClick={()=>{deleteFile(file.id)}}> X </Button>
+                  </TableCell>
+
+                  </TableRow>
+                </TableBody>
+              ))
+            }
+
+            </Table>
+
+          </Box>
 
 
 
