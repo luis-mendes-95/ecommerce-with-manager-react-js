@@ -3,6 +3,7 @@ import { lazy, Suspense } from 'react';
 import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 
 import DashboardLayout from 'src/layouts/dashboard';
+import ComprasPage from 'src/pages/compras';
 import OsPage from 'src/pages/os';
 import VendasPage from 'src/pages/vendas';
 
@@ -31,6 +32,7 @@ export default function Router() {
         { path: 'products', element: <ProductsPage /> },
         { path: 'vendas', element: <VendasPage /> },
         { path: 'os', element: <OsPage /> },
+        { path: 'compras', element: <ComprasPage /> },
         { path: 'blog', element: <BlogPage /> },
       ],
     },
