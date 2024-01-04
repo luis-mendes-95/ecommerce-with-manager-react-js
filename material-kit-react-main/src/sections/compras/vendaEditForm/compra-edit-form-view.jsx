@@ -36,7 +36,7 @@ function getDataAtualFormatada() {
   return dia + '/' + mes + '/' + ano;
 }
 
-export default function CompraEditFormView(saleToEdit, compraToEdit) {
+export default function CompraEditFormView(compraToEdit) {
   
   const theme = useTheme();
   const router = useRouter();
@@ -473,7 +473,7 @@ useEffect(() => {
 
   getCompra(compraToEdit.compraToEdit)
 
-}, [])
+}, [compraToEdit])
 
 
 

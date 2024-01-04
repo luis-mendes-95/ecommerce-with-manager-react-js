@@ -4,7 +4,7 @@ import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
-import ProductCard from '../vendas-card';
+import ProductCard from '../compras-card';
 import ProductTableToolbar from '../vendas-table-toolbar';
 import { Box, Button, Checkbox, FormControl, FormControlLabel, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, Table, TableBody, TableContainer, TextField } from '@mui/material';
 import Iconify from 'src/components/iconify';
@@ -32,7 +32,7 @@ export default function ComprasView() {
 
       /**STATES FOR THIS COMPONENT */
       const [generateOs, setGenerateOs] = useState(false);
-      const [generatePayables, setGeneratePayables] = useState(false);
+      const [generatePayables, setGeneratePayables] = useState(true);
 
       /**RENDERED ENTITIES */
       const [product, setProduct] = useState(null);
@@ -135,7 +135,6 @@ export default function ComprasView() {
       });
       const onFormSubmit = (formData) => {
 
-        if (submitType === "createCompra") {
 
           formData.createdAt = getDataAtualFormatada();
           formData.lastEditted = getDataAtualFormatada();
@@ -148,8 +147,6 @@ export default function ComprasView() {
           formData.supplier_id = thisClient?.id;
 
           createCompra(formData);
-
-        }         
       
       };
 
@@ -572,6 +569,29 @@ export default function ComprasView() {
     }
   };
 
+  /**DELETE ITEM IN CART */
+  const deleteItemCompra = async (itemId) => {
+    
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = await api.delete(`itemCompras/${itemId}`, config);
+        if (response.status === 200) {
+          
+          toast.success("Item deletado com sucesso!");
+          setTimeout(() => {
+            getCompra(thisSale.id)
+          }, 1500);
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Erro ao deletar item");
+      }
+  };
+
   /**HANDLE SALE TO EDIT */
   const handleSaleToEdit = (id) => {
     getSale(id);
@@ -586,6 +606,7 @@ export default function ComprasView() {
     setCompraToEdit(id);
     setShowEdit(true);
     setShowAdd(false);
+
   }
 
   /**HANDLE GET SALE */
@@ -733,7 +754,7 @@ export default function ComprasView() {
               {
                 thisCompra &&
                 <>
-                  <p style={{fontWeight:"bold"}}>{thisCompra.client.nome_razao_social}</p>
+                  <p style={{fontWeight:"bold"}}>{thisCompra.supplier.nome_razao_social}</p>
                   <Button variant="contained" color="inherit" style={{backgroundColor:"brown"}} onClick={()=>{deleteCompra()}}>
                     Cancelar Compra
                   </Button>
@@ -919,8 +940,7 @@ export default function ComprasView() {
                   if (regsSituation === "all") {
                     const total = row.itemCompra.reduce((acc, item) => {
                       const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
-                      const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                      const itemTotal = (preco - parseFloat(item.disccount)) * qty;
+                      const itemTotal = (preco - parseFloat(item.disccount));
                       return acc + itemTotal;
                     }, 0);
 
@@ -994,13 +1014,13 @@ export default function ComprasView() {
       {/**MODAL TO SHOW COMPRA EDIT FORM */}
       {
         showEdit &&
-        <CompraEditFormView saleToEdit={saleToEdit} compraToEdit={compraToEdit} updateSale={getSale} updateCompra={getCompra}/>
+        <CompraEditFormView compraToEdit={thisCompra?.id}/>
       }
 
 
       {
         !showAdd && !showEdit &&
-        <ProductCartWidget thisSale={thisSale} deleteItemVenda={deleteItemVenda}/>
+        <ProductCartWidget deleteItemCompra={deleteItemCompra} thisCompra={thisCompra}/>
 
       }
     </Container>

@@ -42,7 +42,7 @@ function getDataAtualFormatada() {
 }
 
 
-export default function ShopProductCard({ product, handleEditProduct, handleGetSale, thisSale, thisOs, submitType, setSubmitType, thisClient, handleSetClient, handleSetModalVenda, showModalVenda, handleSetShowCart, generateOs }) {
+export default function ShopProductCard({ product, handleEditProduct, handleGetSale, handleGetCompra, thisSale, thisCompra, thisOs, submitType, setSubmitType, thisClient, handleSetClient, handleSetModalVenda, showModalVenda, handleSetShowCart, generateOs }) {
 
 
 
@@ -292,6 +292,52 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
 
 
+  const createItemCompra = async (createData) => {
+
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.post("itemCompras", createData, config);
+      if (response.data) {
+
+        toast.success("Item adicionado à sacola de compras!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+        setTimeout(() => {
+          handleSetShowCart(true);
+          getUser();
+          reset();
+          handleGetCompra(response.data.compra_id);
+        }, 1500);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao adicionar item à sacola de compras!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+    }
+  };
+
+
+
+
+
+
 
 
 
@@ -316,49 +362,38 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
   });
 
   const onFormSubmit = (formData) => {
+    
 
 
 
+    if (submitType === "createItemCompra") {
 
+      let qtyToAdd = formData.qty;
 
-    if (submitType === "createSale") {
-
-      formData.createdAt = getDataAtualFormatada();
-      formData.lastEditted = getDataAtualFormatada();
-      formData.changeMaker = user_name;
-      formData.active = true;
-      formData.user_id = user_id;
-      formData.colaborador = user_name;
-      formData.client_id = thisClient?.id;
-
-
-      createVenda(formData);
-
-    } else if (submitType === "createItemSale") {
+      delete formData.qty;
 
 
       formData.createdAt = getDataAtualFormatada();
       formData.changeMaker = getDataAtualFormatada();
       formData.lastEditted = getDataAtualFormatada();
-      if (formData.files) {
-        formData.description = formData.itemDescription;
-        delete formData.itemDescription;
-        formData.files = formData.files.split();
-      } else {
-        formData.files = [];
-        formData.description = "";
-      }
+
+
+      formData.description = "Adquirido na compra " + thisCompra.id;
       
-      formData.venda_id = thisSale.id;
-      formData.client_id = thisClient.id;
+
+      formData.compra_id = thisCompra.id;
       formData.produto_id = product.id;
 
 
       if (formData.disccount === "") {formData.disccount = "0"};
 
+      for(let i = 0; i < qtyToAdd; i++) {
+        console.log("é pra cadastrar " + qtyToAdd)
+        console.log("até agora tem :" + (i + 1))
+        createItemCompra(formData);
+      }
 
 
-      createItemVenda(formData);
 
     }
 
@@ -440,7 +475,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
         <Stack direction="row" alignItems="center" justifyContent="space-between">
           {/**<ColorPreview colors={product.colors} /> */}
-          {renderPrice}
+          Preço Praticado: {renderPrice}
         </Stack>
 
         <Stack>
@@ -449,8 +484,9 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit(onFormSubmit)(e); }} id="demo">
             <span style={{fontWeight:"bolder", fontSize: "px"}}> Adicionar ao carrinho: </span>
             {
-              thisSale &&
+              thisCompra &&
               <div>
+              <TextField style={{width:"100%", marginTop:"8px"}} required fullWidth {...register("cost")} label="Custo Unitário" id="qty" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
               <TextField style={{width:"100%", marginTop:"8px"}} required fullWidth {...register("qty")} label="Quantidade" id="qty" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
               <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("disccount")} label="Desconto unitário" id="disccount" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
               {
