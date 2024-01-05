@@ -583,7 +583,7 @@ export default function ComprasView() {
           
           toast.success("Item deletado com sucesso!");
           setTimeout(() => {
-            getCompra(thisSale.id)
+            getCompra(thisCompra.id)
           }, 1500);
         }
       } catch (err) {
@@ -936,10 +936,11 @@ export default function ComprasView() {
                 }))
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                 .map((row) => {
+
                   const formattedDate = row.createdAt.split('-').reverse().join('/');
                   if (regsSituation === "all") {
                     const total = row.itemCompra.reduce((acc, item) => {
-                      const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
+                      const preco = typeof item.cost !== 'undefined' ? parseFloat(item.cost) : 0;
                       const itemTotal = (preco - parseFloat(item.disccount));
                       return acc + itemTotal;
                     }, 0);
@@ -956,9 +957,8 @@ export default function ComprasView() {
                     );
                   } else if (regsSituation === "inactive" && row.active === false) {
                     const total = row.itemCompra.reduce((acc, item) => {
-                      const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
-                      const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                      const itemTotal = (preco - parseFloat(item.disccount)) * qty;
+                      const preco = typeof item.cost !== 'undefined' ? parseFloat(item.cost) : 0;
+                      const itemTotal = (preco - parseFloat(item.disccount));
                       return acc + itemTotal;
                     }, 0);
 
@@ -972,10 +972,9 @@ export default function ComprasView() {
                       />
                     );
                   } else if (regsSituation === "active" && row.active === true) {
-                    const total = row.itemCompra?.reduce((acc, item) => {
-                      const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
-                      const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                      const itemTotal = (preco - parseFloat(item.disccount)) * qty;
+                    const total = row.itemCompra.reduce((acc, item) => {
+                      const preco = typeof item.cost !== 'undefined' ? parseFloat(item.cost) : 0;
+                      const itemTotal = (preco - parseFloat(item.disccount));
                       return acc + itemTotal;
                     }, 0);
 

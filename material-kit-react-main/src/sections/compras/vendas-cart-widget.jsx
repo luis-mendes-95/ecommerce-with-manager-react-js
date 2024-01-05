@@ -71,7 +71,11 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
   const [payablesToGet, setPayablesToGet] = useState([]);
   const [choosePayMethod, setChoosePayMethod] = useState(false);
   const [payingItem, setPayingItem] = useState(null);
+  
   let newArrayDueDates = []
+  let includedProducts = []
+  let contagemIds = {};
+  let renderThisProducts = []
 
 /**CART SHOW AND HIDE */
   const cartModalFlipFlop = () => {
@@ -437,6 +441,7 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
                 </TableRow>
                 <TableRow style={{height:"100%", padding:"0"}}>
                   <TableCell>Item</TableCell>
+                  <TableCell align="right">Qtd</TableCell>
                   <TableCell align="right">Custo Unit</TableCell>
                   <TableCell align="right">Desconto Unit</TableCell>
                   <TableCell align="right">Valor com Desc</TableCell>
@@ -449,16 +454,50 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
               <TableBody style={{height:"100px", overflow:"scroll"}}>
 
 
-                {thisCompra?.itemCompra.map((row) => (
-                  <TableRow key={row.id}> 
-                    <TableCell>{row.produto.nome}</TableCell>
-                    <TableCell align="right">R${row.produto.preco}</TableCell>
-                    <TableCell align="right">R${row.disccount}</TableCell>
-                    <TableCell align="right">R${row.produto.preco - row.disccount}</TableCell>
-                    <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemCompra(row.id); setParcelas(0); setFormaPagamentoParcelas([]); setCheckoutStep(0);}} >X</button></TableCell>
+              {
 
-                  </TableRow>
-                ))}
+
+                thisCompra?.itemCompra.forEach((row, index) => {
+                  const includedProduct = { ...row.produto };
+
+                  includedProducts.push(includedProduct);
+
+                  if (thisCompra.itemCompra.length === (index + 1)) {
+                    includedProducts.forEach((product) => {
+                      contagemIds[product.id] = (contagemIds[product.id] || 0) + 1;
+                    });
+
+
+
+                    const newArray = Object.keys(contagemIds).map((key) => ({
+                      ...includedProducts.find((product) => product.id === key),
+                      qtd: contagemIds[key]
+                    }));
+
+                    renderThisProducts = newArray
+                  }
+                })
+              }
+
+              {
+                                    renderThisProducts.map((row) => {
+
+                                      console.log(row);
+                
+                                      return (
+                                        <TableRow key={row.id}> 
+                                          <TableCell>{row.nome}</TableCell>
+                                          <TableCell align="right">{row.qtd}</TableCell>
+                                          <TableCell align="right">R${row.custo}</TableCell>
+                                          <TableCell align="right">R${row.disccount}</TableCell>
+                                          <TableCell align="right">R${row.custo - row.disccount}</TableCell>
+                                          <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemCompra(row.id); setParcelas(0); setFormaPagamentoParcelas([]); setCheckoutStep(0);}} >X</button></TableCell>
+                            
+                                        </TableRow>
+                                      )
+                                    })
+              }
+
 
                 <TableRow >
 
