@@ -14,13 +14,16 @@ import { ColorPreview } from 'src/components/color-utils';
 
 // ----------------------------------------------------------------------
 
+
 export default function ShopProductCard({ product, handleEditProduct }) {
+
+  console.log(product)
 
 
   const renderStatus = (
     <Label
       variant="filled"
-      color={(product.active === true  && 'info') || 'error'}
+      color={(product.ItemCompra.length > 0   && 'info') || 'error'}
       sx={{
         zIndex: 9,
         top: 16,
@@ -29,12 +32,12 @@ export default function ShopProductCard({ product, handleEditProduct }) {
         textTransform: 'uppercase',
       }}
     >
-      {product.active &&
-        <span>Em estoque</span>
+      {product.ItemCompra.length < 1 &&
+        <span>Sem estoque</span>
       }
 
-      {product.active === false &&
-        <span>Inativo</span>
+      {product.ItemCompra.length > 0 &&
+        <span> ({product.ItemCompra.length - product.ItemVenda.length}) Em Estoque</span>
       }
 
     </Label>
@@ -76,9 +79,12 @@ export default function ShopProductCard({ product, handleEditProduct }) {
         <span style={{fontSize:"10px"}}>Cod: {product.cod}</span>
 
         <Stack direction="row" alignItems="center" justifyContent="space-between">
-          {/**<ColorPreview colors={product.colors} /> */}
           {renderPrice}
         </Stack>
+
+        <Stack direction="row" alignItems="center" justifyContent="space-between">
+        </Stack>
+
       </Stack>
     </Card>
   );

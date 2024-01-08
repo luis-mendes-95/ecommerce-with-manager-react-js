@@ -111,6 +111,10 @@ export default function ProductsView() {
 
   const handleEditProduct = (id) => {    getProduct(id);  }
   
+useEffect(() => {
+
+setFilteredProducts(user?.produtos)
+}, [user])
 
 
 
@@ -149,8 +153,8 @@ export default function ProductsView() {
                         label="Age"
                         onChange={handleChangeregsSituation}
                       >
-                        <MenuItem value={"active"}>Ativos</MenuItem>
-                        <MenuItem value={"inactive"}>Inativos</MenuItem>
+                        <MenuItem value={"active"}>Em estoque</MenuItem>
+                        <MenuItem value={"inactive"}>Sem estoque</MenuItem>
                         <MenuItem value={"all"}>Todos</MenuItem>
                       </Select>
         </FormControl>
@@ -158,13 +162,12 @@ export default function ProductsView() {
 
       <Stack direction="row" alignItems="center" flexWrap="wrap-reverse" justifyContent="flex-end" sx={{ mb: 5 }} >
         <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
-   {/** <ProductFilters openFilter={openFilter} onOpenFilter={handleOpenFilter} onCloseFilter={handleCloseFilter} /> */}
 
-          {/**<ProductSort /> */}
         </Stack>
       </Stack>
 
       <Grid container spacing={3}>
+
       {filteredProducts?.map((product) => (
           regsSituation === "all" &&
           <Grid key={product.id} xs={12} sm={6} md={3} >
@@ -173,14 +176,14 @@ export default function ProductsView() {
         ))}
 
         {filteredProducts?.map((product) => (
-          regsSituation === "active" && product.active &&
+          regsSituation === "active" && product.ItemCompra.length > 0 &&
           <Grid key={product.id} xs={12} sm={6} md={3} >
             <ProductCard product={product} handleEditProduct={handleEditProduct}/>
           </Grid>
         ))}
         
         {filteredProducts?.map((product) => (
-          regsSituation === "inactive" && product.active === false &&
+          regsSituation === "inactive" && product.ItemCompra.length < 1 &&
           <Grid key={product.id} xs={12} sm={6} md={3} >
             <ProductCard product={product} handleEditProduct={handleEditProduct}/>
           </Grid>
@@ -188,7 +191,7 @@ export default function ProductsView() {
         }
 
         {
-          filteredProducts.length === 0 &&
+          filteredProducts?.length === 0 &&
             regsSituation === "all" &&
               user?.produtos.map((product) => (
                 <Grid key={product.id} xs={12} sm={6} md={3} >
@@ -198,7 +201,7 @@ export default function ProductsView() {
         }
 
         {
-          filteredProducts.length === 0 &&
+          filteredProducts?.length === 0 &&
             regsSituation === "active" &&
               user?.produtos.map((product) => (
                 product.active &&
@@ -209,7 +212,7 @@ export default function ProductsView() {
         }
 
         {
-          filteredProducts.length === 0 &&
+          filteredProducts?.length === 0 &&
             regsSituation === "inactive" &&
               user?.produtos.map((product) => (
                 product.active  === false &&

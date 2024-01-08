@@ -71,11 +71,11 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
   const [payablesToGet, setPayablesToGet] = useState([]);
   const [choosePayMethod, setChoosePayMethod] = useState(false);
   const [payingItem, setPayingItem] = useState(null);
+  const [aggregatedItems, setAggregatedItems] = useState([]);
   
   let newArrayDueDates = []
   let includedProducts = []
   let contagemIds = {};
-  let renderThisProducts = []
 
 /**CART SHOW AND HIDE */
   const cartModalFlipFlop = () => {
@@ -186,7 +186,7 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
           draggable: true, 
           progress: undefined, 
         });
-
+        console.log(response.data)
         setCheckoutStep(checkoutStep + 1)
         getUser();
         
@@ -213,7 +213,7 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
         },
       };
 
-      const response = await api.patch(`/payables/${PayingItem.id}`, createData, config);
+      const response = await api.patch(`/payables/${payingItem.id}`, createData, config);
 
       if (response.status === 200) {
         toast.success();
@@ -255,6 +255,9 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
       }
 
       if(!payableMode) { 
+
+
+
     
         newArrayDueDates.forEach((item, index)=>{
   
@@ -262,9 +265,8 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
         formData.lastEditted = getDataAtualFormatada();
         formData.changeMaker = user_name;
 
-  
         formData.status = "Pendente";
-        formData.amount = `${thisCompra?.itemCompra.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto) + (dispatchValue / thisCompra.itens.length));return total+subtotal;}, 0) / parcelas}`;
+        formData.amount = `${thisCompra?.itemCompra.reduce((total,item)=>{const precoComDesconto=(item.cost-item.disccount);const subtotal=((precoComDesconto) + (dispatchValue / thisCompra.itemCompra.length));return total+subtotal;}, 0) / parcelas}`;
         formData.dueDate = item;
         formData.active = true;
         formData.payments = [];
@@ -281,17 +283,20 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
   
         createPayable(formData)
       })
+
+
+
   
-      setTimeout(() => {
+
         setPayableMode(true);
-      }, 1000);
+
    
       } else {
-  
+
         let currentPayment = `data:${getDataAtualFormatada()}, amount:${formData.payingAmount}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
         delete formData.amount;
         delete formData.payingAmount;
-        formData.payments = PayingItem.payments
+        formData.payments = payingItem.payments
         formData.payments.push(currentPayment);
         payValue(formData)
       }
@@ -313,7 +318,7 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
         formData.changeMaker = user_name;
 
         formData.status = "Pendente"; 
-        formData.amount = `${thisCompra?.itemCompra.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto) + (dispatchValue / thisCompra.itemCompra.length));return total+subtotal;}, 0) / parcelas}`; 
+        formData.amount = `${thisCompra?.itemCompra.reduce((total,item)=>{const precoComDesconto=(item.cost-item.disccount);const subtotal=((precoComDesconto) + (dispatchValue / aggregatedItems.length));return total+subtotal;}, 0) / parcelas}`;
         formData.dueDate = item;
         formData.active = true;
         formData.payments = [];
@@ -337,8 +342,7 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
    
       } else {
   
-  
-        let currentReceivement = `data:${getDataAtualFormatada()}, amount:${formData.payingItem}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
+        let currentReceivement = `data:${getDataAtualFormatada()}, amount:${formData.payingAmount}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
         delete formData.amount;
         delete formData.payingAmount;
         formData.payments = payingItem.payments
@@ -363,10 +367,24 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
   };
   
 
-
   React.useEffect(() => {
-    console.log(thisCompra)
-  }, [thisCompra])
+    const aggregatedMap = new Map();
+    
+    thisCompra?.itemCompra.forEach((row) => {
+      const id = row.produto.id;
+      const existingItem = aggregatedMap.get(id);
+
+      if (existingItem) {
+        existingItem.qty += 1;
+      } else {
+        aggregatedMap.set(id, { ...row, qty: 1 });
+      }
+    });
+
+    const aggregatedArray = Array.from(aggregatedMap.values());
+
+    setAggregatedItems(aggregatedArray);
+  }, [thisCompra?.itemCompra]);
   
 
 
@@ -434,7 +452,7 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
 
               <TableHead>
                 <TableRow>
-                  <TableCell align="center" colSpan={6}>
+                  <TableCell align="center" colSpan={7}>
                     Confira os itens
                   </TableCell>
                   <TableCell align="right"></TableCell>
@@ -445,7 +463,7 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
                   <TableCell align="right">Custo Unit</TableCell>
                   <TableCell align="right">Desconto Unit</TableCell>
                   <TableCell align="right">Valor com Desc</TableCell>
-                  <TableCell align="right"></TableCell>
+                  <TableCell align="right">Subtotal</TableCell>
                   <TableCell align="right"></TableCell>
                   <TableCell align="right">...</TableCell>
                 </TableRow>
@@ -455,48 +473,30 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
 
 
               {
+                thisCompra?.itemCompra.map((row, index) => {
+                  //aqui eu preciso de uma variável global, pode ser um state, pra guardar um novo array que vai ser usado pra renderizar os itens
+                  //dentro de cada row nao tem qtd, mas se existir itens iguais, tem que gerar um campo qtd e adicionar a quantidade conforme número de repetições desse item
 
-
-                thisCompra?.itemCompra.forEach((row, index) => {
-                  const includedProduct = { ...row.produto };
-
-                  includedProducts.push(includedProduct);
-
-                  if (thisCompra.itemCompra.length === (index + 1)) {
-                    includedProducts.forEach((product) => {
-                      contagemIds[product.id] = (contagemIds[product.id] || 0) + 1;
-                    });
-
-
-
-                    const newArray = Object.keys(contagemIds).map((key) => ({
-                      ...includedProducts.find((product) => product.id === key),
-                      qtd: contagemIds[key]
-                    }));
-
-                    renderThisProducts = newArray
-                  }
+                  
                 })
               }
 
               {
-                                    renderThisProducts.map((row) => {
-
-                                      console.log(row);
-                
-                                      return (
-                                        <TableRow key={row.id}> 
-                                          <TableCell>{row.nome}</TableCell>
-                                          <TableCell align="right">{row.qtd}</TableCell>
-                                          <TableCell align="right">R${row.custo}</TableCell>
-                                          <TableCell align="right">R${row.disccount}</TableCell>
-                                          <TableCell align="right">R${row.custo - row.disccount}</TableCell>
-                                          <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemCompra(row.id); setParcelas(0); setFormaPagamentoParcelas([]); setCheckoutStep(0);}} >X</button></TableCell>
-                            
-                                        </TableRow>
-                                      )
-                                    })
+                aggregatedItems.map((row) => {  {/**aqui da pra ver ele renderizando a partir do thisCompra.itemCompra, mas preciso que renderize a partir do state criado acima */}
+                  return (
+                    <TableRow key={row.id}> 
+                      <TableCell>{row.produto.nome}</TableCell>
+                      <TableCell align="right">{row.qty}</TableCell>
+                      <TableCell align="right">R${row.cost}</TableCell>
+                      <TableCell align="right">R${row.disccount}</TableCell>
+                      <TableCell align="right">R${row.cost - row.disccount}</TableCell>
+                      <TableCell align="right">R${(row.cost - row.disccount) * row.qty}</TableCell>
+                      <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemCompra(row.id); setParcelas(0); setFormaPagamentoParcelas([]); setCheckoutStep(0);}} >X</button></TableCell>
+                    </TableRow>
+                  )
+                })
               }
+
 
 
                 <TableRow >
@@ -516,7 +516,7 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
 
 
 
-                  <TableCell style={{width:"150px"}} align="right"> Total R$ { thisCompra?.itemCompra.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto));return total+subtotal;}, 0) - -dispatchValue  }</TableCell>
+                  <TableCell style={{width:"150px"}} align="right"> Total R$ { aggregatedItems.reduce((total,item)=>{const precoComDesconto=(item.cost-item.disccount)*item.qty;const subtotal=((precoComDesconto));return total+subtotal;}, 0) - -dispatchValue  }</TableCell>
                 </TableRow>
 
               </TableBody>
@@ -750,7 +750,7 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
             {
               checkoutStep === 0 && (
                 <FormGroup sx={{margin:"40px 0"}}>
-                <FormControlLabel control={<Checkbox checked={generatePayables} onChange={()=>{setGenerateReceivables(!generatePayables)}}/>} label="Gerar Títulos A Receber" />
+                <FormControlLabel control={<Checkbox checked={generatePayables} onChange={()=>{setGenerateReceivables(!generatePayables)}}/>} label="Gerar Títulos A Pagar" />
 
                 <FormControlLabel control={<Checkbox checked={generateDispatch} onChange={()=>{setGenerateDispatch(!generateDispatch)}}/>} label="Gerar Valor de Frete" />
     
@@ -776,7 +776,7 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
                         />
                       ))}
                     </FormGroup>
-                    <p>Valor da parcela: R$ { (thisCompra?.itemCompra.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto));return total+subtotal;}, 0) - -dispatchValue) / parcelas  }</p>
+                    <p>Valor da parcela: R$ { (aggregatedItems.reduce((total,item)=>{const precoComDesconto=(item.cost-item.disccount)*item.qty;const subtotal=((precoComDesconto));return total+subtotal;}, 0) - -dispatchValue) / parcelas }</p>
                   </Box>
               )
             }
@@ -787,8 +787,8 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
                   <form onSubmit={handleSubmit(onFormSubmit)} style={{height:"100%", overflow:"scroll", }}>
                   {Array.from({ length: parcelas }).map((_, index) => (
                     <div style={{ display: "flex", flexDirection:"row", backgroundColor:"lightgray", width:"25%" }}>
-                      <p>Parcela {index + 1} : R$ {((thisCompra?.itemCompra.reduce((total, item) => {
-                        const precoComDesconto = item.produto.preco - item.disccount;
+                      <p>Parcela {index + 1} : R$ {((aggregatedItems.reduce((total, item) => {
+                        const precoComDesconto = (item.cost - item.disccount) * item.qty;
                         const subtotal = ((precoComDesconto));
                         return total + subtotal;
                       }, 0)) / parcelas + (dispatchValue / parcelas)).toFixed(2)}</p>

@@ -109,7 +109,7 @@ export default function ComprasView() {
        const mesMatch = filtroMes ? dataFormatada[1] === Number(filtroMes) : true;
        const diaMatch = filtroDia ? dataFormatada[2] === Number(filtroDia) : true;
        const nomeMatch = filtroNomeCliente
-         ? row.client.nome_razao_social.toLowerCase().includes(filtroNomeCliente.toLowerCase())
+         ? row.supplier.nome_razao_social.toLowerCase().includes(filtroNomeCliente.toLowerCase())
          : true;
    
        return anoMatch && mesMatch && diaMatch && nomeMatch;
@@ -142,6 +142,7 @@ export default function ComprasView() {
           
           formData.active = true;
           formData.description = "Compra "
+          formData.dispatchValue = "0"
 
           formData.user_id = user_id;
           formData.supplier_id = thisClient?.id;
@@ -177,6 +178,8 @@ export default function ComprasView() {
       }
     }; 
     useEffect(() => {getUser();}, []); 
+
+    useEffect(() => {setFilteredProducts(user?.produtos);}, [thisCompra, user]); 
 
     /**HANDLERS TO CHANGE STATES IN OUTSIDER COMPONENTS */
     const handleSetShowCart = (bool) => {
@@ -468,11 +471,12 @@ export default function ComprasView() {
           setThisOs(null);
           setThisClient(null);
 
-          setTimeout(() => {
+
             setSubmitType("createCompra");
             reset();
-            getUser();
-          }, 1500);
+            //getUser();
+            location.reload();
+
         }
       } catch (err) {
         console.error(err);
@@ -854,60 +858,14 @@ export default function ComprasView() {
         {
           thisCompra &&
           <Grid container spacing={3}>
+
           {filteredProducts?.map((product) => (
-              regsSituation === "all" &&
-              <Grid key={product.id} xs={12} sm={6} md={3} >
-                <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} handleGetCompra={handleGetCompra} thisSale={thisSale} thisCompra={thisCompra} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} handleSetModalCompra={handleSetModalCompra} showModalVenda={showModalVenda} showModalCompra={showModalCompra} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-    
-              </Grid>
-            ))}
-    
-            {filteredProducts?.map((product) => (
-              regsSituation === "active" && product.active &&
-              <Grid key={product.id} xs={12} sm={6} md={3} >
-                <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} handleGetCompra={handleGetCompra} thisSale={thisSale} thisCompra={thisCompra} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} handleSetModalCompra={handleSetModalCompra} showModalVenda={showModalVenda} showModalCompra={showModalCompra} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-              </Grid>
-            ))}
-            
-            {filteredProducts?.map((product) => (
-              regsSituation === "inactive" && product.active === false &&
               <Grid key={product.id} xs={12} sm={6} md={3} >
                 <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} handleGetCompra={handleGetCompra} thisSale={thisSale} thisCompra={thisCompra} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} handleSetModalCompra={handleSetModalCompra} showModalVenda={showModalVenda} showModalCompra={showModalCompra} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
               </Grid>
             ))
-            }
-    
-            {
-              filteredProducts.length === 0 &&
-                regsSituation === "all" &&
-                  user?.produtos.map((product) => (
-                    <Grid key={product.id} xs={12} sm={6} md={3} >
-                <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} handleGetCompra={handleGetCompra} thisSale={thisSale} thisCompra={thisCompra} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} handleSetModalCompra={handleSetModalCompra} showModalVenda={showModalVenda} showModalCompra={showModalCompra} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-                  </Grid>
-                  ))
-            }
-    
-            {
-              filteredProducts.length === 0 &&
-                regsSituation === "active" &&
-                  user?.produtos.map((product) => (
-                    product.active &&
-                      <Grid key={product.id} xs={12} sm={6} md={3} >
-                <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} handleGetCompra={handleGetCompra} thisSale={thisSale} thisCompra={thisCompra} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} handleSetModalCompra={handleSetModalCompra} showModalVenda={showModalVenda} showModalCompra={showModalCompra} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-                      </Grid>
-                  ))
-            }
-    
-            {
-              filteredProducts.length === 0 &&
-                regsSituation === "inactive" &&
-                  user?.produtos.map((product) => (
-                    product.active  === false &&
-                      <Grid key={product.id} xs={12} sm={6} md={3} >
-                <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} handleGetCompra={handleGetCompra} thisSale={thisSale} thisCompra={thisCompra} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} handleSetModalCompra={handleSetModalCompra} showModalVenda={showModalVenda} showModalCompra={showModalCompra} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-                      </Grid>
-                  ))
-            }
+          }
+  
     
           </Grid>
         }
@@ -984,7 +942,7 @@ export default function ComprasView() {
                         id={row.id}
                         data={formattedDate} // Use the formatted date
                         nome_razao_social={row.supplier.nome_razao_social}
-                        total={`R$ ${total}`}
+                        total={`R$ ${total + parseFloat(thisCompra?.dispatchValue)}`}
                         handleCompraToEdit={handleCompraToEdit}
                       />
                     );

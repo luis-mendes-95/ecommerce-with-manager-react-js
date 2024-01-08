@@ -512,6 +512,13 @@ const getSale = async (id) => {
     getSale(id)
   }
 
+
+  useEffect(() => {
+    setFilteredProducts(user?.produtos)
+   
+  }, [user, thisSale])
+  
+
    
 
   
@@ -762,54 +769,9 @@ const getSale = async (id) => {
         {
           thisSale &&
           <Grid container spacing={3}>
-          {filteredProducts?.map((product) => (
-              regsSituation === "all" &&
-              <Grid key={product.id} xs={12} sm={6} md={3} >
-                <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} ubmitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-    
-              </Grid>
-            ))}
-    
-            {filteredProducts?.map((product) => (
-              regsSituation === "active" && product.active &&
-              <Grid key={product.id} xs={12} sm={6} md={3} >
-                <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-              </Grid>
-            ))}
-            
-            {filteredProducts?.map((product) => (
-              regsSituation === "inactive" && product.active === false &&
-              <Grid key={product.id} xs={12} sm={6} md={3} >
-                <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-              </Grid>
-            ))
-            }
     
             {
-              filteredProducts.length === 0 &&
-                regsSituation === "all" &&
-                  user?.produtos.map((product) => (
-                    <Grid key={product.id} xs={12} sm={6} md={3} >
-                    <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-                  </Grid>
-                  ))
-            }
-    
-            {
-              filteredProducts.length === 0 &&
-                regsSituation === "active" &&
-                  user?.produtos.map((product) => (
-                    product.active &&
-                      <Grid key={product.id} xs={12} sm={6} md={3} >
-                        <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-                      </Grid>
-                  ))
-            }
-    
-            {
-              filteredProducts.length === 0 &&
-                regsSituation === "inactive" &&
-                  user?.produtos.map((product) => (
+              filteredProducts.map((product) => (
                     product.active  === false &&
                       <Grid key={product.id} xs={12} sm={6} md={3} >
                         <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
