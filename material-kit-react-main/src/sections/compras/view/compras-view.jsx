@@ -9,7 +9,7 @@ import ProductTableToolbar from '../vendas-table-toolbar';
 import { Box, Button, Checkbox, FormControl, FormControlLabel, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, Table, TableBody, TableContainer, TextField } from '@mui/material';
 import Iconify from 'src/components/iconify';
 import api from 'src/services/api';
-import ProductCartWidget from '../vendas-cart-widget';
+import ProductCartWidget from '../compras-cart-widget';
 import { ToastContainer, toast } from "react-toastify";
 import { useForm } from 'react-hook-form';
 import Scrollbar from 'src/components/scrollbar';
@@ -17,7 +17,7 @@ import UserTableHead from 'src/sections/clients/clients-table-head';
 import { emptyRows } from '../../clients/utils';
 import TableEmptyRows from 'src/sections/clients/table-empty-rows';
 import ComprasTableRow from '../compras-table-row';
-import { CompraEditFormView } from '../vendaEditForm';
+import { CompraEditFormView } from '../compraEditForm';
 
 {/**FUNÇÃO QUE RETORNA A DATA ATUAL FORMATADA*/}
 function getDataAtualFormatada() {
@@ -894,8 +894,11 @@ export default function ComprasView() {
                 }))
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                 .map((row) => {
+                  console.log("saieeeeeeeu")
+
 
                   const formattedDate = row.createdAt.split('-').reverse().join('/');
+
                   if (regsSituation === "all") {
                     const total = row.itemCompra.reduce((acc, item) => {
                       const preco = typeof item.cost !== 'undefined' ? parseFloat(item.cost) : 0;
@@ -942,7 +945,7 @@ export default function ComprasView() {
                         id={row.id}
                         data={formattedDate} // Use the formatted date
                         nome_razao_social={row.supplier.nome_razao_social}
-                        total={`R$ ${total + parseFloat(thisCompra?.dispatchValue)}`}
+                        total={`R$ ${total}`}
                         handleCompraToEdit={handleCompraToEdit}
                       />
                     );

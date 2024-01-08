@@ -772,7 +772,6 @@ const getSale = async (id) => {
     
             {
               filteredProducts.map((product) => (
-                    product.active  === false &&
                       <Grid key={product.id} xs={12} sm={6} md={3} >
                         <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
                       </Grid>

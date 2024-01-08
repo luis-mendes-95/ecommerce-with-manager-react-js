@@ -266,7 +266,7 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
         formData.changeMaker = user_name;
 
         formData.status = "Pendente";
-        formData.amount = `${thisCompra?.itemCompra.reduce((total,item)=>{const precoComDesconto=(item.cost-item.disccount);const subtotal=((precoComDesconto) + (dispatchValue / thisCompra.itemCompra.length));return total+subtotal;}, 0) / parcelas}`;
+        formData.amount = `${thisCompra?.itemCompra.reduce((total,item)=>{const precoComDesconto=(item.cost-item.disccount);const subtotal=((precoComDesconto));return total+subtotal;}, 0) / parcelas}`;
         formData.dueDate = item;
         formData.active = true;
         formData.payments = [];
@@ -280,7 +280,9 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
         formData.client_id = thisCompra?.supplier_id;
         formData.venda_id = null;
         formData.compra_id = thisCompra.id;
-  
+        
+        formData.amount = `${parseFloat(formData.amount) + (parseFloat(dispatchValue) / parcelas)}`
+        
         createPayable(formData)
       })
 
@@ -318,11 +320,13 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
         formData.changeMaker = user_name;
 
         formData.status = "Pendente"; 
-        formData.amount = `${thisCompra?.itemCompra.reduce((total,item)=>{const precoComDesconto=(item.cost-item.disccount);const subtotal=((precoComDesconto) + (dispatchValue / aggregatedItems.length));return total+subtotal;}, 0) / parcelas}`;
+        formData.amount = `${thisCompra?.itemCompra.reduce((total,item)=>{const precoComDesconto=(item.cost-item.disccount);const subtotal=((precoComDesconto));return total+subtotal;}, 0) / parcelas}`;
         formData.dueDate = item;
         formData.active = true;
         formData.payments = [];
         formData.description = "Título gerado a partir da compra: " + thisCompra.id;
+
+        formData.amount = `${parseFloat(formData.amount) + (parseFloat(dispatchValue) / parcelas)}`
 
 
         formData.itemOs_id = null;
@@ -345,7 +349,7 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
         let currentReceivement = `data:${getDataAtualFormatada()}, amount:${formData.payingAmount}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
         delete formData.amount;
         delete formData.payingAmount;
-        formData.payments = payingItem.payments
+        formData.payments = payingItem?.payments
         formData.payments.push(currentReceivement);
         payValue(formData)
       }

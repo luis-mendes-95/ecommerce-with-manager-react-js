@@ -45,7 +45,18 @@ function getDataAtualFormatada() {
 export default function ShopProductCard({ product, handleEditProduct, handleGetSale, thisSale, thisOs, submitType, setSubmitType, thisClient, handleSetClient, handleSetModalVenda, showModalVenda, handleSetShowCart, generateOs }) {
 
 
+  const findTotalItemsVenda = () => {
+    let currentTotal = 0;
+    product.ItemVenda.forEach((itemVenda) => {
+      currentTotal += parseFloat(itemVenda.qty);
+    })
+    console.log(currentTotal)
+    return currentTotal
+  }
 
+  const itemsCompra = product.ItemCompra.length;
+
+  const itemsVenda = findTotalItemsVenda();
 
 
 
@@ -379,16 +390,20 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
     <Label
       variant="filled"
       color={(product.ItemCompra.length > 0   && 'info') || 'error'}
-      sx={{zIndex: 9,top: 16,right: 16,position: 'absolute',textTransform: 'uppercase',}}>
-
-      {
-      product.ItemCompra.length > 0 &&
-      <span> ({product.ItemCompra.length - product.ItemVenda.length}) Em Estoque</span>
+      sx={{
+        zIndex: 9,
+        top: 16,
+        right: 16,
+        position: 'absolute',
+        textTransform: 'uppercase',
+      }}
+    >
+      {product.ItemCompra.length < 1 &&
+        <span>Sem estoque</span>
       }
 
-      {
-      product.ItemCompra.length < 1 &&
-      <span>Sem estoque</span>
+      {product.ItemCompra.length > 0 &&
+        <span> ({itemsCompra - itemsVenda}) Em Estoque</span>
       }
 
     </Label>

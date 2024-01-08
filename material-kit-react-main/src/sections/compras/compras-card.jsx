@@ -379,6 +379,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
 
       formData.description = "Adquirido na compra " + thisCompra.id;
+      formData.estoque = "";
       
 
       formData.compra_id = thisCompra.id;
