@@ -60,6 +60,7 @@ const [parcelas, setParcelas] = useState(1);
 const [formaPagamentoParcelas, setFormaPagamentoParcelas] = useState(Array(parcelas).fill([]));
 const [receivingItemAmount, setReceivingItemAmount] = useState(0);
 const [payingItemAmount, setPayingItemAmount] = useState(0);
+const [aggregatedItems, setAggregatedItems] = useState([]);
 
 
 
@@ -475,6 +476,31 @@ useEffect(() => {
 
 }, [compraToEdit])
 
+useEffect(() =>{
+
+
+  const aggregatedMap = new Map();
+    
+  compra?.itemCompra.forEach((row) => {
+    const id = row.produto.id;
+    const existingItem = aggregatedMap.get(id);
+
+    if (existingItem) {
+      existingItem.qty += 1;
+    } else {
+      aggregatedMap.set(id, { ...row, qty: 1 });
+    }
+  });
+
+  const aggregatedArray = Array.from(aggregatedMap.values());
+
+  setAggregatedItems(aggregatedArray);
+  console.log(aggregatedArray)
+
+}, [compra])
+
+
+
 
 
 //FORM INPUTS, SELECTS AND BUTTONS
@@ -564,7 +590,9 @@ const renderForm = (
 
 
               {
-                compra?.itemCompra.map((item)=>{
+                aggregatedItems?.map((item)=>{
+
+                  console.log(item.produto.id) /**se o id for o mesmo, tem que renderizar isso abaixo apenas uma vez e adicionar um campo que já está sendo esperado */
 
                   const total = compra.itemCompra.reduce((acc, item) => {
                     const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
@@ -588,11 +616,11 @@ const renderForm = (
 
                         <TableRow key={item.id}> 
                           <TableCell>{item.produto.nome}</TableCell>
-                          <TableCell align="center">{item.qty}</TableCell>
-                          <TableCell align="center">R${item.produto.preco}</TableCell>
+                          <TableCell align="center">{item.qty}{/**aqui a quantidade conforme a quantidade de ids de produto repetidos */}</TableCell>
+                          <TableCell align="center">R${item.cost}</TableCell>
                           <TableCell align="center">R${item.disccount}</TableCell>
-                          <TableCell align="center">R${item.produto.preco - item.disccount}</TableCell>
-                          <TableCell align="center">R${(item.qty * item.produto.preco) - (item.disccount * item.qty)}</TableCell>
+                          <TableCell align="center">R${item.cost - item.disccount}</TableCell>
+                          <TableCell align="center">R${(item.qty * item.cost) - (item.disccount * item.qty)}</TableCell>
                           <TableCell align="center"></TableCell>
       
                         </TableRow>
@@ -603,7 +631,10 @@ const renderForm = (
       
       
       
-      
+                      {
+                        compra?.dispatchValue !== "0" &&
+                          <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Frete R$ {compra?.dispatchValue}</TableCell>
+                      }
       
       
       
@@ -625,12 +656,13 @@ const renderForm = (
               }
 
                 {
-                <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Total R$ {compra?.itemCompra.reduce((acc, item) => {
-                  const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
+                <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Total R$ {aggregatedItems.reduce((acc, item) => {
+  
+                  const preco = typeof item.cost !== 'undefined' ? parseFloat(item.cost) : 0;
                   const desconto = parseFloat(item.disccount);
                   const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
                   const itemTotal = (preco - desconto) * qty;
-                  return acc + itemTotal;
+                  return acc + itemTotal + parseFloat(compra?.dispatchValue);
                 }, 0)}</TableCell>
 
               }

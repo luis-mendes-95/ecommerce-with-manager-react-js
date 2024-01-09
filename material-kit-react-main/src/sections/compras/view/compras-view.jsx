@@ -911,7 +911,7 @@ export default function ComprasView() {
                       key={row.id}
                       data={formattedDate} // Use the formatted date
                       nome_razao_social={row.supplier.nome_razao_social}
-                      total={`R$ ${total}`}
+                      total={`R$ ${total + parseFloat(row.dispatchValue)}`}
                       handleCompraToEdit={handleCompraToEdit}
 
                       />
@@ -928,7 +928,7 @@ export default function ComprasView() {
                       key={row.id}
                       data={formattedDate} // Use the formatted date
                       nome_razao_social={row.supplier.nome_razao_social}
-                      total={`R$ ${total}`}
+                      total={`R$ ${total + parseFloat(row.dispatchValue)}`}
                       handleCompraToEdit={handleCompraToEdit}
                       />
                     );
@@ -945,7 +945,7 @@ export default function ComprasView() {
                         id={row.id}
                         data={formattedDate} // Use the formatted date
                         nome_razao_social={row.supplier.nome_razao_social}
-                        total={`R$ ${total}`}
+                        total={`R$ ${total + parseFloat(row.dispatchValue)}`}
                         handleCompraToEdit={handleCompraToEdit}
                       />
                     );
