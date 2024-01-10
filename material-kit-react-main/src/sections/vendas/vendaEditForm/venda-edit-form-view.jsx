@@ -533,13 +533,14 @@ const renderForm = (
 
                     <TableHead>
                       <TableRow>
-                        <TableCell align="center" colSpan={6}>
+                        <TableCell align="center" colSpan={7}>
                           ITENS
                         </TableCell>
                         <TableCell align="center"></TableCell>
                       </TableRow>
                       <TableRow style={{height:"100%", padding:"0"}}>
                         <TableCell>Item</TableCell>
+                        <TableCell align="center"></TableCell>
                         <TableCell align="center">Qtd</TableCell>
                         <TableCell align="center">Valor Unit</TableCell>
                         <TableCell align="center">Desconto Unit</TableCell>
@@ -576,6 +577,7 @@ const renderForm = (
 
                         <TableRow key={item.id}> 
                           <TableCell>{item.produto.nome}</TableCell>
+                          <TableCell><img src={item.produto.imagem_principal}/></TableCell>
                           <TableCell align="center">{item.qty}</TableCell>
                           <TableCell align="center">R${item.produto.preco}</TableCell>
                           <TableCell align="center">R${item.disccount}</TableCell>
