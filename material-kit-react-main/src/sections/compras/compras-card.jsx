@@ -12,9 +12,10 @@ import Button from '@mui/joy/Button';
 import { fCurrency } from 'src/utils/format-number';
 import Label from 'src/components/label';
 import { ColorPreview } from 'src/components/color-utils';
-import FormControl from '@mui/joy/FormControl';
+import { FormControl } from '@mui/material';
+
 import FormLabel from '@mui/joy/FormLabel';
-import { Select } from '@mui/material';
+import { InputLabel, MenuItem, Select } from '@mui/material';
 import FormHelperText from '@mui/joy/FormHelperText';
 import Input from '@mui/joy/Input';
 import { TextField } from '@mui/material';
@@ -25,12 +26,10 @@ import { Toastify } from 'toastify';
 import "react-toastify/dist/ReactToastify.css";
 import { create } from 'lodash';
 
-  /**LOCALSTORAGE DATA TO HAVE PERMISSION */
-  const user_id = localStorage.getItem('tejas.app.user_id');
-  const token = localStorage.getItem('tejas.app.token');
-  const user_name = localStorage.getItem('tejas.app.user_name');
-
-
+/**LOCALSTORAGE DATA TO HAVE PERMISSION */
+const user_id = localStorage.getItem('tejas.app.user_id');
+const token = localStorage.getItem('tejas.app.token');
+const user_name = localStorage.getItem('tejas.app.user_name');
 
 {/**FUNÇÃO QUE RETORNA A DATA ATUAL FORMATADA*/}
 function getDataAtualFormatada() {
@@ -41,35 +40,17 @@ function getDataAtualFormatada() {
   return dia + '/' + mes + '/' + ano;
 }
 
-
 export default function ShopProductCard({ product, handleEditProduct, handleGetSale, handleGetCompra, thisSale, thisCompra, thisOs, submitType, setSubmitType, thisClient, handleSetClient, handleSetModalVenda, showModalVenda, handleSetShowCart, generateOs }) {
 
-
-
-
-
-
-
-
-  /**STATES FOR THIS COMPONENT */
   const [user, setUser] = React.useState(null);
+  const [estoque, setEstoque] = React.useState("Padrão");
 
 
 
-
-
-
-
-
-  /**VARIABLES TO CUSTOM THIS COMPONENT */
   const url = "vendas"
   const urlEdit = url + `/${thisSale?.id}`;
   const urlItemVenda = "itemVendas";
 
-
-
-
-  /**FUNCTIONS FOR REQUESTS */
   const getUser = async () => {
 
     if (user_id){
@@ -88,7 +69,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
       }
     }
   }; 
-
 
   const createFiles = async (createData) => {
 
@@ -156,19 +136,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
- 
   const createItemOs = async (createData) => {
 
 
@@ -180,6 +147,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
     createData.tipo_arte = "Arte Nova";
     createData.status = "Aguardando Arte";
     createData.colaborador = user_name;
+
     if(thisOs){
       createData.os_id = thisOs.id;
     }
@@ -228,15 +196,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
       });
     } 
   };
-
-
-
-
-
-
-
-
-
 
   const createItemVenda = async (createData) => {
 
@@ -287,11 +246,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
     }
   };
 
-
-
-
-
-
   const createItemCompra = async (createData) => {
 
     try {
@@ -333,39 +287,15 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
     }
   };
 
-
-
-
-
-
-
-
-
-
-
-
-
-  
-
-  /**AFTER LOAD THIS COMPONENT, RUN THESE CODES */
   React.useEffect(() => {
     getUser();
 
   }, []); 
 
-
-
-
-  /**FORM CONFIGURATION - USE FORM */
-  const { register, handleSubmit, reset, formState: { errors }  } = useForm({
-    // resolver: zodResolver(RegisterClientSchema),
-  });
+  const { register, handleSubmit, reset, formState: { errors }  } = useForm({});
 
   const onFormSubmit = (formData) => {
     
-
-
-
     if (submitType === "createItemCompra") {
 
       let qtyToAdd = formData.qty;
@@ -379,7 +309,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
 
       formData.description = "Adquirido na compra " + thisCompra.id;
-      formData.estoque = "";
+      formData.estoque = estoque;
       
 
       formData.compra_id = thisCompra.id;
@@ -401,14 +331,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
     
   };
 
-
-
-
-
-
-
-
-  /**PRE RENDER HTML  */
   const renderStatus = (
     <Label
       variant="filled"
@@ -446,24 +368,15 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
       R{fCurrency(product.preco)}
     </Typography>
   );
-
-
+console.log(estoque)
   return (
     <Card>
       <ToastContainer/>
+        <Box sx={{ pt: '100%', position: 'relative' }}>
+          {renderStatus}
 
-
-
-
-
-
-
-
-      <Box sx={{ pt: '100%', position: 'relative' }}>
-        {renderStatus}
-
-        {renderImg}
-      </Box>
+          {renderImg}
+        </Box>
 
       <Stack spacing={2} sx={{ p: 3 }}>
 
@@ -488,6 +401,25 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
               <TextField style={{width:"100%", marginTop:"8px"}} required fullWidth {...register("cost")} label="Custo Unitário" id="qty" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
               <TextField style={{width:"100%", marginTop:"8px"}} required fullWidth {...register("qty")} label="Quantidade" id="qty" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
               <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("disccount")} label="Desconto unitário" id="disccount" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
+              <FormControl style={{minWidth: "200px", margin:"10px 0"}}>
+                  <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Estoque</InputLabel>
+                  <Select
+                    style={{minWidth: "200px"}}
+                    labelId="demo-simple-select-label"
+                    id="demo-simple-select"
+                    value={estoque}
+                    onChange={(e)=>{setEstoque(e.target.value)}}
+                  >
+                    <MenuItem value={"Padrão"}>Padrão</MenuItem>
+                    {
+                      user?.estoques.map((estoque)=>{
+                        return(
+                          <MenuItem value={estoque.nome}>{estoque.nome}</MenuItem>
+                        )
+                      })
+                    }
+                  </Select>
+              </FormControl>
               {
                 generateOs &&
                 <>

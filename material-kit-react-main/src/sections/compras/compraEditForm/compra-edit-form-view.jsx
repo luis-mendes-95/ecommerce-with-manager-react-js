@@ -635,10 +635,7 @@ const renderForm = (
       
       
       
-                      {
-                        compra?.dispatchValue !== "0" &&
-                          <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Frete R$ {compra?.dispatchValue}</TableCell>
-                      }
+
       
       
       
@@ -659,17 +656,41 @@ const renderForm = (
                 
               }
 
-                {
-                <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Total R$ {aggregatedItems.reduce((acc, item) => {
-  
-                  const preco = typeof item.cost !== 'undefined' ? parseFloat(item.cost) : 0;
-                  const desconto = parseFloat(item.disccount);
-                  const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                  const itemTotal = (preco - desconto) * qty;
-                  return acc + itemTotal + parseFloat(compra?.dispatchValue);
-                }, 0)}</TableCell>
-
+              <Box style={{display:"flex", flexDirection:"column"}}> 
+              {
+                <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Sub Total R$ {
+                  
+                  aggregatedItems.reduce((acc, item) => {  
+                    const preco = typeof item.cost !== 'undefined' ? parseFloat(item.cost) : 0;
+                    const desconto = parseFloat(item.disccount);
+                    const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
+                    const itemTotal = (preco - desconto) * qty;
+                    return acc + itemTotal;
+                   }, 0)}
+                   
+                </TableCell>
               }
+
+              
+              {
+                compra?.dispatchValue !== "0" &&
+                  <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Frete R$ {compra?.dispatchValue}</TableCell>
+              }
+
+              {
+                <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Total R$ {
+                  
+                  aggregatedItems.reduce((acc, item) => {  
+                    const preco = typeof item.cost !== 'undefined' ? parseFloat(item.cost) : 0;
+                    const desconto = parseFloat(item.disccount);
+                    const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
+                    const itemTotal = (preco - desconto) * qty;
+                    return acc + itemTotal + (parseFloat(compra?.dispatchValue) / aggregatedItems.length);
+                   }, 0)}
+                   
+                </TableCell>
+              }
+              </Box>
 
 
             </Table>
