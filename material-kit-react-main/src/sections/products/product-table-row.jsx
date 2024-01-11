@@ -14,22 +14,27 @@ import IconButton from '@mui/material/IconButton';
 
 import Label from 'src/components/label';
 import Iconify from 'src/components/iconify';
+import { TextField } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
 export default function ProductsTableRow({
-
   id,
   cod,
+  transferMode,
   product,
   nome_razao_social,
   total,
   estoque,
   selected,
-  handleEditProduct
+  handleEditProduct,
+  handleTransferItems,
+  estoqueToRender
 }) {
 
   const [open, setOpen] = useState(null);
+  const [isChecked, setIsChecked] = useState(false);
+
 
   const handleOpenMenu = (event) => {
     setOpen(event.currentTarget);
@@ -40,9 +45,23 @@ export default function ProductsTableRow({
   };
 
 
+
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected} sx={{cursor:"pointer"}} onClick={()=>{handleEditProduct(id);}}>
+      <TableRow hover tabIndex={-1} role="checkbox" selected={selected} sx={{cursor:"pointer"}} onClick={()=>{ if(!transferMode){handleEditProduct(id)};}}>
+
+        {
+          transferMode &&
+          <>
+            <TableCell>
+              <Checkbox checked={isChecked} onChange={()=>{setIsChecked(!isChecked); handleTransferItems("check", id, !isChecked, estoqueToRender)}}/>
+            </TableCell>
+
+            <TableCell style={{width:"10%"}}>
+              <TextField style={{width:"100%"}} onInput={(e)=>{handleTransferItems("qty", id, e.target.value, estoqueToRender)}}/>
+            </TableCell>
+          </>
+        }
      
         <TableCell>{cod}</TableCell>
 

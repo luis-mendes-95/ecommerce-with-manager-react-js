@@ -35,6 +35,7 @@ export default function ProductsView() {
     const user_id = localStorage.getItem('tejas.app.user_id');
     const token = localStorage.getItem('tejas.app.token');
     const user_name = localStorage.getItem('tejas.app.user_name');
+    const [transferMode, setTransferMode] = useState(false);
 
     const getUser = async () => {
       if (user_id){
@@ -76,7 +77,52 @@ export default function ProductsView() {
     const [addEstoque, setAddEstoque] = useState(false);
     const [addingEstoque, setAddingEstoque] = useState("");
     const [estoqueToRender, setEstoqueToRender] = useState("Todos");
+    const [transferItemsChecks, setTransferItemsChecks] = useState([]);
+    const [transferItemsQties, setTransferItemsQties] = useState([]);
 
+
+    const handleTransferItems = (type, id, value, estoque) => {
+
+      
+      if (type === "check") {
+        let existingItem = transferItemsChecks.find(item => item.id === id);
+        if (existingItem) {
+          const novoArray = [...transferItemsChecks];
+          const index = novoArray.findIndex(item => item.id === id);
+          if (index !== -1) {
+            const novoItem = { ...novoArray[index], value: value };
+            novoArray[index] = novoItem;
+            setTransferItemsChecks(novoArray);
+            console.log(transferItemsChecks);
+          }
+        } else {
+          // Adicione um novo item ao array se o índice não foi encontrado
+          const novoItem = { id: id, value: value };
+          setTransferItemsChecks(prevArray => [...prevArray, novoItem]);
+          console.log(transferItemsChecks);
+        }
+      } else if (type === "qty") {
+        let existingItem = transferItemsQties.find(item => item.id === id);
+        if (existingItem) {
+          const novoArray = [...transferItemsQties];
+          const index = novoArray.findIndex(item => item.id === id);
+          if (index !== -1) {
+            const novoItem = { ...novoArray[index], value: value };
+            novoArray[index] = novoItem;
+            setTransferItemsQties(novoArray);
+            console.log(transferItemsQties);
+          }
+        } else {
+          // Adicione um novo item ao array se o índice não foi encontrado
+          const novoItem = { id: id, value: value };
+          setTransferItemsQties(prevArray => [...prevArray, novoItem]);
+          console.log(transferItemsQties);
+        }
+      }
+      
+        }
+console.log(transferItemsChecks)
+console.log(transferItemsQties)
 
     const filterProducts = (searchText) => {
       if (!searchText) {
@@ -119,7 +165,7 @@ export default function ProductsView() {
         }
       } catch (err) {
         console.log(err);
-        setClient(null);
+        setProduct(null);
       }
   }; 
 
@@ -327,7 +373,7 @@ setFilteredProducts(user?.produtos)
                         labelId="demo-simple-select-label"
                         id="demo-simple-select"
                         value={visuMode}
-                        onChange={(e)=>{setVisuMode(e.target.value)}}
+                        onChange={(e)=>{setVisuMode(e.target.value);setTransferMode(false);}}
                       >
                         <MenuItem value={"store"}>Loja</MenuItem>
                         <MenuItem value={"list"}>Lista</MenuItem>
@@ -344,7 +390,7 @@ setFilteredProducts(user?.produtos)
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     value={estoqueToRender}
-                    onChange={(e)=>{setEstoqueToRender(e.target.value);}}
+                    onChange={(e)=>{setEstoqueToRender(e.target.value); setTransferMode(false);}}
                   >
                     <MenuItem value={"Todos"}>Todos</MenuItem>
                     {
@@ -551,17 +597,39 @@ setFilteredProducts(user?.produtos)
         visuMode === "list" &&
         <Scrollbar>
         <TableContainer sx={{ overflow: 'unset' }}>
+          {
+            estoqueToRender !== "Todos" &&
+            <Button style={{backgroundColor:"black", color:"white"}} onClick={()=>{setTransferMode(!transferMode); console.log(transferMode)}}>Transferir Itens</Button>
+          }
           <Table sx={{ minWidth: 800 }}>
+            
 
 
-            <UserTableHead rowCount={user?.clientes.length} 
+            {
+              transferMode &&
+              <UserTableHead rowCount={user?.clientes.length} 
               headLabel={[
-                { id: 'data', label: 'Cod' },
+                { id: 'checkbox', label: 'Selecionar' },
+                { id: 'qtd', label: 'Qtd' },
+                { id: 'cod', label: 'Cod' },
                 { id: 'produto', label: 'Produto' },
                 { id: 'estoque', label: 'Estoque' },
                 { id: 'preco', label: 'Preço' },
               ]}
             />
+            }
+
+            {
+              !transferMode &&
+              <UserTableHead rowCount={user?.clientes.length} 
+              headLabel={[
+                { id: 'cod', label: 'Cod' },
+                { id: 'produto', label: 'Produto' },
+                { id: 'estoque', label: 'Estoque' },
+                { id: 'preco', label: 'Preço' },
+              ]}
+            />
+            }
 
 
             <TableBody>
@@ -580,37 +648,46 @@ setFilteredProducts(user?.produtos)
 
                   return (
                     <ProductsTableRow
+                    id={row.id}
                     key={row.id}
                     cod={row.cod}
+                    transferMode={transferMode}
                     product={row.nome} 
                     total={`R$ ${row.preco}`}
                     estoque={row.ItemCompra.length - row.ItemVenda.length}
                     handleEditProduct={handleEditProduct}
+                    handleTransferItems={handleTransferItems}
+                    estoqueToRender={estoqueToRender}
                     />
                   );
                 } else if (regsSituation === "inactive" && (row.ItemCompra.length - row.ItemVenda.length) < 1) {
 
                   return (
                     <ProductsTableRow
+                    id={row.id}
                     key={row.id}
                     cod={row.cod}
                     product={row.nome} 
                     total={`R$ ${row.preco}`}
                     estoque={row.ItemCompra.length - row.ItemVenda.length}
                     handleEditProduct={handleEditProduct}
+                    handleTransferItems={handleTransferItems}
+                    estoqueToRender={estoqueToRender}
                     />
                   );
                 } else if (regsSituation === "active" && (row.ItemCompra.length - row.ItemVenda.length) > 0 && estoqueToRender === "Todos") {
 
                   return (
                     <ProductsTableRow
+                      id={row.id}
                       key={row.id}
                       cod={row.cod}
-                      id={row.id}
                       product={row.nome} 
                       total={`R$ ${row.preco}`}
                       estoque={row.ItemCompra.length - row.ItemVenda.length}
                       handleEditProduct={handleEditProduct}
+                      handleTransferItems={handleTransferItems}
+                      estoqueToRender={estoqueToRender}
                     />
                   );
                 } else if (regsSituation === "all" && estoqueToRender !== "Todos") {
@@ -623,12 +700,16 @@ setFilteredProducts(user?.produtos)
                   })
                   return (
                             <ProductsTableRow
+                            id={row.id}
                             key={currentProduct.id}
                             cod={currentProduct.cod}
+                            transferMode={transferMode}
                             product={currentProduct.nome} 
                             total={`R$ ${currentProduct.preco}`}
                             estoque={currentProduct.ItemCompra.length - currentProduct.ItemVenda.length}
                             handleEditProduct={handleEditProduct}
+                            handleTransferItems={handleTransferItems}
+                            estoqueToRender={estoqueToRender}
                             />
                           );
                 } else if (regsSituation === "active" && estoqueToRender !== "Todos") {
@@ -642,12 +723,16 @@ setFilteredProducts(user?.produtos)
                   if (currentProduct.ItemCompra.length > 0) {
                     return (
                         <ProductsTableRow
+                        id={row.id}
                         key={currentProduct.id}
                         cod={currentProduct.cod}
+                        transferMode={transferMode}
                         product={currentProduct.nome} 
                         total={`R$ ${currentProduct.preco}`}
                         estoque={currentProduct.ItemCompra.length - currentProduct.ItemVenda.length}
                         handleEditProduct={handleEditProduct}
+                        handleTransferItems={handleTransferItems}
+                        estoqueToRender={estoqueToRender}
                         />
                     );
                   }
@@ -663,7 +748,7 @@ setFilteredProducts(user?.produtos)
         </Scrollbar>
       }
 
-    </>    
+    </>
     }
 
     {
