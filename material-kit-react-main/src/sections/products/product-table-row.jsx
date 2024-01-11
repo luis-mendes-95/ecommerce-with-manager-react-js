@@ -39,7 +39,6 @@ export default function ProductsTableRow({
     setOpen(null);
   };
 
-  console.log(estoque)
 
   return (
     <>

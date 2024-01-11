@@ -6,7 +6,7 @@ import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
 import ProductCard from '../product-card';
 import ProductTableToolbar from '../product-table-toolbar';
-import { Box, Button, FormControl, InputLabel, MenuItem, Select, Table, TableBody, TableContainer } from '@mui/material';
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, Table, TableBody, TableContainer, TextField } from '@mui/material';
 import Iconify from 'src/components/iconify';
 import { ProductAddFormView } from '../productAddForm';
 import { ProductEditFormView } from '../productEditForm';
@@ -17,7 +17,16 @@ import UserTableHead from 'src/sections/clients/clients-table-head';
 import ProductsTableRow from '../product-table-row';
 import TableEmptyRows from 'src/sections/clients/table-empty-rows';
 import { emptyRows } from 'src/sections/clients/utils';
+import { toast } from 'react-toastify';
 
+
+function getDataAtualFormatada() {
+  var data = new Date();
+  var dia = data.getDate().toString().padStart(2, '0');
+  var mes = (data.getMonth() + 1).toString().padStart(2, '0'); // Adiciona 1 porque os meses começam do 0
+  var ano = data.getFullYear();
+  return dia + '/' + mes + '/' + ano;
+}
 
 export default function ProductsView() {
 
@@ -64,6 +73,9 @@ export default function ProductsView() {
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [visuMode, setVisuMode] = useState("store");
     const [showEstoques, setShowEstoques] = useState(false);
+    const [addEstoque, setAddEstoque] = useState(false);
+    const [addingEstoque, setAddingEstoque] = useState("");
+    const [estoqueToRender, setEstoqueToRender] = useState("Todos");
 
 
     const filterProducts = (searchText) => {
@@ -112,6 +124,97 @@ export default function ProductsView() {
   }; 
 
 
+  const createEstoque = async (estoqueNome) => {
+
+    let createData = {
+      createdAt: getDataAtualFormatada(),
+      lastEditted: getDataAtualFormatada(),
+      changeMaker: user_name,
+
+      nome: addingEstoque,
+
+      user_id: user_id
+    }
+
+
+
+    try {
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+  
+      const response = await api.post("/estoque", createData, config);
+  
+      if (response.status === 201) {
+        toast.success();
+        toast.success("Estoque criado!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+
+        getUser();  
+        setAddingEstoque("");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao cadastrar estoque");
+    }
+  };
+
+
+  /**DELETE VENDA REQUEST IN BACKEND */
+  const deleteEstoque = async (id) => {
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = await api.delete(`estoque/${id}`, config);
+
+
+        if (response.status === 200) {
+          toast.success("Estoque deletado!", {
+            position: "bottom-right", 
+            autoClose: 3000, 
+            hideProgressBar: false, 
+            closeOnClick: true, 
+            pauseOnHover: true, 
+            draggable: true, 
+            progress: undefined, 
+          });
+
+          setTimeout(() => {
+            getUser();
+          }, 1500);
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Erro ao deletar estoque!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+        setSubmitType("createSale")
+        setThisSale(null);
+        setThisOs(null);
+        setThisClient(null);
+      }
+  };
+
+
 
 
 {/**  const handleOpenFilter = () => {    setOpenFilter(true);  };  const handleCloseFilter = () => {    setOpenFilter(false);  }; */}
@@ -139,16 +242,64 @@ setFilteredProducts(user?.produtos)
 
 
       <Box sx={{display:"flex", justifyContent:"flex-start", gap:"15px", alignContent:"flex-start", alignItems:"flex-start"}}>
+
         <Typography variant="h4" sx={{ mb: 5 }}>
               Produtos
-            </Typography>
-
-            <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{setShowAdd(true); setShowEdit(false);}}>
+        </Typography>
+            
+        <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{setShowAdd(true); setShowEdit(false);}}>
             Novo Produto
         </Button>
+
         <Button variant="contained" color="inherit" style={{backgroundColor:"#00B8D9"}} onClick={()=>{setShowEstoques(!showEstoques);}}>
             Estoques
         </Button>
+        
+
+      </Box>
+
+      <Box>
+      
+      {
+        showEstoques && user?.estoques.length < 0 &&
+          
+          <p>Nenhum estoque cadastrado.</p>
+          
+      }
+      {
+          showEstoques && user?.estoques.length > 0 &&  
+          
+
+            <Box style={{backgroundColor:"white", width:"100%", color:"black"}}>
+
+              {
+                            user?.estoques.map((estoque)=>{
+                              return (
+                                <Box style={{display:"flex", justifyContent:"flex-start", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
+                                  <p style={{padding:"8px"}}>{estoque.nome}</p>
+                                  <Button style={{backgroundColor:"red", color:"white"}} onClick={()=>{deleteEstoque(estoque.id)}}>X</Button>
+                                </Box>
+                              )
+                            })
+              }
+              
+
+
+
+
+            </Box>
+      }
+
+      {
+        showEstoques &&
+          <Box style={{backgroundColor:"white", padding:"8px"}}>
+            <TextField label="Nome do estoque" onInput={(e)=>{setAddingEstoque(e.target.value)}}></TextField>
+            <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createEstoque(addingEstoque);}}>Criar</Button>
+          </Box>
+
+      }
+
+
       </Box>
 
 
@@ -192,10 +343,17 @@ setFilteredProducts(user?.produtos)
                     style={{minWidth: "200px"}}
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={estoque}
-                    //onChange={handleChangeEstoque}
+                    value={estoqueToRender}
+                    onChange={(e)=>{setEstoqueToRender(e.target.value)}}
                   >
                     <MenuItem value={"Todos"}>Todos</MenuItem>
+                    {
+                      user?.estoques.map((estoque)=>{
+                        return(
+                          <MenuItem value={estoque.nome}>{estoque.nome}</MenuItem>
+                        )
+                      })
+                    }
                   </Select>
         </FormControl>
         }
