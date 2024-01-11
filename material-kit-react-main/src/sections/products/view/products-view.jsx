@@ -77,6 +77,7 @@ export default function ProductsView() {
     const [addEstoque, setAddEstoque] = useState(false);
     const [addingEstoque, setAddingEstoque] = useState("");
     const [estoqueToRender, setEstoqueToRender] = useState("Todos");
+    const [estoqueDestino, setEstoqueDestino] = useState("");
     const [transferItemsChecks, setTransferItemsChecks] = useState([]);
     const [transferItemsQties, setTransferItemsQties] = useState([]);
 
@@ -84,45 +85,44 @@ export default function ProductsView() {
     const handleTransferItems = (type, id, value, estoque) => {
 
       
-      if (type === "check") {
-        let existingItem = transferItemsChecks.find(item => item.id === id);
-        if (existingItem) {
-          const novoArray = [...transferItemsChecks];
-          const index = novoArray.findIndex(item => item.id === id);
-          if (index !== -1) {
-            const novoItem = { ...novoArray[index], value: value };
-            novoArray[index] = novoItem;
-            setTransferItemsChecks(novoArray);
+        if (type === "check") {
+          let existingItem = transferItemsChecks.find(item => item.id === id);
+          if (existingItem) {
+            const novoArray = [...transferItemsChecks];
+            const index = novoArray.findIndex(item => item.id === id);
+            if (index !== -1) {
+              const novoItem = { ...novoArray[index], value: value };
+              novoArray[index] = novoItem;
+              setTransferItemsChecks(novoArray);
+              console.log(transferItemsChecks);
+            }
+          } else {
+            // Adicione um novo item ao array se o índice não foi encontrado
+            const novoItem = { id: id, value: value };
+            setTransferItemsChecks(prevArray => [...prevArray, novoItem]);
             console.log(transferItemsChecks);
           }
-        } else {
-          // Adicione um novo item ao array se o índice não foi encontrado
-          const novoItem = { id: id, value: value };
-          setTransferItemsChecks(prevArray => [...prevArray, novoItem]);
-          console.log(transferItemsChecks);
-        }
-      } else if (type === "qty") {
-        let existingItem = transferItemsQties.find(item => item.id === id);
-        if (existingItem) {
-          const novoArray = [...transferItemsQties];
-          const index = novoArray.findIndex(item => item.id === id);
-          if (index !== -1) {
-            const novoItem = { ...novoArray[index], value: value };
-            novoArray[index] = novoItem;
-            setTransferItemsQties(novoArray);
+        } else if (type === "qty") {
+          let existingItem = transferItemsQties.find(item => item.id === id);
+          if (existingItem) {
+            const novoArray = [...transferItemsQties];
+            const index = novoArray.findIndex(item => item.id === id);
+            if (index !== -1) {
+              const novoItem = { ...novoArray[index], value: value };
+              novoArray[index] = novoItem;
+              setTransferItemsQties(novoArray);
+              console.log(transferItemsQties);
+            }
+          } else {
+            // Adicione um novo item ao array se o índice não foi encontrado
+            const novoItem = { id: id, value: value };
+            setTransferItemsQties(prevArray => [...prevArray, novoItem]);
             console.log(transferItemsQties);
           }
-        } else {
-          // Adicione um novo item ao array se o índice não foi encontrado
-          const novoItem = { id: id, value: value };
-          setTransferItemsQties(prevArray => [...prevArray, novoItem]);
-          console.log(transferItemsQties);
-        }
-      }
+          }
       
-        }
-console.log(transferItemsChecks)
-console.log(transferItemsQties)
+    }
+
 
     const filterProducts = (searchText) => {
       if (!searchText) {
@@ -261,6 +261,36 @@ console.log(transferItemsQties)
   };
 
 
+  const transferItems = () => {
+    const mapTransferItemsQties = new Map(transferItemsQties.map(item => [item.id, item]));
+    const resultadoTransferItems = transferItemsChecks.map(itemChecks => ({
+      id: itemChecks.id,
+      state: itemChecks.value,
+      qty: mapTransferItemsQties.get(itemChecks.id).value,
+      origem: estoqueToRender,
+      destino: estoqueDestino
+    }));
+    
+    console.log(resultadoTransferItems);
+    user?.produtos.map((produto)=>{
+      resultadoTransferItems.map((itemToTransfer)=>{
+        if(itemToTransfer.id === produto.id) {
+
+          console.log("Transfira " + itemToTransfer.qty + " itemCompra do produto com id: " + itemToTransfer.id + " cujo estoque esteja atualmente em " + itemToTransfer.origem + " e vai para " + itemToTransfer.destino)
+       
+          let itemsTransfered = 0;
+
+          produto.ItemCompra.map((itemCompra) => {
+            if (itemCompra.estoque === itemToTransfer.origem)
+              console.log("Altere o estoque de " + itemToTransfer.qty + " itens deste para: " + itemToTransfer.destino)
+          })
+       
+        }
+      })
+
+    })
+
+  }
 
 
 {/**  const handleOpenFilter = () => {    setOpenFilter(true);  };  const handleCloseFilter = () => {    setOpenFilter(false);  }; */}
@@ -745,8 +775,39 @@ setFilteredProducts(user?.produtos)
 
           </Table>
         </TableContainer>
+
+        {
+                transferMode &&
+                <Box style={{display:"flex", justifyContent:"center"}}>
+                  <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
+                                      <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Estoque Destino</InputLabel>
+                                      <Select
+                                        style={{minWidth: "200px"}}
+                                        labelId="demo-simple-select-label"
+                                        id="demo-simple-select"
+                                        value={estoqueDestino}
+                                        onChange={(e)=>{setEstoqueDestino(e.target.value);}}
+                                      >
+                                        <MenuItem value={"Todos"}>Todos</MenuItem>
+                                        {
+                                          user?.estoques.map((estoque)=>{
+                                            return(
+                                              estoque.nome !== estoqueToRender &&
+                                              <MenuItem value={estoque.nome}>{estoque.nome}</MenuItem>
+                                            )
+                                          })
+                                        }
+                                      </Select>
+                  </FormControl>
+                  <Button style={{backgroundColor:"green", color:"white"}} onClick={transferItems}>Transferir</Button>
+                </Box>
+              }
         </Scrollbar>
+
+        
       }
+
+      
 
     </>
     }
