@@ -275,7 +275,7 @@ setFilteredProducts(user?.produtos)
               {
                             user?.estoques.map((estoque)=>{
                               return (
-                                <Box style={{display:"flex", justifyContent:"flex-start", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
+                                <Box style={{display:"flex", justifyContent:"space-between", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
                                   <p style={{padding:"8px"}}>{estoque.nome}</p>
                                   <Button style={{backgroundColor:"red", color:"white"}} onClick={()=>{deleteEstoque(estoque.id)}}>X</Button>
                                 </Box>
@@ -344,7 +344,7 @@ setFilteredProducts(user?.produtos)
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     value={estoqueToRender}
-                    onChange={(e)=>{setEstoqueToRender(e.target.value)}}
+                    onChange={(e)=>{setEstoqueToRender(e.target.value);}}
                   >
                     <MenuItem value={"Todos"}>Todos</MenuItem>
                     {
@@ -370,23 +370,111 @@ setFilteredProducts(user?.produtos)
         </Stack>
       </Stack>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       {
         visuMode === "store" &&     
        <Grid container spacing={3}>
 
-      {filteredProducts?.map((product) => (
-          regsSituation === "all" &&
-          <Grid key={product.id} xs={12} sm={6} md={3} >
-            <ProductCard product={product} handleEditProduct={handleEditProduct}/>
-          </Grid>
-        ))}
+      {filteredProducts?.map((product) => {
+        let currentProduct = { ...product };  // Criar uma cópia do objeto para evitar mutações indesejadas
+        let itemsToRender = [];
 
-        {filteredProducts?.map((product) => (
-          regsSituation === "active" && product.ItemCompra.length > 0 &&
-          <Grid key={product.id} xs={12} sm={6} md={3} >
-            <ProductCard product={product} handleEditProduct={handleEditProduct}/>
-          </Grid>
-        ))}
+        if (regsSituation === "all" && estoqueToRender === "Todos") {
+          return (
+            <Grid key={product.id} xs={12} sm={6} md={3} >
+              <ProductCard product={product} handleEditProduct={handleEditProduct}/>
+            </Grid>
+          );
+        } else if (regsSituation === "all" && estoqueToRender !== "Todos") {
+          currentProduct.ItemCompra = currentProduct.ItemCompra.filter((itemCompra) => {
+            if (itemCompra.estoque === estoqueToRender) {
+              itemsToRender.push(itemCompra);
+              return true;
+            }
+            return false;
+          });
+
+          console.log(currentProduct);
+
+            return (
+              <Grid key={currentProduct.id} xs={12} sm={6} md={3} >
+                <ProductCard product={currentProduct} handleEditProduct={handleEditProduct}/>
+              </Grid>
+            );
+
+
+        }
+
+        // Adicione lógica aqui se necessário para outros casos
+
+        return null; // Retorna null se nenhum caso for atendido
+      })}
+
+
+        {filteredProducts?.map((product) => {
+                  let currentProduct = { ...product };  // Criar uma cópia do objeto para evitar mutações indesejadas
+                  let itemsToRender = [];
+
+            if (regsSituation === "active" && product.ItemCompra.length > 0 && estoqueToRender === "Todos") {
+              return (
+                <Grid key={product.id} xs={12} sm={6} md={3} >
+                <ProductCard product={product} handleEditProduct={handleEditProduct}/>
+              </Grid>
+              )
+            } else if (regsSituation === "active" && estoqueToRender !== "Todos") {
+              currentProduct.ItemCompra = currentProduct.ItemCompra.filter((itemCompra) => {
+                if (itemCompra.estoque === estoqueToRender) {
+                  itemsToRender.push(itemCompra);
+                  return true;
+                }
+                return false;
+              });
+    
+              console.log(currentProduct);
+
+              if (currentProduct.ItemCompra.length > 0) {
+                return (
+                  <Grid key={currentProduct.id} xs={12} sm={6} md={3} >
+                    <ProductCard product={currentProduct} handleEditProduct={handleEditProduct}/>
+                  </Grid>
+                );
+              }
+    
+
+            }
+    
+            // Adicione lógica aqui se necessário para outros casos
+    
+            return null; // Retorna null se nenhum caso for atendido
+          })}
+
         
         {filteredProducts?.map((product) => (
           regsSituation === "inactive" && product.ItemCompra.length < 1 &&
@@ -431,6 +519,34 @@ setFilteredProducts(user?.produtos)
       </Grid>
       }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       {
         visuMode === "list" &&
         <Scrollbar>
@@ -455,10 +571,12 @@ setFilteredProducts(user?.produtos)
               }))
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
               .map((row) => {
+                let currentProduct = { ...row };  // Criar uma cópia do objeto para evitar mutações indesejadas
+                let itemsToRender = [];
 
                 const formattedDate = row.createdAt.split('-').reverse().join('/');
 
-                if (regsSituation === "all") {
+                if (regsSituation === "all" && estoqueToRender === "Todos") {
 
                   return (
                     <ProductsTableRow
@@ -482,7 +600,7 @@ setFilteredProducts(user?.produtos)
                     handleEditProduct={handleEditProduct}
                     />
                   );
-                } else if (regsSituation === "active" && (row.ItemCompra.length - row.ItemVenda.length) > 0) {
+                } else if (regsSituation === "active" && (row.ItemCompra.length - row.ItemVenda.length) > 0 && estoqueToRender === "Todos") {
 
                   return (
                     <ProductsTableRow
@@ -495,6 +613,44 @@ setFilteredProducts(user?.produtos)
                       handleEditProduct={handleEditProduct}
                     />
                   );
+                } else if (regsSituation === "all" && estoqueToRender !== "Todos") {
+                  currentProduct.ItemCompra = currentProduct.ItemCompra.filter((itemCompra) => {
+                    if(itemCompra.estoque === estoqueToRender) {
+                      itemsToRender.push(itemCompra);
+                      return true;
+                    }
+                    return false;
+                  })
+                  return (
+                            <ProductsTableRow
+                            key={currentProduct.id}
+                            cod={currentProduct.cod}
+                            product={currentProduct.nome} 
+                            total={`R$ ${currentProduct.preco}`}
+                            estoque={currentProduct.ItemCompra.length - currentProduct.ItemVenda.length}
+                            handleEditProduct={handleEditProduct}
+                            />
+                          );
+                } else if (regsSituation === "active" && estoqueToRender !== "Todos") {
+                  currentProduct.ItemCompra = currentProduct.ItemCompra.filter((itemCompra) => {
+                    if (itemCompra.estoque === estoqueToRender) {
+                      itemsToRender.push(itemCompra);
+                      return true;
+                    }
+                    return false;
+                  })
+                  if (currentProduct.ItemCompra.length > 0) {
+                    return (
+                        <ProductsTableRow
+                        key={currentProduct.id}
+                        cod={currentProduct.cod}
+                        product={currentProduct.nome} 
+                        total={`R$ ${currentProduct.preco}`}
+                        estoque={currentProduct.ItemCompra.length - currentProduct.ItemVenda.length}
+                        handleEditProduct={handleEditProduct}
+                        />
+                    );
+                  }
                 }
               })}
 
@@ -504,8 +660,9 @@ setFilteredProducts(user?.produtos)
 
           </Table>
         </TableContainer>
-      </Scrollbar>
+        </Scrollbar>
       }
+
     </>    
     }
 

@@ -23,8 +23,7 @@ export default function ShopProductCard({ product, handleEditProduct }) {
     product.ItemVenda.forEach((itemVenda) => {
       currentTotal += parseFloat(itemVenda.qty);
     })
-    console.log(product.ItemCompra.length)
-    console.log(product.ItemVenda.length)
+
     return currentTotal
   }
 
