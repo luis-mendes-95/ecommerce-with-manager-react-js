@@ -260,6 +260,31 @@ export default function ProductsView() {
       }
   };
 
+  const transferItem = async (createData, id) => {
+    try {
+      // Define o cabeçalho da solicitação com o token de autenticação
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+  
+      const response = await api.patch(`/itemCompras/${id}`, createData, config);
+  
+      if (response.data) {
+        toast.success("Item transferido com sucesso!");
+        getUser();
+        // Você pode adicionar qualquer outra lógica aqui que desejar após o sucesso.
+        // Por exemplo, redirecionar para outra página.
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao transferir item");
+      // Lida com o erro de forma apropriada, como exibir uma mensagem de erro.
+    }
+  };
+
+
 
   const transferItems = () => {
     const mapTransferItemsQties = new Map(transferItemsQties.map(item => [item.id, item]));
@@ -270,19 +295,27 @@ export default function ProductsView() {
       origem: estoqueToRender,
       destino: estoqueDestino
     }));
+
+    let itemsTransfered = 0;
     
-    console.log(resultadoTransferItems);
     user?.produtos.map((produto)=>{
+
       resultadoTransferItems.map((itemToTransfer)=>{
+        console.log(itemToTransfer)
         if(itemToTransfer.id === produto.id) {
 
-          console.log("Transfira " + itemToTransfer.qty + " itemCompra do produto com id: " + itemToTransfer.id + " cujo estoque esteja atualmente em " + itemToTransfer.origem + " e vai para " + itemToTransfer.destino)
+          //console.log("Transfira " + itemToTransfer.qty + " itemCompra do produto com id: " + itemToTransfer.id + " cujo estoque esteja atualmente em " + itemToTransfer.origem + " e vai para " + itemToTransfer.destino)
        
-          let itemsTransfered = 0;
+
 
           produto.ItemCompra.map((itemCompra) => {
-            if (itemCompra.estoque === itemToTransfer.origem)
-              console.log("Altere o estoque de " + itemToTransfer.qty + " itens deste para: " + itemToTransfer.destino)
+            if (itemCompra.estoque === itemToTransfer.origem && itemsTransfered < itemToTransfer.qty) {
+                itemsTransfered += 1;
+                console.log("Altere o estoque de " + itemToTransfer.qty + " itens deste para: " + itemToTransfer.destino)     
+                let createData = {estoque: itemToTransfer.destino}
+                transferItem(createData, itemCompra.id)     
+              }
+
           })
        
         }
@@ -291,6 +324,8 @@ export default function ProductsView() {
     })
 
   }
+
+
 
 
 {/**  const handleOpenFilter = () => {    setOpenFilter(true);  };  const handleCloseFilter = () => {    setOpenFilter(false);  }; */}
