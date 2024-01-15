@@ -92,7 +92,7 @@ export default function ProductsView() {
     const [categoria, setCategoria] = useState("Todas");
     const [marca, setMarca] = useState("Todas");
     const [modelo, setModelo] = useState("Todos");
-
+    const [tamanho, setTamanho] = useState("Todas");
 
     const handleTransferItems = (type, id, value, estoque) => {
 
@@ -484,7 +484,6 @@ export default function ProductsView() {
     }
   };
 
-
   const deleteEstoque = async (id) => {
     try {
       const config = {
@@ -528,8 +527,6 @@ export default function ProductsView() {
     }
   };
 
-
-
   const transferItem = async (createData, id) => {
     try {
       // Define o cabeçalho da solicitação com o token de autenticação
@@ -553,8 +550,6 @@ export default function ProductsView() {
       // Lida com o erro de forma apropriada, como exibir uma mensagem de erro.
     }
   };
-
-
 
   const transferItems = () => {
     const mapTransferItemsQties = new Map(transferItemsQties.map(item => [item.id, item]));
@@ -607,10 +602,10 @@ export default function ProductsView() {
   
 useEffect(() => {
 
-setFilteredProducts(user?.produtos)
+setFilteredProducts(user?.produtos);
+
 }, [user])
 
-console.log(categoria, marca, modelo)
 
 
   return (
@@ -914,6 +909,31 @@ console.log(categoria, marca, modelo)
               </Select>
         </FormControl>
 
+        <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
+              <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Tamanho</InputLabel>
+              <Select
+                style={{minWidth: "200px"}}
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={tamanho}
+                onChange={(e)=>{setTamanho(e.target.value);}}
+              >
+                <MenuItem value={"Todas"}>Todos</MenuItem>
+                <MenuItem value={"PP"}>PP</MenuItem>
+                <MenuItem value={"P"}>P</MenuItem>
+                <MenuItem value={"M"}>M</MenuItem>
+                <MenuItem value={"G"}>G</MenuItem>
+                <MenuItem value={"GG"}>GG</MenuItem>
+                <MenuItem value={"G1"}>G1</MenuItem>
+                <MenuItem value={"G2"}>G2</MenuItem>
+                <MenuItem value={"G3"}>G3</MenuItem>
+                <MenuItem value={"G4"}>G4</MenuItem>
+                <MenuItem value={"G5"}>G5</MenuItem>
+
+              </Select>
+        </FormControl>
+
+
 
 
 
@@ -963,13 +983,13 @@ console.log(categoria, marca, modelo)
         let itemsToRender = [];
         console.log(product)
 
-        if (regsSituation === "all" && estoqueToRender === "Todos" && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId)) {
+        if (regsSituation === "all" && estoqueToRender === "Todos" && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId) && (tamanho === "Todas" || tamanho === product.tamanho)) {
           return (
             <Grid key={product.id} xs={12} sm={6} md={3} >
               <ProductCard product={product} handleEditProduct={handleEditProduct}/>
             </Grid>
           );
-        } else if (regsSituation === "all" && estoqueToRender !== "Todos" && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId)) {
+        } else if (regsSituation === "all" && estoqueToRender !== "Todos" && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId) && (tamanho === "Todas" || tamanho === product.tamanho) ) {
           
           currentProduct.ItemCompra = currentProduct.ItemCompra.filter((itemCompra) => {
             if (itemCompra.estoque === estoqueToRender) {
@@ -996,13 +1016,13 @@ console.log(categoria, marca, modelo)
                   let currentProduct = { ...product };  // Criar uma cópia do objeto para evitar mutações indesejadas
                   let itemsToRender = [];
 
-            if (regsSituation === "active" && product.ItemCompra.length > 0 && estoqueToRender === "Todos" && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId)) {
+            if (regsSituation === "active" && product.ItemCompra.length > 0 && estoqueToRender === "Todos" && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId) && (tamanho === "Todas" || tamanho === product.tamanho)) {
               return (
                 <Grid key={product.id} xs={12} sm={6} md={3} >
                 <ProductCard product={product} handleEditProduct={handleEditProduct}/>
               </Grid>
               )
-            } else if (regsSituation === "active" && estoqueToRender !== "Todos" && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId)) {
+            } else if (regsSituation === "active" && estoqueToRender !== "Todos" && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId) && (tamanho === "Todas" || tamanho === product.tamanho)) {
               currentProduct.ItemCompra = currentProduct.ItemCompra.filter((itemCompra) => {
                 if (itemCompra.estoque === estoqueToRender) {
                   itemsToRender.push(itemCompra);
@@ -1030,7 +1050,7 @@ console.log(categoria, marca, modelo)
 
         
         {filteredProducts?.map((product) => (
-          regsSituation === "inactive" && product.ItemCompra.length < 1 && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId) &&
+          regsSituation === "inactive" && product.ItemCompra.length < 1 && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId) && (tamanho === "Todas" || tamanho === product.tamanho) &&
           <Grid key={product.id} xs={12} sm={6} md={3} >
             <ProductCard product={product} handleEditProduct={handleEditProduct}/>
           </Grid>
@@ -1039,7 +1059,7 @@ console.log(categoria, marca, modelo)
 
         {
         filteredProducts?.length === 0 &&
-          regsSituation === "all" && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId) &&
+          regsSituation === "all" && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId) && (tamanho === "Todas" || tamanho === product.tamanho) &&
             user?.produtos.map((product) => (
               <Grid key={product.id} xs={12} sm={6} md={3} >
 
@@ -1049,7 +1069,7 @@ console.log(categoria, marca, modelo)
 
         {
           filteredProducts?.length === 0 &&
-            regsSituation === "active" && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId) &&
+            regsSituation === "active" && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId) && (tamanho === "Todas" || tamanho === product.tamanho) &&
               user?.produtos.map((product) => (
                 product.active &&
                   <Grid key={product.id} xs={12} sm={6} md={3} >
@@ -1060,7 +1080,7 @@ console.log(categoria, marca, modelo)
 
         {
           filteredProducts?.length === 0 &&
-            regsSituation === "inactive" && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId) &&
+            regsSituation === "inactive" && (modelo === "Todos" || modelo === product.modeloId) && (marca === "Todas" || marca === product.marcaId) && (categoria === "Todas" || categoria === product.categoriaId) && (tamanho === "Todas" || tamanho === product.tamanho) &&
               user?.produtos.map((product) => (
                 product.active  === false &&
                   <Grid key={product.id} xs={12} sm={6} md={3} >

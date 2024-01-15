@@ -5,6 +5,7 @@ import { Outlet, Navigate, useRoutes } from 'react-router-dom';
 import DashboardLayout from 'src/layouts/dashboard';
 import ComprasPage from 'src/pages/compras';
 import OsPage from 'src/pages/os';
+import ReceivablesPage from 'src/pages/receivables';
 import VendasPage from 'src/pages/vendas';
 
 export const IndexPage = lazy(() => import('src/pages/app'));
@@ -33,6 +34,7 @@ export default function Router() {
         { path: 'vendas', element: <VendasPage /> },
         { path: 'os', element: <OsPage /> },
         { path: 'compras', element: <ComprasPage /> },
+        { path: 'receivables', element: <ReceivablesPage /> },
         { path: 'blog', element: <BlogPage /> },
       ],
     },

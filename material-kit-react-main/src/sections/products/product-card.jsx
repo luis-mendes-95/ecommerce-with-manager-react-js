@@ -88,7 +88,7 @@ export default function ShopProductCard({ product, handleEditProduct }) {
 
       <Stack spacing={2} sx={{ p: 3 }}>
         <Link color="inherit" underline="hover" variant="subtitle2" Wrap>
-          {product.nome}
+          {product.nome} {product.tamanho}
         </Link>
         <span style={{fontSize:"10px"}}>Cod: {product.cod}</span>
 

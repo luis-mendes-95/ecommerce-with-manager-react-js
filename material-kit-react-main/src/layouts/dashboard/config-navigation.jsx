@@ -16,7 +16,7 @@ const navConfig = {
       icon: iconExternal('https://cdn-icons-png.flaticon.com/512/3971/3971214.png'),
     },
     {
-      title: 'Clientes',
+      title: 'Cpf / Cnpj',
       path: '/user',
       icon: iconExternal('https://cdn-icons-png.flaticon.com/512/1379/1379505.png'),
     },

@@ -23,9 +23,6 @@ import api from 'src/services/api';
 import { useForm } from 'react-hook-form';
 import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
-
-// ----------------------------------------------------------------------
-
 function getDataAtualFormatada() {
   var data = new Date();
   var dia = data.getDate().toString().padStart(2, '0');
@@ -53,10 +50,8 @@ export default function ProductAddFormView() {
   const [marca, setMarca] = useState("");
   const [modelo, setModelo] = useState("");
 
-
 //FORM INPUTS CONFIGURATIONS
 let url = "/clientes"
-
 
 /** GET USER BY REQUEST IN BACKEND AND TAKES TOKEN FROM LOCALSTORAGE*/
 const user_id = localStorage.getItem('tejas.app.user_id');
@@ -86,8 +81,6 @@ const getUser = async () => {
 useEffect(() => {
 getUser();
 }, []);
-
-
 
 const createCategoria = async (categoriaNome) => {
 
@@ -346,10 +339,6 @@ const deleteModelo = async (id) => {
   }
 };
 
-
-
-
-
 const [showForm, SetShowForm] = useState("new");
 
 const create = async (createData) => {
@@ -405,15 +394,7 @@ const onFormSubmit = (formData) => {
 
 };
       
-
-
-
-
-
-
-
-
-  const renderForm = (
+const renderForm = (
     <>
       <Stack spacing={3} style={{display:"flex", flexDirection:"row", alignItems:"center", justifyContent:"center", alignContent:"center", gap:"15px", flexWrap:"wrap"}}>
 
@@ -487,7 +468,8 @@ const onFormSubmit = (formData) => {
       
       
       
-      <TextField style={{width:"415px", marginTop:"0"}} required fullWidth {...register("nome")} label="Nome" type="nome" id="nome" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
+        <TextField style={{width:"415px", marginTop:"0"}} required fullWidth {...register("nome")} label="Nome" type="nome" id="nome" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
+        <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("tamanho")} label="Tamanho" type="Tamanho" id="Tamanho" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
       <TextField style={{width:"415px", marginTop:"0"}} required fullWidth {...register("descricao")} label="Descrição" type="descricao" id="descricao" inputProps={{ maxLength: 8000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
       <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("imagem_principal")} label="Imagem de Capa" type="imagem_principal" id="imagem_principal" />
       <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("imagens")} label="Imagens (por , )" type="imagens" id="imagens" />
@@ -542,7 +524,7 @@ const onFormSubmit = (formData) => {
 
 
     </>
-  );
+);
 
   return (
     <Box

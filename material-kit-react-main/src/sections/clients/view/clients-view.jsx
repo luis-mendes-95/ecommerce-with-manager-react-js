@@ -154,10 +154,10 @@ export default function ClientView() {
         <>
           <Stack direction="row" alignItems="center" justifyContent="space-between" mb={5}>
 
-          <Typography variant="h4">Clientes</Typography>
+          <Typography variant="h4">CPF / CNPJ</Typography>
 
           <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{setShowAdd(true); setShowEdit(false)}}>
-            Novo Cliente
+            Novo Cpf / Cnpj
           </Button>
 
           </Stack>
@@ -267,15 +267,7 @@ export default function ClientView() {
             </TableContainer>
           </Scrollbar>
 
-          <TablePagination
-            page={page}
-            component="div"
-            count={user?.clientes.length}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            rowsPerPageOptions={[5, 10, 25]}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+
           </Card>
         </>
 

@@ -610,12 +610,13 @@ const renderForm = (
                 }
               </Select>
         </FormControl>
-    <TextField style={{width:"415px", marginTop:"0"}} required fullWidth {...register("nome")} defaultValue={product.product.nome} label="Nome" type="nome" id="nome" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
-    <TextField style={{width:"415px", marginTop:"0"}} required fullWidth {...register("descricao")} defaultValue={product.product.descricao} label="Descrição" type="descricao" id="descricao" inputProps={{ maxLength: 8000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
-    <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("imagem_principal")} defaultValue={product.product.imagem_principal} label="Imagem de Capa" type="imagem_principal" id="imagem_principal" />
-    <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("imagens")} defaultValue={product.product.imagens} label="Imagens (por , )" type="imagens" id="imagens" />
-    <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("custo")} defaultValue={product.product.custo} label="Custo" type="custo" id="custo" inputProps={{ maxLength: 80 }} />
-    <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("preco")} defaultValue={product.product.preco} label="Preço" type="preco" id="preco" inputProps={{ maxLength: 20 }} />
+        <TextField style={{width:"415px", marginTop:"0"}} required fullWidth {...register("nome")} defaultValue={product.product.nome} label="Nome" type="nome" id="nome" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
+        <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("tamanho")} defaultValue={product.product.tamanho} label="Tamanho" type="Tamanho" id="Tamanho" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
+      <TextField style={{width:"415px", marginTop:"0"}} required fullWidth {...register("descricao")} defaultValue={product.product.descricao} label="Descrição" type="descricao" id="descricao" inputProps={{ maxLength: 8000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
+     <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("imagem_principal")} defaultValue={product.product.imagem_principal} label="Imagem de Capa" type="imagem_principal" id="imagem_principal" />
+     <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("imagens")} defaultValue={product.product.imagens} label="Imagens (por , )" type="imagens" id="imagens" />
+     <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("custo")} defaultValue={product.product.custo} label="Custo" type="custo" id="custo" inputProps={{ maxLength: 80 }} />
+     <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("preco")} defaultValue={product.product.preco} label="Preço" type="preco" id="preco" inputProps={{ maxLength: 20 }} />
 
 
 
@@ -798,15 +799,15 @@ const renderForm = (
               Voltar
             </Button>
             <Box>
-            <Button variant="contained" color="inherit" style={{backgroundColor:"#00B8D9"}} onClick={()=>{setShowCategorias(!showCategorias);   if(showModelos === true){setShowModelos(false)}; if(showMarcas === true){setShowMarcas(false)};}}>
+            <Button variant="contained" color="inherit" style={showCategorias ? ({backgroundColor:"lightgray", color:"black"}) : ({backgroundColor:"#00B8D9"})} onClick={()=>{setShowCategorias(!showCategorias);   if(showModelos === true){setShowModelos(false)}; if(showMarcas === true){setShowMarcas(false)};}}>
               Categorias
           </Button>
 
-          <Button variant="contained" color="inherit" style={{backgroundColor:"#00B8D9"}} onClick={()=>{setShowModelos(!showModelos);  if(showMarcas === true){setShowMarcas(false)}; if(showCategorias === true){setShowCategorias(false)};}}>
+          <Button variant="contained" color="inherit"  style={showModelos ? ({backgroundColor:"lightgray", color:"black"}) : ({backgroundColor:"#00B8D9"})}  onClick={()=>{setShowModelos(!showModelos);  if(showMarcas === true){setShowMarcas(false)}; if(showCategorias === true){setShowCategorias(false)};}}>
               Modelos
           </Button>
 
-          <Button variant="contained" color="inherit" style={{backgroundColor:"#00B8D9"}} onClick={()=>{setShowMarcas(!showMarcas);  if(showModelos === true){setShowModelos(false)}; if(showCategorias === true){setShowCategorias(false)};}}>
+          <Button variant="contained" color="inherit" style={showMarcas ? ({backgroundColor:"lightgray", color:"black"}) : ({backgroundColor:"#00B8D9"})}  onClick={()=>{setShowMarcas(!showMarcas);  if(showModelos === true){setShowModelos(false)}; if(showCategorias === true){setShowCategorias(false)};}}>
               Marcas
           </Button>
 

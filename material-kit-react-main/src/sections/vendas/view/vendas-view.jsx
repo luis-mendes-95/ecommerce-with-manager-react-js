@@ -665,13 +665,7 @@ const getSale = async (id) => {
                 </>
               }
 
-  {
-    /**
-     *         <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{setShowAdd(true); setShowEdit(false);}}>
-              Nova Venda
-          </Button>
-    */
-  }
+
         </Box>
 
 
@@ -771,11 +765,17 @@ const getSale = async (id) => {
           <Grid container spacing={3}>
     
             {
-              filteredProducts.map((product) => (
-                      <Grid key={product.id} xs={12} sm={6} md={3} >
-                        <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-                      </Grid>
-                  ))
+              filteredProducts.map((product) => {
+                if(product.ItemCompra.length > 0) {
+                  return                 (
+                    <Grid key={product.id} xs={12} sm={6} md={3} >
+                      <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
+                    </Grid>
+                )
+                }
+
+
+              })
             }
     
           </Grid>

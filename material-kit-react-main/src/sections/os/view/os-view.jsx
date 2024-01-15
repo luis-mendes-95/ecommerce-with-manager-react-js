@@ -4,7 +4,7 @@ import Stack from '@mui/material/Stack';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Unstable_Grid2';
 import Typography from '@mui/material/Typography';
-import ProductCard from '../vendas-card';
+import ProductCard from '../os-card';
 import ProductTableToolbar from '../vendas-table-toolbar';
 import { Box, Button, Checkbox, FormControl, FormControlLabel, InputAdornment, InputLabel, MenuItem, OutlinedInput, Select, Table, TableBody, TableContainer, TextField } from '@mui/material';
 import Iconify from 'src/components/iconify';
@@ -17,10 +17,7 @@ import UserTableHead from 'src/sections/clients/clients-table-head';
 import { emptyRows } from '../../clients/utils';
 import TableEmptyRows from 'src/sections/clients/table-empty-rows';
 import VendasTableRow from '../os-table-row';
-import { VendaEditFormView } from '../vendaEditForm';
-
-
-
+import { VendaEditFormView } from '../osEditForm';
 
 {/**FUNÇÃO QUE RETORNA A DATA ATUAL FORMATADA*/}
 function getDataAtualFormatada() {
@@ -31,15 +28,10 @@ function getDataAtualFormatada() {
   return dia + '/' + mes + '/' + ano;
 }
 
-
-
 export default function OsView() {
-
 
       /**STATES FOR THIS COMPONENT */
       const [generateOs, setGenerateOs] = useState(false);
-
-
 
       /**RENDERED ENTITIES */
       const [product, setProduct] = useState(null);
@@ -49,8 +41,6 @@ export default function OsView() {
       const [osToEdit, setOsToEdit] = useState(null);
       const [thisClient, setThisClient] = useState(null);
       const [user, setUser] = useState(null);
-
-
 
       /**FILTER STUFF STATES */
       const [page, setPage] = useState(0);
@@ -66,7 +56,6 @@ export default function OsView() {
       const [filtroMes, setFiltroMes] = useState('');
       const [filtroDia, setFiltroDia] = useState('');
 
-
       const filterProducts = (searchText) => {
         if (!searchText) {
           setFilteredProducts(user?.produtos || []);
@@ -80,20 +69,14 @@ export default function OsView() {
         }
       };
 
-
-
       const handleFilterByName = (event) => {
         const searchText = event.target.value;
         setFilterName(searchText);
         filterProducts(searchText);
       };
 
-
-
       /**FILTER STUFF FUNCTIONS */
       const handleChangeregsSituation = (event) => {    setRegsSituation(event.target.value);  };
-
-
 
       /**FILTER STUFF VARIABLES */
       /**SALES */
@@ -115,7 +98,6 @@ export default function OsView() {
       })
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-
       /**OS */
       const osFiltradas = user?.os
       .map(row => ({
@@ -135,9 +117,6 @@ export default function OsView() {
       })
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
-
-
-
       /**SHOWING EXTERNAL COMPONENTS STUFF */
       const [showAdd, setShowAdd] = useState(false);
       const [showEdit, setShowEdit] = useState(false);
@@ -145,9 +124,6 @@ export default function OsView() {
       const [showModalOs, setShowModalOs] = useState(false);
       const [showCart, setShowCart] = useState(false);
       const [showTableNote, setShowTableNote] = useState(false);
-
-
-
 
       /**FORM SUBMIT STUFF */
       const url = "vendas"
@@ -159,11 +135,6 @@ export default function OsView() {
         // resolver: zodResolver(RegisterClientSchema),
       });
       const onFormSubmit = (formData) => {
-
-        
-
-
-
 
         if (submitType === "createOs") {
 
@@ -191,15 +162,11 @@ export default function OsView() {
 
         
       };
-
-
       
     /** LOCALSTORAGE STUFF*/
     const user_id = localStorage.getItem('tejas.app.user_id');
     const token = localStorage.getItem('tejas.app.token');
     const user_name = localStorage.getItem('tejas.app.user_name');
-
-
 
     /**GET USER FROM BACKEND */
     const getUser = async () => {
@@ -222,9 +189,6 @@ export default function OsView() {
         }
       }
     }; 
-    useEffect(() => {getUser();}, []); 
-
-
 
 
     /**HANDLERS TO CHANGE STATES IN OUTSIDER COMPONENTS */
@@ -241,8 +205,6 @@ export default function OsView() {
       setThisClient(data);
     }
     const handleEditProduct = (id) => {    getProduct(id);  }
-
-
 
   /** GET PRODUCT BY REQUEST IN BACKEND*/
   const getProduct = async (id) => {
@@ -262,8 +224,6 @@ export default function OsView() {
       }
   }; 
 
-
-
   /**FILTER CLIENTS TO SELECT WHILE TYPING */
   const setFilteredClientsByTyping = (string) => {
     if (string === "") { 
@@ -275,9 +235,6 @@ export default function OsView() {
       setFilteredClients(filteredClients);
     }      
   }
-
-
-
 
   /**CREATE VENDA REQUEST IN BACKEND */
   const createOs = async (createData) => {
@@ -330,10 +287,6 @@ export default function OsView() {
     }
   };
 
-
-
-
-
     /**CREATE VENDA REQUEST IN BACKEND */
     const deleteOs = async () => {
 
@@ -370,9 +323,6 @@ export default function OsView() {
       setThisOs(null);
     }
   };
-
-
-
 
   /**CREATE VENDA REQUEST IN BACKEND */
   const createVenda = async (createData) => {
@@ -420,10 +370,6 @@ export default function OsView() {
       setSubmitType("createItemSale")
     }
   };
-
-
-
-
 
   /**DELETE VENDA REQUEST IN BACKEND */
   const deleteVenda = async () => {
@@ -473,12 +419,6 @@ export default function OsView() {
     }
 };
 
-
-
-
-
-
-
 /**GET CLIENT REQUEST IN BACKEND */
   const getClient = async (id) => {
 
@@ -496,7 +436,6 @@ export default function OsView() {
     }
 
 }; 
-
 
 /** GET SALE BY REQUEST IN BACKEND*/
 const getSale = async (id) => {
@@ -516,8 +455,6 @@ const getSale = async (id) => {
   }
 }; 
 
-
-
 /** GET OS BY REQUEST IN BACKEND*/
 const getOs = async (id) => {
   try {
@@ -535,8 +472,6 @@ const getOs = async (id) => {
     setThisOs(null);
   }
 }; 
-
-
   /**DELETE ITEM IN CART */
   const deleteItemVenda = async (itemId) => {
     
@@ -559,10 +494,6 @@ const getOs = async (id) => {
       toast.error("Erro ao deletar item");
     }
 };
-
-
-
-
 
   /**DELETE ITEM IN CART */
   const deleteItemOs = async (itemId) => {
@@ -587,20 +518,13 @@ const getOs = async (id) => {
     }
 };
 
-
-
-
-
-
-  /**HANDLE SALE TO EDIT */
+/**HANDLE SALE TO EDIT */
   const handleSaleToEdit = (id) => {
     getSale(id);
     setSaleToEdit(id);
     setShowEdit(true);
     setShowAdd(false);
   }
-
-
 
     /**HANDLE OS TO EDIT */
     const handleOsToEdit = (id) => {
@@ -610,23 +534,21 @@ const getOs = async (id) => {
       setShowAdd(false);
     }
 
-
-
   /**HANDLE GET SALE */
   const handleGetSale = (id) => {
     getSale(id)
   }
-
-
 
     /**HANDLE GET OS */
     const handleGetOs = (id) => {
       getOs(id)
     }
 
-   
+    useEffect(() => {getUser(); }, []); 
 
-  
+
+    useEffect(() => { setFilteredProducts(user?.produtos);}, [user]); 
+    
   return (
     <Container>
       <ToastContainer/>
@@ -767,14 +689,6 @@ const getOs = async (id) => {
                 </Button>
               </>
             }
-
-{
-  /**
-   *         <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{setShowAdd(true); setShowEdit(false);}}>
-            Nova Venda
-        </Button>
-   */
-}
       </Box>
 
 
@@ -873,44 +787,21 @@ const getOs = async (id) => {
       {
         thisOs &&
         <Grid container spacing={3}>
-        {filteredProducts?.map((product) => (
-            regsSituation === "all" &&
-            <Grid key={product.id} xs={12} sm={6} md={3} >
-              <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} handleGetOs={handleGetOs} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-  
-            </Grid>
-          ))}
-  
-          {filteredProducts?.map((product) => (
-            regsSituation === "active" && product.active &&
-            <Grid key={product.id} xs={12} sm={6} md={3} >
-              <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} handleGetOs={handleGetOs} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-            </Grid>
-          ))}
-          
+        {filteredProducts?.map((product) => {
+          if(product.ItemCompra.length){
 
-  
-          {
-            filteredProducts.length === 0 &&
-              regsSituation === "active" &&
-                user?.produtos.map((product) => (
-                  product.active &&
-                    <Grid key={product.id} xs={12} sm={6} md={3} >
-                      <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} handleGetOs={handleGetOs} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-                    </Grid>
-                ))
+
+            return (
+
+              <Grid key={product.id} xs={12} sm={6} md={3} >
+                <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} handleGetOs={handleGetOs} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
+    
+              </Grid>
+            )
+          
           }
-  
-          {
-            filteredProducts.length === 0 &&
-              regsSituation === "inactive" &&
-                user?.produtos.map((product) => (
-                  product.active  === false &&
-                    <Grid key={product.id} xs={12} sm={6} md={3} >
-                      <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} handleGetOs={handleGetOs} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-                    </Grid>
-                ))
-          }
+
+        })}
   
         </Grid>
       }
