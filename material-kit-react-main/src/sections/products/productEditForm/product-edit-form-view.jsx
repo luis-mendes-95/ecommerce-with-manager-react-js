@@ -20,6 +20,7 @@ import Iconify from 'src/components/iconify';
 import api from 'src/services/api';
 import { useForm } from 'react-hook-form';
 import { Toastify } from 'toastify';
+import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -36,7 +37,18 @@ export default function ProductEditFormView(product) {
   const router = useRouter();
 
 
-  console.log(product.product)
+  const [showCategorias, setShowCategorias] = useState(false);
+  const [showModelos, setShowModelos] = useState(false);
+  const [showMarcas, setShowMarcas] = useState(false);
+  const [addCategoria, setAddCategoria] = useState(false);
+  const [addMarca, setAddMarca] = useState(false);
+  const [addModelo, setAddModelo] = useState(false);
+  const [addingMarca, setAddingMarca] = useState("");
+  const [addingModelo, setAddingModelo] = useState("");
+  const [addingCategoria, setAddingCategoria] = useState("");
+  const [categoria, setCategoria] = useState("");
+  const [marca, setMarca] = useState("");
+  const [modelo, setModelo] = useState("");
 
 //FORM INPUTS CONFIGURATIONS
 let url = "/produtos"
@@ -69,7 +81,303 @@ const getUser = async () => {
 }; 
 
 
+const createCategoria = async (categoriaNome) => {
 
+  let createData = {
+    createdAt: getDataAtualFormatada(),
+    lastEditted: getDataAtualFormatada(),
+    changeMaker: user_name,
+
+    nome: addingCategoria,
+
+    user_id: user_id
+  }
+
+
+
+  try {
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const response = await api.post("/categoria", createData, config);
+
+    if (response.status === 201) {
+      toast.success();
+      toast.success("Categoria criada!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+
+      getUser();  
+      setAddingCategoria("");
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao cadastrar categoria");
+  }
+};
+
+const createMarca = async (marcaNome) => {
+
+  let createData = {
+    createdAt: getDataAtualFormatada(),
+    lastEditted: getDataAtualFormatada(),
+    changeMaker: user_name,
+
+    nome: addingMarca,
+
+    user_id: user_id
+  }
+
+
+
+  try {
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const response = await api.post("/marca", createData, config);
+
+    if (response.status === 201) {
+      toast.success();
+      toast.success("Marca criada!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+
+      getUser();  
+      setAddingMarca("");
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao cadastrar marca");
+  }
+};
+
+const createModelo = async (modeloNome) => {
+
+  let createData = {
+    createdAt: getDataAtualFormatada(),
+    lastEditted: getDataAtualFormatada(),
+    changeMaker: user_name,
+
+    nome: addingModelo,
+
+    user_id: user_id
+  }
+
+  console.log(createData)
+
+  try {
+
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+
+    const response = await api.post("/modelo", createData, config);
+
+    console.log(response.status)
+
+    if (response.status === 201) {
+      toast.success();
+      toast.success("Modelo criado!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+
+      getUser();  
+      //setAddingModelo("");
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao cadastrar modelo");
+  }
+};
+
+const deleteCategoria = async (id) => {
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await api.delete(`categoria/${id}`, config);
+
+
+    if (response.status === 200) {
+      toast.success("Categoria deletada!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+
+      setTimeout(() => {
+        getUser();
+      }, 1500);
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao deletar categoria!", {
+      position: "bottom-right", 
+      autoClose: 3000, 
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      progress: undefined, 
+    });
+
+  }
+};
+
+const deleteMarca = async (id) => {
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await api.delete(`marca/${id}`, config);
+
+
+    if (response.status === 200) {
+      toast.success("Marca deletada!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+
+      setTimeout(() => {
+        getUser();
+      }, 1500);
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao deletar marca!", {
+      position: "bottom-right", 
+      autoClose: 3000, 
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      progress: undefined, 
+    });
+
+  }
+};
+
+const deleteModelo = async (id) => {
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await api.delete(`modelo/${id}`, config);
+
+
+    if (response.status === 200) {
+      toast.success("Modelo deletado!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+
+      setTimeout(() => {
+        getUser();
+      }, 1500);
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao deletar modelo!", {
+      position: "bottom-right", 
+      autoClose: 3000, 
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      progress: undefined, 
+    });
+
+  }
+};
+
+const deleteProduct = async (id) => {
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await api.delete(`produtos/${id}`, config);
+
+
+    if (response.status === 204) {
+      toast.success("Produto deletado!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+
+      setTimeout(() => {
+        //getUser();
+        location.reload();
+      }, 1500);
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao deletar produto!", {
+      position: "bottom-right", 
+      autoClose: 3000, 
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      progress: undefined, 
+    });
+
+  }
+};
 
 
 //USE FORM CALLING FUNCTIONS
@@ -223,9 +531,12 @@ const onFormSubmit = (formData) => {
       
 
 
+useEffect(() => {
+  getUser();
+}, [])
 
 
-
+console.log(user)
 
 
 //FORM INPUTS, SELECTS AND BUTTONS
@@ -237,9 +548,68 @@ const renderForm = (
     <TextField style={{width:"200px", marginTop:"0"}} required fullWidth id="lastEditted" defaultValue={product.product.lastEditted} label="Última Edição" {...register("lastEditted")} name="lastEditted" autoComplete="family-name"/>
     <TextField style={{width:"200px", marginTop:"0"}} required fullWidth id="changeMaker" defaultValue={product.product.changeMaker} label="Colaborador" {...register("changeMaker")} name="changeMaker" autoComplete="family-name" value={user_name}/>
     <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("cod")} defaultValue={product.product.cod} name="cod" label="Código" type="cod" id="cod" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }} />
-    <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("categoria")} label="Categoria"  defaultValue={product.product.categoria} type="categoria" id="categoria" onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }} inputProps={{ maxLength: 18 }}/>
-    <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("marca")} defaultValue={product.product.marca} label="Marca" type="marca" id="marca" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }} />
-    <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("modelo")} defaultValue={product.product.modelo} label="Modelo" type="modelo" id="modelo"inputProps={{ maxLength: 80 }}onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }} />
+    
+        <FormControl style={{minWidth: "200px", margin:"10px 0"}}>
+              <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Categoria</InputLabel>
+              <Select
+                {...register("categoriaId")}
+                style={{minWidth: "200px"}}
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                defaultValue={product.product.categoriaId}
+              >
+                {
+                  user?.categorias.map((categoria)=>{
+
+
+                    return(
+                      <MenuItem key={categoria.id} value={categoria.id} >{categoria.nome}</MenuItem>
+                    )
+                  })
+                }
+              </Select>
+        </FormControl>
+
+        <FormControl style={{minWidth: "200px", margin:"10px 0"}}>
+              <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Modelo</InputLabel>
+              <Select
+                {...register("modeloId")}
+                style={{minWidth: "200px"}}
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                defaultValue={product.product.modeloId}
+              >
+
+                {
+                  user?.Modelo.map((modelo)=>{
+                    console.log(product.product)
+                    console.log(modelo.id)
+                    return(
+                      <MenuItem key={modelo.id} value={modelo.id}>{modelo.nome}</MenuItem>
+                    )
+                  })
+                }
+              </Select>
+        </FormControl>
+
+        <FormControl style={{minWidth: "200px", margin:"10px 0"}}>
+              <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Marca</InputLabel>
+              <Select
+                {...register("marcaId")}
+                style={{minWidth: "200px"}}
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                defaultValue={product.product.marcaId}
+              >
+                {
+                  user?.Marca.map((marca)=>{
+                    return(
+                      <MenuItem key={marca.id} value={marca.id}>{marca.nome}</MenuItem>
+                    )
+                  })
+                }
+              </Select>
+        </FormControl>
     <TextField style={{width:"415px", marginTop:"0"}} required fullWidth {...register("nome")} defaultValue={product.product.nome} label="Nome" type="nome" id="nome" inputProps={{ maxLength: 80 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase();}}/>
     <TextField style={{width:"415px", marginTop:"0"}} required fullWidth {...register("descricao")} defaultValue={product.product.descricao} label="Descrição" type="descricao" id="descricao" inputProps={{ maxLength: 8000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
     <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("imagem_principal")} defaultValue={product.product.imagem_principal} label="Imagem de Capa" type="imagem_principal" id="imagem_principal" />
@@ -284,7 +654,7 @@ const renderForm = (
               </Button>
               <Button
                 variant="contained"
-                sx={{ mt: 3, mb: 2, mr: 3, bgcolor: "brown" }}
+                sx={{ mt: 3, mb: 2, mr: 3, bgcolor: "orange", color:"black" }}
                 onClick={()=>{window.location.reload()}}
               >
                 Cancelar
@@ -311,17 +681,88 @@ const renderForm = (
                 </Button>
                 )
               }
+                <Button
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2, mr: 3, bgcolor: "brown" }}
+                  onClick={()=>{deleteProduct(product.product.id)}}
+                >
+                  Deletar
+                </Button>
+         {
+          showMarcas && user?.Marca.length > 0 &&  
+            <Box style={{backgroundColor:"white", width:"100%", color:"black"}}>
+
               {
-                /**
-                 *               <Button
-                variant="contained"
-                sx={{ mt: 3, mb: 2, mr: 3, bgcolor: "red", color: "white" }}
-                onClick={deleteItem}
-              >
-                Deletar
-              </Button>
-                 */
+                user?.Marca.map((marca)=>{
+                  return (
+                    <Box style={{display:"flex", justifyContent:"space-between", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
+                      <p style={{padding:"8px"}}>{marca.nome.toUpperCase()}</p>
+                      <Button style={{backgroundColor:"red", color:"white"}} onClick={()=>{deleteMarca(marca.id)}}>X</Button>
+                    </Box>
+                  )
+                })
               }
+            </Box>
+          }
+
+          {
+          showModelos && user?.Modelo.length > 0 &&  
+            <Box style={{backgroundColor:"white", width:"100%", color:"black"}}>
+
+              {
+                user?.Modelo.map((modelo)=>{
+                  console.log(modelo)
+                  return (
+                    <Box style={{display:"flex", justifyContent:"space-between", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
+                      <p style={{padding:"8px"}}>{modelo.nome.toUpperCase()}</p>
+                      <Button style={{backgroundColor:"red", color:"white"}} onClick={()=>{deleteModelo(modelo.id)}}>X</Button>
+                    </Box>
+                  )
+                })
+              }
+            </Box>
+          }
+
+          {
+          showCategorias && user?.categorias.length > 0 &&  
+            <Box style={{backgroundColor:"white", width:"100%", color:"black"}}>
+
+              {
+                user?.categorias.map((categoria)=>{
+                  return (
+                    <Box style={{display:"flex", justifyContent:"space-between", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
+                      <p style={{padding:"8px"}}>{categoria.nome.toUpperCase()}</p>
+                      <Button style={{backgroundColor:"red", color:"white"}} onClick={()=>{deleteCategoria(categoria.id)}}>X</Button>
+                    </Box>
+                  )
+                })
+              }
+            </Box>
+          }
+
+          { 
+          showCategorias &&
+            <Box style={{backgroundColor:"white", padding:"8px"}}>
+              <TextField label="Nome da categoria" onInput={(e)=>{setAddingCategoria(e.target.value)}}></TextField>
+              <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createCategoria(addingCategoria);}}>Criar</Button>
+            </Box>
+
+          }
+          {
+          showMarcas &&
+            <Box style={{backgroundColor:"white", padding:"8px"}}>
+              <TextField label="Nome da marca" onInput={(e)=>{setAddingMarca(e.target.value)}}></TextField>
+              <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createMarca(addingMarca);}}>Criar</Button>
+            </Box>
+         }
+
+         { 
+        showModelos &&
+          <Box style={{backgroundColor:"white", padding:"8px"}}>
+            <TextField label="Nome do modelo" onInput={(e)=>{setAddingModelo(e.target.value); console.log(addingModelo)}}></TextField>
+            <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createModelo(addingModelo);}}>Criar</Button>
+          </Box>
+          }
           </Box>
     </Stack>
 
@@ -356,6 +797,99 @@ const renderForm = (
             >
               Voltar
             </Button>
+            <Box>
+            <Button variant="contained" color="inherit" style={{backgroundColor:"#00B8D9"}} onClick={()=>{setShowCategorias(!showCategorias);   if(showModelos === true){setShowModelos(false)}; if(showMarcas === true){setShowMarcas(false)};}}>
+              Categorias
+          </Button>
+
+          <Button variant="contained" color="inherit" style={{backgroundColor:"#00B8D9"}} onClick={()=>{setShowModelos(!showModelos);  if(showMarcas === true){setShowMarcas(false)}; if(showCategorias === true){setShowCategorias(false)};}}>
+              Modelos
+          </Button>
+
+          <Button variant="contained" color="inherit" style={{backgroundColor:"#00B8D9"}} onClick={()=>{setShowMarcas(!showMarcas);  if(showModelos === true){setShowModelos(false)}; if(showCategorias === true){setShowCategorias(false)};}}>
+              Marcas
+          </Button>
+
+          {
+          showMarcas && user?.Marca.length > 0 &&  
+            <Box style={{backgroundColor:"white", width:"100%", color:"black"}}>
+
+              {
+                user?.Marca.map((marca)=>{
+                  return (
+                    <Box style={{display:"flex", justifyContent:"space-between", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
+                      <p style={{padding:"8px"}}>{marca.nome.toUpperCase()}</p>
+                      <Button style={{backgroundColor:"red", color:"white"}} onClick={()=>{deleteMarca(marca.id)}}>X</Button>
+                    </Box>
+                  )
+                })
+              }
+            </Box>
+          }
+
+          {
+          showModelos && user?.Modelo.length > 0 &&  
+            <Box style={{backgroundColor:"white", width:"100%", color:"black"}}>
+
+              {
+                user?.Modelo.map((modelo)=>{
+                  console.log(modelo)
+                  return (
+                    <Box style={{display:"flex", justifyContent:"space-between", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
+                      <p style={{padding:"8px"}}>{modelo.nome.toUpperCase()}</p>
+                      <Button style={{backgroundColor:"red", color:"white"}} onClick={()=>{deleteModelo(modelo.id)}}>X</Button>
+                    </Box>
+                  )
+                })
+              }
+            </Box>
+          }
+
+          {
+          showCategorias && user?.categorias.length > 0 &&  
+            <Box style={{backgroundColor:"white", width:"100%", color:"black"}}>
+
+              {
+                user?.categorias.map((categoria)=>{
+                  return (
+                    <Box style={{display:"flex", justifyContent:"space-between", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
+                      <p style={{padding:"8px"}}>{categoria.nome.toUpperCase()}</p>
+                      <Button style={{backgroundColor:"red", color:"white"}} onClick={()=>{deleteCategoria(categoria.id)}}>X</Button>
+                    </Box>
+                  )
+                })
+              }
+            </Box>
+          }
+
+          { 
+          showCategorias &&
+            <Box style={{backgroundColor:"white", padding:"8px"}}>
+              <TextField label="Nome da categoria" onInput={(e)=>{setAddingCategoria(e.target.value)}}></TextField>
+              <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createCategoria(addingCategoria);}}>Criar</Button>
+            </Box>
+
+          }
+          {
+          showMarcas &&
+            <Box style={{backgroundColor:"white", padding:"8px"}}>
+              <TextField label="Nome da marca" onInput={(e)=>{setAddingMarca(e.target.value)}}></TextField>
+              <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createMarca(addingMarca);}}>Criar</Button>
+            </Box>
+         }
+
+         { 
+        showModelos &&
+          <Box style={{backgroundColor:"white", padding:"8px"}}>
+            <TextField label="Nome do modelo" onInput={(e)=>{setAddingModelo(e.target.value); console.log(addingModelo)}}></TextField>
+            <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createModelo(addingModelo);}}>Criar</Button>
+          </Box>
+          }
+
+
+
+
+            </Box>
           <Typography variant="h4">Produto</Typography>
 
 

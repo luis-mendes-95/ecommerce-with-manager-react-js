@@ -74,12 +74,24 @@ export default function ProductsView() {
     const [filteredProducts, setFilteredProducts] = useState([]);
     const [visuMode, setVisuMode] = useState("store");
     const [showEstoques, setShowEstoques] = useState(false);
+    const [showCategorias, setShowCategorias] = useState(false);
+    const [showModelos, setShowModelos] = useState(false);
+    const [showMarcas, setShowMarcas] = useState(false);
     const [addEstoque, setAddEstoque] = useState(false);
+    const [addCategoria, setAddCategoria] = useState(false);
+    const [addMarca, setAddMarca] = useState(false);
+    const [addModelo, setAddModelo] = useState(false);
     const [addingEstoque, setAddingEstoque] = useState("");
+    const [addingMarca, setAddingMarca] = useState("");
+    const [addingModelo, setAddingModelo] = useState("");
+    const [addingCategoria, setAddingCategoria] = useState("");
     const [estoqueToRender, setEstoqueToRender] = useState("Todos");
     const [estoqueDestino, setEstoqueDestino] = useState("");
     const [transferItemsChecks, setTransferItemsChecks] = useState([]);
     const [transferItemsQties, setTransferItemsQties] = useState([]);
+    const [categoria, setCategoria] = useState("Todas");
+    const [marca, setMarca] = useState("Todas");
+    const [modelo, setModelo] = useState("Todas");
 
 
     const handleTransferItems = (type, id, value, estoque) => {
@@ -215,36 +227,33 @@ export default function ProductsView() {
     }
   };
 
+  const createCategoria = async (categoriaNome) => {
 
-  /**DELETE VENDA REQUEST IN BACKEND */
-  const deleteEstoque = async (id) => {
-      try {
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
-        const response = await api.delete(`estoque/${id}`, config);
+    let createData = {
+      createdAt: getDataAtualFormatada(),
+      lastEditted: getDataAtualFormatada(),
+      changeMaker: user_name,
+
+      nome: addingCategoria,
+
+      user_id: user_id
+    }
 
 
-        if (response.status === 200) {
-          toast.success("Estoque deletado!", {
-            position: "bottom-right", 
-            autoClose: 3000, 
-            hideProgressBar: false, 
-            closeOnClick: true, 
-            pauseOnHover: true, 
-            draggable: true, 
-            progress: undefined, 
-          });
 
-          setTimeout(() => {
-            getUser();
-          }, 1500);
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Erro ao deletar estoque!", {
+    try {
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+  
+      const response = await api.post("/categoria", createData, config);
+  
+      if (response.status === 201) {
+        toast.success();
+        toast.success("Categoria criada!", {
           position: "bottom-right", 
           autoClose: 3000, 
           hideProgressBar: false, 
@@ -253,12 +262,273 @@ export default function ProductsView() {
           draggable: true, 
           progress: undefined, 
         });
-        setSubmitType("createSale")
-        setThisSale(null);
-        setThisOs(null);
-        setThisClient(null);
+
+        getUser();  
+        setAddingCategoria("");
       }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao cadastrar categoria");
+    }
   };
+
+  const createMarca = async (marcaNome) => {
+
+    let createData = {
+      createdAt: getDataAtualFormatada(),
+      lastEditted: getDataAtualFormatada(),
+      changeMaker: user_name,
+
+      nome: addingMarca,
+
+      user_id: user_id
+    }
+
+
+
+    try {
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+  
+      const response = await api.post("/marca", createData, config);
+  
+      if (response.status === 201) {
+        toast.success();
+        toast.success("Marca criada!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+
+        getUser();  
+        setAddingMarca("");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao cadastrar marca");
+    }
+  };
+  
+  const createModelo = async (modeloNome) => {
+
+    let createData = {
+      createdAt: getDataAtualFormatada(),
+      lastEditted: getDataAtualFormatada(),
+      changeMaker: user_name,
+
+      nome: addingModelo,
+
+      user_id: user_id
+    }
+
+    console.log(createData)
+
+    try {
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+  
+      const response = await api.post("/modelo", createData, config);
+
+      console.log(response.status)
+  
+      if (response.status === 201) {
+        toast.success();
+        toast.success("Modelo criado!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+
+        getUser();  
+        //setAddingModelo("");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao cadastrar modelo");
+    }
+  };
+
+  const deleteCategoria = async (id) => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.delete(`categoria/${id}`, config);
+
+
+      if (response.status === 200) {
+        toast.success("Categoria deletada!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+
+        setTimeout(() => {
+          getUser();
+        }, 1500);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao deletar categoria!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+
+    }
+  };
+
+  const deleteMarca = async (id) => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.delete(`marca/${id}`, config);
+
+
+      if (response.status === 200) {
+        toast.success("Marca deletada!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+
+        setTimeout(() => {
+          getUser();
+        }, 1500);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao deletar marca!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+
+    }
+  };
+
+  const deleteModelo = async (id) => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.delete(`modelo/${id}`, config);
+
+
+      if (response.status === 200) {
+        toast.success("Modelo deletado!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+
+        setTimeout(() => {
+          getUser();
+        }, 1500);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao deletar modelo!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+
+    }
+  };
+
+
+  const deleteEstoque = async (id) => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      };
+      const response = await api.delete(`estoque/${id}`, config);
+
+
+      if (response.status === 200) {
+        toast.success("Estoque deletado!", {
+          position: "bottom-right", 
+          autoClose: 3000, 
+          hideProgressBar: false, 
+          closeOnClick: true, 
+          pauseOnHover: true, 
+          draggable: true, 
+          progress: undefined, 
+        });
+
+        setTimeout(() => {
+          getUser();
+        }, 1500);
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Erro ao deletar estoque!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+      setSubmitType("createSale")
+      setThisSale(null);
+      setThisOs(null);
+      setThisClient(null);
+    }
+  };
+
+
 
   const transferItem = async (createData, id) => {
     try {
@@ -296,9 +566,11 @@ export default function ProductsView() {
       destino: estoqueDestino
     }));
 
-    let itemsTransfered = 0;
+
     
     user?.produtos.map((produto)=>{
+
+      let itemsTransfered = 0;
 
       resultadoTransferItems.map((itemToTransfer)=>{
         console.log(itemToTransfer)
@@ -362,8 +634,20 @@ setFilteredProducts(user?.produtos)
             Novo Produto
         </Button>
 
-        <Button variant="contained" color="inherit" style={{backgroundColor:"#00B8D9"}} onClick={()=>{setShowEstoques(!showEstoques);}}>
+        <Button variant="contained" color="inherit" style={showEstoques ? ({backgroundColor:"lightgray", color:"black"}) : {backgroundColor:"#00B8D9"}} onClick={()=>{setShowEstoques(!showEstoques); if(showCategorias === true){setShowCategorias(false)};  if(showModelos === true){setShowModelos(false)}; if(showMarcas === true){setShowMarcas(false)};}}>
             Estoques
+        </Button>
+
+        <Button variant="contained" color="inherit" style={showCategorias ? ({backgroundColor:"lightgray", color:"black"}) : {backgroundColor:"#00B8D9"}} onClick={()=>{setShowCategorias(!showCategorias); if(showEstoques === true){setShowEstoques(false)};  if(showModelos === true){setShowModelos(false)}; if(showMarcas === true){setShowMarcas(false)};}}>
+            Categorias
+        </Button>
+
+        <Button variant="contained" color="inherit" style={showModelos ? ({backgroundColor:"lightgray", color:"black"}) : {backgroundColor:"#00B8D9"}} onClick={()=>{setShowModelos(!showModelos); if(showEstoques === true){setShowEstoques(false)};  if(showMarcas === true){setShowMarcas(false)}; if(showCategorias === true){setShowCategorias(false)};}}>
+            Modelos
+        </Button>
+
+        <Button variant="contained" color="inherit" style={showMarcas ? ({backgroundColor:"lightgray", color:"black"}) : {backgroundColor:"#00B8D9"}} onClick={()=>{setShowMarcas(!showMarcas); if(showEstoques === true){setShowEstoques(false)};  if(showModelos === true){setShowModelos(false)}; if(showCategorias === true){setShowCategorias(false)};}}>
+            Marcas
         </Button>
         
 
@@ -378,6 +662,24 @@ setFilteredProducts(user?.produtos)
           
       }
       {
+        showCategorias && user?.categorias.length < 0 &&
+          
+          <p>Nenhuma categoria cadastrada.</p>
+          
+      }
+      {
+        showMarcas && user?.Marca.length < 0 &&
+          
+          <p>Nenhuma marca cadastrada.</p>
+          
+      }
+      {
+        showModelos && user?.Modelo.length < 0 &&
+          
+          <p>Nenhum modelo cadastrada.</p>
+          
+      }
+      {
           showEstoques && user?.estoques.length > 0 &&  
           
 
@@ -387,18 +689,81 @@ setFilteredProducts(user?.produtos)
                             user?.estoques.map((estoque)=>{
                               return (
                                 <Box style={{display:"flex", justifyContent:"space-between", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
-                                  <p style={{padding:"8px"}}>{estoque.nome}</p>
+                                  <p style={{padding:"8px"}}>{estoque.nome.toUpperCase()}</p>
                                   <Button style={{backgroundColor:"red", color:"white"}} onClick={()=>{deleteEstoque(estoque.id)}}>X</Button>
                                 </Box>
                               )
                             })
               }
               
-
-
-
-
             </Box>
+      }
+
+{
+          showCategorias && user?.categorias.length > 0 &&  
+          
+
+            <Box style={{backgroundColor:"white", width:"100%", color:"black"}}>
+
+              {
+                user?.categorias.map((categoria)=>{
+                  return (
+                    <Box style={{display:"flex", justifyContent:"space-between", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
+                      <p style={{padding:"8px"}}>{categoria.nome.toUpperCase()}</p>
+                      <Button style={{backgroundColor:"red", color:"white"}} onClick={()=>{deleteCategoria(categoria.id)}}>X</Button>
+                    </Box>
+                  )
+                })
+              }
+            </Box>
+      }
+
+      {
+          showMarcas && user?.Marca.length > 0 &&  
+          
+
+            <Box style={{backgroundColor:"white", width:"100%", color:"black"}}>
+
+              {
+                user?.Marca.map((marca)=>{
+                  return (
+                    <Box style={{display:"flex", justifyContent:"space-between", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
+                      <p style={{padding:"8px"}}>{marca.nome.toUpperCase()}</p>
+                      <Button style={{backgroundColor:"red", color:"white"}} onClick={()=>{deleteMarca(marca.id)}}>X</Button>
+                    </Box>
+                  )
+                })
+              }
+            </Box>
+      }
+
+      {
+          showModelos && user?.Modelo.length > 0 &&  
+          
+
+            <Box style={{backgroundColor:"white", width:"100%", color:"black"}}>
+
+              {
+                user?.Modelo.map((modelo)=>{
+                  console.log(modelo)
+                  return (
+                    <Box style={{display:"flex", justifyContent:"space-between", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
+                      <p style={{padding:"8px"}}>{modelo.nome.toUpperCase()}</p>
+                      <Button style={{backgroundColor:"red", color:"white"}} onClick={()=>{deleteModelo(modelo.id)}}>X</Button>
+                    </Box>
+                  )
+                })
+              }
+            </Box>
+      }
+
+      { 
+        showCategorias &&
+          <Box style={{backgroundColor:"white", padding:"8px"}}>
+            <TextField label="Nome da categoria" onInput={(e)=>{setAddingCategoria(e.target.value)}}></TextField>
+            <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createCategoria(addingCategoria);}}>Criar</Button>
+          </Box>
+
       }
 
       {
@@ -406,6 +771,26 @@ setFilteredProducts(user?.produtos)
           <Box style={{backgroundColor:"white", padding:"8px"}}>
             <TextField label="Nome do estoque" onInput={(e)=>{setAddingEstoque(e.target.value)}}></TextField>
             <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createEstoque(addingEstoque);}}>Criar</Button>
+          </Box>
+
+      }
+
+
+      
+      {
+        showMarcas &&
+          <Box style={{backgroundColor:"white", padding:"8px"}}>
+            <TextField label="Nome da marca" onInput={(e)=>{setAddingMarca(e.target.value)}}></TextField>
+            <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createMarca(addingMarca);}}>Criar</Button>
+          </Box>
+
+      }
+
+      { 
+        showModelos &&
+          <Box style={{backgroundColor:"white", padding:"8px"}}>
+            <TextField label="Nome do modelo" onInput={(e)=>{setAddingModelo(e.target.value); console.log(addingModelo)}}></TextField>
+            <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createModelo(addingModelo);}}>Criar</Button>
           </Box>
 
       }
@@ -469,6 +854,66 @@ setFilteredProducts(user?.produtos)
         </FormControl>
         }
 
+      <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
+              <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Categoria</InputLabel>
+              <Select
+                style={{minWidth: "200px"}}
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={categoria}
+                onChange={(e)=>{setCategoria(e.target.value);}}
+              >
+                <MenuItem value={"Todas"}>Todas</MenuItem>
+                {
+                  user?.categorias.map((categoria)=>{
+                    return(
+                      <MenuItem value={categoria.nome}>{categoria.nome}</MenuItem>
+                    )
+                  })
+                }
+              </Select>
+        </FormControl>
+
+        <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
+              <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Modelo</InputLabel>
+              <Select
+                style={{minWidth: "200px"}}
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={modelo}
+                onChange={(e)=>{setModelo(e.target.value);}}
+              >
+                <MenuItem value={"Todas"}>Todas</MenuItem>
+                {
+                  user?.Modelo.map((modelo)=>{
+                    return(
+                      <MenuItem value={modelo.nome}>{modelo.nome}</MenuItem>
+                    )
+                  })
+                }
+              </Select>
+        </FormControl>
+
+        <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
+              <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Marca</InputLabel>
+              <Select
+                style={{minWidth: "200px"}}
+                labelId="demo-simple-select-label"
+                id="demo-simple-select"
+                value={marca}
+                onChange={(e)=>{setMarca(e.target.value);}}
+              >
+                <MenuItem value={"Todas"}>Todas</MenuItem>
+                {
+                  user?.Marca.map((marca)=>{
+                    return(
+                      <MenuItem value={marca.nome}>{marca.nome}</MenuItem>
+                    )
+                  })
+                }
+              </Select>
+        </FormControl>
+
 
 
 
@@ -514,7 +959,7 @@ setFilteredProducts(user?.produtos)
        <Grid container spacing={3}>
 
       {filteredProducts?.map((product) => {
-        let currentProduct = { ...product };  // Criar uma cópia do objeto para evitar mutações indesejadas
+        let currentProduct = { ...product }; 
         let itemsToRender = [];
 
         if (regsSituation === "all" && estoqueToRender === "Todos") {
@@ -531,8 +976,6 @@ setFilteredProducts(user?.produtos)
             }
             return false;
           });
-
-          console.log(currentProduct);
 
             return (
               <Grid key={currentProduct.id} xs={12} sm={6} md={3} >
