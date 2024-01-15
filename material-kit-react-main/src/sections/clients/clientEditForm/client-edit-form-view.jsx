@@ -197,6 +197,47 @@ const activate = async () => {
   }
 };
 
+const deleteClient = async (id) => {
+  try {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    };
+    const response = await api.delete(`clientes/${id}`, config);
+
+
+    if (response.status === 200) {
+      toast.success("Cliente deletado!", {
+        position: "bottom-right", 
+        autoClose: 3000, 
+        hideProgressBar: false, 
+        closeOnClick: true, 
+        pauseOnHover: true, 
+        draggable: true, 
+        progress: undefined, 
+      });
+
+      setTimeout(() => {
+        //getUser();
+        location.reload();
+      }, 1500);
+    }
+  } catch (err) {
+    console.error(err);
+    toast.error("Erro ao deletar cliente!", {
+      position: "bottom-right", 
+      autoClose: 3000, 
+      hideProgressBar: false, 
+      closeOnClick: true, 
+      pauseOnHover: true, 
+      draggable: true, 
+      progress: undefined, 
+    });
+
+  }
+};
+
 
 
 
@@ -304,31 +345,38 @@ const onFormSubmit = (formData) => {
                 </Button>
                 <Button
                   variant="contained"
-                  sx={{ mt: 3, mb: 2, mr: 3, bgcolor: "brown" }}
+                  sx={{ mt: 3, mb: 2, mr: 3, bgcolor: "orange" }}
                   onClick={()=>{window.location.reload()}}
                 >
                   Voltar
                 </Button>
-{
-  client.item.active ? (
-    <Button
-    variant="contained"
-    sx={{ mt: 3, mb: 2, mr: 3, bgcolor: "black" }}
-    onClick={deactivate}
-  >
-    Inativar
-  </Button>
-  ):
-  (
-    <Button
-    variant="contained"
-    sx={{ mt: 3, mb: 2, mr: 3, bgcolor: "black" }}
-    onClick={activate}
-  >
-    Reativar
-  </Button>
-  )
-}
+                {
+                  client.item.active ? (
+                    <Button
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2, mr: 3, bgcolor: "black" }}
+                    onClick={deactivate}
+                  >
+                    Inativar
+                  </Button>
+                  ):
+                  (
+                    <Button
+                    variant="contained"
+                    sx={{ mt: 3, mb: 2, mr: 3, bgcolor: "black" }}
+                    onClick={activate}
+                  >
+                    Reativar
+                  </Button>
+                  ) 
+                }
+                <Button
+                  variant="contained"
+                  sx={{ mt: 3, mb: 2, mr: 3, bgcolor: "brown" }}
+                  onClick={()=>{deleteClient(client.item.id)}}
+                >
+                  Deletar
+                </Button>
             </Box>
       </Stack>
 
