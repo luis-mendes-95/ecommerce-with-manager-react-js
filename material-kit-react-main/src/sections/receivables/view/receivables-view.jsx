@@ -16,7 +16,7 @@ import Scrollbar from 'src/components/scrollbar';
 import UserTableHead from 'src/sections/clients/clients-table-head';
 import { emptyRows } from '../../clients/utils';
 import TableEmptyRows from 'src/sections/clients/table-empty-rows';
-import VendasTableRow from '../receivables-table-row';
+import ReceivablesTableRow from '../receivables-table-row';
 import { VendaEditFormView } from '../receivablesEditForm';
 
 {/**FUNÇÃO QUE RETORNA A DATA ATUAL FORMATADA*/}
@@ -42,6 +42,7 @@ export default function ReceivablesView() {
       const [receivableToEdit, setReceivableToEdit] = useState(null);
       const [thisClient, setThisClient] = useState(null);
       const [user, setUser] = useState(null);
+      const [showReceivableInputs, setShowReceivableInputs] = useState(false);
 
       /**FILTER STUFF STATES */
       const [page, setPage] = useState(0);
@@ -598,7 +599,7 @@ export default function ReceivablesView() {
     getReceivable(id)
   }
 
-  useEffect(() => {  setFilteredProducts(user?.produtos)  }, [user, thisSale])
+  useEffect(() => {  setFilteredProducts(user?.produtos)  }, [user, thisReceivable])
   
   return (
     <Container>
@@ -615,8 +616,7 @@ export default function ReceivablesView() {
               !thisClient &&
               <TextField fullWidth label="Digitar Cliente" id="client_id" inputProps={{ maxLength: 400 }} onInput={(e) => {e.target.value =  e.target.value.toUpperCase(); setShowTypedClientResults(true); setFilteredClientsByTyping(e.target.value)}} {...register("client_id")} />
             }
-            
-
+          
             {
               showTypedClientResults && !thisClient &&
                 filteredClients?.map((client)=>{
@@ -626,8 +626,6 @@ export default function ReceivablesView() {
                 })
             }
 
-
-
             {
               !showTypedClientResults && !thisClient &&
                 user?.clientes.map((client)=>{
@@ -636,10 +634,6 @@ export default function ReceivablesView() {
                   )
                 })
             }
-
-
-
-
 
             {
               thisClient &&
@@ -684,7 +678,7 @@ export default function ReceivablesView() {
                       />
                     </div>
                     <button
-                      onClick={()=>{setShowModalReceivable(false);}}
+                      onClick={()=>{setShowModalReceivable(false); setShowReceivableInputs(true);}}
                       style={{
                         backgroundColor: "#2ecc71",
                         color: "white",
@@ -746,7 +740,7 @@ export default function ReceivablesView() {
               <ProductTableToolbar numSelected={0} filterName={filterName} onFilterName={handleFilterByName} />
             }
             {
-              !thisSale &&
+              !thisReceivable &&
               <>
                 <OutlinedInput
                   value={filtroNomeCliente}
@@ -761,100 +755,64 @@ export default function ReceivablesView() {
                     </InputAdornment>
                   }
                 />
-              <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
-                          <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Situação</InputLabel>
-                          <Select
-                            style={{minWidth: "200px"}}
-                            labelId="demo-simple-select-label"
-                            id="demo-simple-select"
-                            value={regsSituation}
-                            label="Age"
-                            onChange={handleChangeregsSituation}
-                          >
-                            <MenuItem value={"active"}>Ativos</MenuItem>
-                            <MenuItem value={"inactive"}>Inativos</MenuItem>
-                            <MenuItem value={"all"}>Todos</MenuItem>
-                          </Select>
-            </FormControl>
-            <FormControl style={{display:"flex", flexDirection:"column"}}>
-                <div>
-                  <label>Dia:</label>
-                  <select value={filtroDia} onChange={(e) => setFiltroDia(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}} >
-                    <option value="">Todos</option>
-                    {Array.from({ length: 31 }, (_, index) => <option key={index + 1} value={`${index + 1 < 10 ? '0' : ''}${index + 1}`}>{index + 1}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label>Mês:</label>
-                  <select value={filtroMes} onChange={(e) => setFiltroMes(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}}>
-                    <option value="">Todos</option>
-                    <option value="01">Janeiro</option>
-                    <option value="02">Fevereiro</option>
-                    <option value="03">Março</option>
-                    <option value="04">Abril</option>
-                    <option value="05">Maio</option>
-                    <option value="06">Junho</option>
-                    <option value="07">Julho</option>
-                    <option value="08">Agosto</option>
-                    <option value="09">Setembro</option>
-                    <option value="10">Outubro</option>
-                    <option value="11">Novembro</option>
-                    <option value="12">Dezembro</option>
-                  </select>
-                </div>
-                <div>
-                  <label>Ano:</label>
-                  <select value={filtroAno} onChange={(e) => setFiltroAno(e.target.value)} style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}}>
-                    <option value="">Todos</option>
-                    <option value="2023">2023</option>
-                    <option value="2022">2022</option>
-                  </select>
-                </div>
+                <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
+                            <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Situação</InputLabel>
+                            <Select
+                              style={{minWidth: "200px"}}
+                              labelId="demo-simple-select-label"
+                              id="demo-simple-select"
+                              value={regsSituation}
+                              label="Age"
+                              onChange={handleChangeregsSituation}
+                            >
+                              <MenuItem value={"active"}>Ativos</MenuItem>
+                              <MenuItem value={"inactive"}>Inativos</MenuItem>
+                              <MenuItem value={"all"}>Todos</MenuItem>
+                            </Select>
+              </FormControl>
+              <FormControl style={{display:"flex", flexDirection:"column"}}>
+                  <div>
+                    <label>Dia:</label>
+                    <select value={filtroDia} onChange={(e) => setFiltroDia(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}} >
+                      <option value="">Todos</option>
+                      {Array.from({ length: 31 }, (_, index) => <option key={index + 1} value={`${index + 1 < 10 ? '0' : ''}${index + 1}`}>{index + 1}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label>Mês:</label>
+                    <select value={filtroMes} onChange={(e) => setFiltroMes(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}}>
+                      <option value="">Todos</option>
+                      <option value="01">Janeiro</option>
+                      <option value="02">Fevereiro</option>
+                      <option value="03">Março</option>
+                      <option value="04">Abril</option>
+                      <option value="05">Maio</option>
+                      <option value="06">Junho</option>
+                      <option value="07">Julho</option>
+                      <option value="08">Agosto</option>
+                      <option value="09">Setembro</option>
+                      <option value="10">Outubro</option>
+                      <option value="11">Novembro</option>
+                      <option value="12">Dezembro</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label>Ano:</label>
+                    <select value={filtroAno} onChange={(e) => setFiltroAno(e.target.value)} style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}}>
+                      <option value="">Todos</option>
+                      <option value="2023">2023</option>
+                      <option value="2022">2022</option>
+                    </select>
+                  </div>
 
-            </FormControl>
+              </FormControl>
             </>
             }
 
           </Box>
 
-          <Stack direction="row" alignItems="center" flexWrap="wrap-reverse" justifyContent="flex-end" sx={{ mb: 5 }} >
-            <Stack direction="row" spacing={1} flexShrink={0} sx={{ my: 1 }}>
-      {/** <ProductFilters openFilter={openFilter} onOpenFilter={handleOpenFilter} onCloseFilter={handleCloseFilter} /> */}
-
-              {/**<ProductSort /> */}
-            </Stack>
-          </Stack>
-
-
-
-
-
-
-          {/**GRID WITH PRODUCTS TO CHOOSE TO ADD IN SALE */}
           {
-            thisSale &&
-            <Grid container spacing={3}>
-      
-              {
-                filteredProducts.map((product) => {
-                  if(product.ItemCompra.length > 0) {
-                    return                 (
-                      <Grid key={product.id} xs={12} sm={6} md={3} >
-                        <ProductCard product={product} handleEditProduct={handleEditProduct} handleGetSale={handleGetSale} thisSale={thisSale} thisOs={thisOs} submitType={submitType} setSubmitType={setSubmitType} thisClient={thisClient} handleSetClient={handleSetClient} handleSetModalVenda={handleSetModalVenda} showModalVenda={showModalVenda} handleSetShowCart={handleSetShowCart} generateOs={generateOs}/>
-                      </Grid>
-                  )
-                  }
-
-
-                })
-              }
-      
-            </Grid>
-          }
-
-
-          {
-            !thisSale &&
+            !thisReceivable &&
             <Scrollbar>
             <TableContainer sx={{ overflow: 'unset' }}>
               <Table sx={{ minWidth: 800 }}>
@@ -864,21 +822,23 @@ export default function ReceivablesView() {
                   headLabel={[
                     { id: 'data', label: 'Data' },
                     { id: 'nome_razao_social', label: 'Nome / Razão Social' },
+                    { id: 'dueDate', label: 'Data de Vencimento' },
                     { id: 'total', label: 'Total' },
                   ]}
                 />
 
 
                 <TableBody>
-                  {vendasFiltradas?.map(row => ({
+                  {receivablesFiltrados?.map(row => ({
                     ...row,
                     createdAt: row.createdAt.split('/').reverse().join('-') // Change date format to "YYYY-MM-DD"
                   }))
-                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)) // Sort by createdAt in descending order
+                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                   .map((row) => {
-                    const formattedDate = row.createdAt.split('-').reverse().join('/'); // Change date format back to "DD/MM/YYYY"
+                    const formattedDate = row.createdAt.split('-').reverse().join('/'); 
                     if (regsSituation === "all") {
-                      const total = row.itens.reduce((acc, item) => {
+                      console.log(row)
+                      const total = row.itens?.reduce((acc, item) => {
                         const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
                         const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
                         const itemTotal = (preco - parseFloat(item.disccount)) * qty;
@@ -886,13 +846,13 @@ export default function ReceivablesView() {
                       }, 0);
 
                       return (
-                        <VendasTableRow
+                        <ReceivablesTableRow
                         key={row.id}
                         data={formattedDate} // Use the formatted date
                         nome_razao_social={row.client.nome_razao_social}
-                        total={`R$ ${(total + parseInt(row.dispatchValue)).toFixed(2)}`}
+                        total={`R$ ${row.amount}`}
+                        dueDate={row.dueDate}
                         handleSaleToEdit={handleSaleToEdit}
-
                         />
                       );
                     } else if (regsSituation === "inactive" && row.active === false) {
@@ -904,16 +864,17 @@ export default function ReceivablesView() {
                       }, 0);
 
                       return (
-                        <VendasTableRow
+                        <ReceivablesTableRow
                         key={row.id}
                         data={formattedDate} // Use the formatted date
                         nome_razao_social={row.client.nome_razao_social}
-                        total={`R$ ${(total + parseInt(row.dispatchValue)).toFixed(2)}`}
+                        total={`R$ ${row.amount}`}
+                        dueDate={row.dueDate}
                         handleSaleToEdit={handleSaleToEdit}
                         />
                       );
                     } else if (regsSituation === "active" && row.active === true) {
-                      const total = row.itens.reduce((acc, item) => {
+                      const total = row.itens?.reduce((acc, item) => {
                         const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
                         const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
                         const itemTotal = (preco - parseFloat(item.disccount)) * qty;
@@ -921,13 +882,13 @@ export default function ReceivablesView() {
                       }, 0);
 
                       return (
-                        <VendasTableRow
-                          key={row.id}
-                          id={row.id}
-                          data={formattedDate} // Use the formatted date
-                          nome_razao_social={row.client.nome_razao_social}
-                          total={`R$ ${(total + parseInt(row.dispatchValue)).toFixed(2)}`}
-                          handleSaleToEdit={handleSaleToEdit}
+                        <ReceivablesTableRow
+                        key={row.id}
+                        data={formattedDate} // Use the formatted date
+                        nome_razao_social={row.client.nome_razao_social}
+                        total={`R$ ${row.amount}`}
+                        dueDate={row.dueDate}
+                        handleSaleToEdit={handleSaleToEdit}
                         />
                       );
                     }

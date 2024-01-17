@@ -494,7 +494,7 @@ const receiveValue = async (createData) => {
                     <TableCell align="right">R${row.produto.preco}</TableCell>
                     <TableCell align="right">R${row.disccount}</TableCell>
                     <TableCell align="right">R${row.produto.preco - row.disccount}</TableCell>
-                    <TableCell align="right">R${(row.qty * row.produto.preco) - (row.disccount * row.qty)}</TableCell>
+                    <TableCell align="right">R${((row.qty * row.produto.preco) - (row.disccount * row.qty)).toFixed(2)}</TableCell>
                     <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemVenda(row.id); setParcelas(0); setFormaPagamentoParcelas([]); setCheckoutStep(0);}} >X</button></TableCell>
 
                   </TableRow>
@@ -517,7 +517,7 @@ const receiveValue = async (createData) => {
 
 
 
-                  <TableCell style={{width:"150px"}} align="right"> Total R$ { thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty));return total+subtotal;}, 0) - -dispatchValue  }</TableCell>
+                  <TableCell style={{width:"150px"}} align="right"> Total R$ { thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty));return (total+subtotal).toFixed(2);}, 0) - -dispatchValue  }</TableCell>
                 </TableRow>
 
               </TableBody>
@@ -777,7 +777,7 @@ const receiveValue = async (createData) => {
                         />
                       ))}
                     </FormGroup>
-                    <p>Valor da parcela: R$ { (thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty));return total+subtotal;}, 0) - -dispatchValue) / parcelas  }</p>
+                    <p>Valor da parcela: R$ { ((thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty));return total+subtotal;}, 0) - -dispatchValue) / parcelas).toFixed(2)  }</p>
                   </Box>
               )
             }

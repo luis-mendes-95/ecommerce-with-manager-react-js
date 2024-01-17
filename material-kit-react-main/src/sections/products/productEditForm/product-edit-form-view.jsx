@@ -20,7 +20,7 @@ import Iconify from 'src/components/iconify';
 import api from 'src/services/api';
 import { useForm } from 'react-hook-form';
 import { Toastify } from 'toastify';
-import { FormControl, InputLabel, MenuItem, Select } from '@mui/material';
+import { Checkbox, FormControl, FormControlLabel, FormGroup, InputLabel, MenuItem, Select } from '@mui/material';
 
 // ----------------------------------------------------------------------
 
@@ -617,6 +617,8 @@ const renderForm = (
      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("imagens")} defaultValue={product.product.imagens} label="Imagens (por , )" type="imagens" id="imagens" />
      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("custo")} defaultValue={product.product.custo} label="Custo" type="custo" id="custo" inputProps={{ maxLength: 80 }} />
      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("preco")} defaultValue={product.product.preco} label="Preço" type="preco" id="preco" inputProps={{ maxLength: 20 }} />
+
+      <FormControlLabel control={<Checkbox {...register("onStore")} defaultChecked={product.product.onStore} />} label="Mostrar na Loja " />
 
 
 

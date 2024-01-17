@@ -17,12 +17,15 @@ import Iconify from 'src/components/iconify';
 
 // ----------------------------------------------------------------------
 
-export default function VendasTableRow({
+export default function ReceivablesTableRow({
 
   id,
   data,
   nome_razao_social,
   total,
+  dueDate,
+
+
   selected,
   handleSaleToEdit
 }) {
@@ -46,7 +49,11 @@ export default function VendasTableRow({
 
         <TableCell>{nome_razao_social}</TableCell>
 
+        <TableCell>{dueDate}</TableCell>
+
         <TableCell>{total}</TableCell>
+
+
 
       </TableRow>
 
@@ -74,7 +81,7 @@ export default function VendasTableRow({
   );
 }
 
-VendasTableRow.propTypes = {
+ReceivablesTableRow.propTypes = {
   avatarUrl: PropTypes.any,
   company: PropTypes.any,
   handleClick: PropTypes.func,

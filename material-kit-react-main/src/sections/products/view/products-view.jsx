@@ -1171,7 +1171,7 @@ setFilteredProducts(user?.produtos);
 
                 const formattedDate = row.createdAt.split('-').reverse().join('/');
 
-                if (regsSituation === "all" && estoqueToRender === "Todos" && (modelo === "Todos" || modelo === row.modeloId) && (marca === "Todas" || marca === row.marcaId) && (categoria === "Todas" || categoria === row.categoriaId)) {
+                if (regsSituation === "all" && estoqueToRender === "Todos" && (modelo === "Todos" || modelo === row.modeloId) && (marca === "Todas" || marca === row.marcaId) && (categoria === "Todas" || categoria === row.categoriaId) && (tamanho === "Todas" || tamanho === row.tamanho)) {
 
                   return (
                     <ProductsTableRow
@@ -1187,7 +1187,7 @@ setFilteredProducts(user?.produtos);
                     estoqueToRender={estoqueToRender}
                     />
                   );
-                } else if (regsSituation === "inactive" && (row.ItemCompra.length - row.ItemVenda.length) < 1 && (modelo === "Todos" || modelo === row.modeloId) && (marca === "Todas" || marca === row.marcaId) && (categoria === "Todas" || categoria === row.categoriaId)) {
+                } else if (regsSituation === "inactive" && (row.ItemCompra.length - row.ItemVenda.length) < 1 && (modelo === "Todos" || modelo === row.modeloId) && (marca === "Todas" || marca === row.marcaId) && (categoria === "Todas" || categoria === row.categoriaId) && (tamanho === "Todas" || tamanho === row.tamanho)) {
 
                   return (
                     <ProductsTableRow
@@ -1202,7 +1202,7 @@ setFilteredProducts(user?.produtos);
                     estoqueToRender={estoqueToRender}
                     />
                   );
-                } else if (regsSituation === "active" && (row.ItemCompra.length - row.ItemVenda.length) > 0 && estoqueToRender === "Todos" && (modelo === "Todos" || modelo === row.modeloId) && (marca === "Todas" || marca === row.marcaId) && (categoria === "Todas" || categoria === row.categoriaId)) {
+                } else if (regsSituation === "active" && (row.ItemCompra.length - row.ItemVenda.length) > 0 && estoqueToRender === "Todos" && (modelo === "Todos" || modelo === row.modeloId) && (marca === "Todas" || marca === row.marcaId) && (categoria === "Todas" || categoria === row.categoriaId) && (tamanho === "Todas" || tamanho === row.tamanho)) {
 
                   return (
                     <ProductsTableRow
@@ -1217,7 +1217,7 @@ setFilteredProducts(user?.produtos);
                       estoqueToRender={estoqueToRender}
                     />
                   );
-                } else if (regsSituation === "all" && estoqueToRender !== "Todos" && (modelo === "Todos" || modelo === row.modeloId) && (marca === "Todas" || marca === row.marcaId) && (categoria === "Todas" || categoria === row.categoriaId)) {
+                } else if (regsSituation === "all" && estoqueToRender !== "Todos" && (modelo === "Todos" || modelo === row.modeloId) && (marca === "Todas" || marca === row.marcaId) && (categoria === "Todas" || categoria === row.categoriaId) && (tamanho === "Todas" || tamanho === row.tamanho)) {
                   currentProduct.ItemCompra = currentProduct.ItemCompra.filter((itemCompra) => {
                     if(itemCompra.estoque === estoqueToRender) {
                       itemsToRender.push(itemCompra);
@@ -1239,7 +1239,7 @@ setFilteredProducts(user?.produtos);
                             estoqueToRender={estoqueToRender}
                             />
                           );
-                } else if (regsSituation === "active" && estoqueToRender !== "Todos" && (modelo === "Todos" || modelo === row.modeloId) && (marca === "Todas" || marca === row.marcaId) && (categoria === "Todas" || categoria === row.categoriaId)) {
+                } else if (regsSituation === "active" && estoqueToRender !== "Todos" && (modelo === "Todos" || modelo === row.modeloId) && (marca === "Todas" || marca === row.marcaId) && (categoria === "Todas" || categoria === row.categoriaId) && (tamanho === "Todas" || tamanho === row.tamanho)) {
                   currentProduct.ItemCompra = currentProduct.ItemCompra.filter((itemCompra) => {
                     if (itemCompra.estoque === estoqueToRender) {
                       itemsToRender.push(itemCompra);

@@ -97,7 +97,8 @@ const { register, handleSubmit } = useForm({
 /**PATCH REQUEST TO ADD RECEIVEMENT TO A RECEIVABLE */
 const receiveValue = async (createData) => {
 
-  if (receivingItemAmount <= receivingItemRemaining && receivingItemAmount > 0) {
+
+  if (receivingItemAmount <= receivingItemRemaining.toFixed(2) && receivingItemAmount > 0) {
     let receivements = {
       receivements: receivingItem?.receivements
   
@@ -114,7 +115,7 @@ const receiveValue = async (createData) => {
       };
   
       const response = await api.patch(`/receivables/${receivingItem.id}`, receivements, config);
-  
+
       if (response.status === 200) {
         toast.success();
         toast.success("Valor recebido com sucesso!", {
@@ -138,6 +139,7 @@ const receiveValue = async (createData) => {
       toast.error("Erro ao receber valor");
     }
   } else {
+
     toast.error("Verifique o valor restante, e o valor que está sendo recebido!")
   }
 
@@ -146,7 +148,7 @@ const receiveValue = async (createData) => {
 };
 
 const edit = async (createData) => {
-  console.log("chegano aqui")
+
   try {
     // Define o cabeçalho da solicitação com o token de autenticação
     const config = {
@@ -683,7 +685,7 @@ const renderForm = (
 
                       <Box component="form" >
                           <TableRow key={receivingItem?.id}>
-                          <TableCell>R$ {receivingItemRemaining}</TableCell>
+                          <TableCell>R$ {receivingItemRemaining.toFixed(2 )}</TableCell>
                           <TableCell align="right">{receivingItem?.dueDate}</TableCell>
 
                           <TableCell align="right">
@@ -768,9 +770,12 @@ const renderForm = (
                   let totalReceived = 0;
 
                   dataArray.forEach((item) => {
-                    const amountMatch = item.match(/amount:(\d+)/);
+                    console.log(dataArray)
+                    const amountMatch = item.match(/amount:([\d.]+)/);
+                    console.log(amountMatch)
                     if (amountMatch && amountMatch[1]) {
-                      totalReceived += parseInt(amountMatch[1], 10);
+
+                      totalReceived += parseFloat(amountMatch[1], 10);
                     }
                   });
 
@@ -866,16 +871,23 @@ const renderForm = (
 
             {
               sale?.receivables.map((receivable, index) => (
+                
                 <TableBody key={index} style={{ height: "100px", overflow: "scroll" }}>
+                  
+                {
+                  receivable.receivements.length > 0 &&
                   <TableRow style={{ borderBottom: "1px solid #ccc" }}>
-
-                    <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
-                      {receivable.receivements.map((payment, paymentIndex) => (
+                  <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
+                    {receivable.receivements && receivable.receivements.length > 0 ? (
+                      receivable.receivements.map((payment, paymentIndex) => (
                         <div key={paymentIndex} style={{ marginTop: "10px" }}>
                           <div style={{ marginBottom: "5px", fontSize: "14px" }}>Data: {payment.split(', ')[0].split(':')[1]}</div>
                         </div>
-                      ))}
-                    </TableCell>
+                      ))
+                    ) : (
+                      <div>No Payments</div>
+                    )}
+                  </TableCell>
 
                     <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
                       {receivable.receivements.map((payment, paymentIndex) => (
@@ -901,6 +913,7 @@ const renderForm = (
                       ))}
                     </TableCell>
                   </TableRow>
+                }
                 </TableBody>
               ))
             }

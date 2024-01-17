@@ -520,7 +520,7 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
 
 
 
-                  <TableCell style={{width:"150px"}} align="right"> Total R$ { aggregatedItems.reduce((total,item)=>{const precoComDesconto=(item.cost-item.disccount)*item.qty;const subtotal=((precoComDesconto));return total+subtotal;}, 0) - -dispatchValue  }</TableCell>
+                  <TableCell style={{width:"150px"}} align="right"> Total R$ { (aggregatedItems.reduce((total,item)=>{const precoComDesconto=(item.cost-item.disccount)*item.qty;const subtotal=((precoComDesconto));return total+subtotal;}, 0) - -dispatchValue).toFixed(2)  }</TableCell>
                 </TableRow>
 
               </TableBody>
@@ -780,7 +780,7 @@ export default function CartWidget({deleteItemCompra, thisCompra}) {
                         />
                       ))}
                     </FormGroup>
-                    <p>Valor da parcela: R$ { (aggregatedItems.reduce((total,item)=>{const precoComDesconto=(item.cost-item.disccount)*item.qty;const subtotal=((precoComDesconto));return total+subtotal;}, 0) - -dispatchValue) / parcelas }</p>
+                    <p>Valor da parcela: R$ { ((aggregatedItems.reduce((total,item)=>{const precoComDesconto=(item.cost-item.disccount)*item.qty;const subtotal=((precoComDesconto));return total+subtotal;}, 0) - -dispatchValue) / parcelas).toFixed(2) }</p>
                   </Box>
               )
             }

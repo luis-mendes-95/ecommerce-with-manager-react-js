@@ -26,8 +26,6 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 
-// ----------------------------------------------------------------------
-
 function getDataAtualFormatada() {
   var data = new Date();
   var dia = data.getDate().toString().padStart(2, '0');
@@ -37,92 +35,173 @@ function getDataAtualFormatada() {
 }
 
 export default function CompraEditFormView(compraToEdit) {
-  
   const theme = useTheme();
   const router = useRouter();
+  let url = "/produtos"
 
+  const [receivableMode, setReceivableMode] = useState(false);
+  const [payableMode, setPayableMode] = useState(false);
+  const [receivingItem, setReceivingItem] = useState(null);
+  const [payingItem, setPayingItem] = useState(null);
+  const [receivingItemRemaining, setReceivingItemRemaining] = useState(0);
+  const [payingItemRemaining, setPayingItemRemaining] = useState(0);
+  const [receivingItemPayMethod, setReceivingItemPayMethod] = useState('');
+  const [payingItemPayMethod, setPayingItemPayMethod] = useState('');
+  const [parcelas, setParcelas] = useState(1);
+  const [formaPagamentoParcelas, setFormaPagamentoParcelas] = useState(Array(parcelas).fill([]));
+  const [receivingItemAmount, setReceivingItemAmount] = useState(0);
+  const [payingItemAmount, setPayingItemAmount] = useState(0);
+  const [aggregatedItems, setAggregatedItems] = useState([]);
+  const [totalPaidParcel, setTotalPaidParcel] = useState(0);
 
-//FORM INPUTS CONFIGURATIONS
-let url = "/produtos"
-
-
-
-//STATES FOR THIS COMPONENT
-const [receivableMode, setReceivableMode] = useState(false);
-const [payableMode, setPayableMode] = useState(false);
-const [receivingItem, setReceivingItem] = useState(null);
-const [payingItem, setPayingItem] = useState(null);
-const [receivingItemRemaining, setReceivingItemRemaining] = useState(0);
-const [payingItemRemaining, setPayingItemRemaining] = useState(0);
-const [receivingItemPayMethod, setReceivingItemPayMethod] = useState('');
-const [payingItemPayMethod, setPayingItemPayMethod] = useState('');
-const [parcelas, setParcelas] = useState(1);
-const [formaPagamentoParcelas, setFormaPagamentoParcelas] = useState(Array(parcelas).fill([]));
-const [receivingItemAmount, setReceivingItemAmount] = useState(0);
-const [payingItemAmount, setPayingItemAmount] = useState(0);
-const [aggregatedItems, setAggregatedItems] = useState([]);
-
-
-
-/** GET USER BY REQUEST IN BACKEND AND TAKES TOKEN FROM LOCALSTORAGE*/
-const user_id = localStorage.getItem('tejas.app.user_id');
-const token = localStorage.getItem('tejas.app.token');
-const user_name = localStorage.getItem('tejas.app.user_name');
-// const user_name = localStorage.getItem('user_name');
-const [user, setUser] = useState(null);
-const getUser = async () => {
-  if (user_id){
-    try {
-      const response = await api.get(`/users/${user_id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if(response.data){
-          setUser(response.data);
-      //se der erro setar botao logout
+  const user_id = localStorage.getItem('tejas.app.user_id');
+  const token = localStorage.getItem('tejas.app.token');
+  const user_name = localStorage.getItem('tejas.app.user_name');
+  const [user, setUser] = useState(null);
+  const getUser = async () => {
+    if (user_id){
+      try {
+        const response = await api.get(`/users/${user_id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if(response.data){
+            setUser(response.data);
+        //se der erro setar botao logout
+        }
+      } catch (err) {
+        //setUser(null);
+        //se der erro setar botao login
       }
-    } catch (err) {
-      //setUser(null);
-      //se der erro setar botao login
     }
-  }
-}; 
+  }; 
+  const { register, handleSubmit } = useForm({});
 
+  const receiveValue = async (createData) => {
 
-
-
-
-//USE FORM CALLING FUNCTIONS
-const { register, handleSubmit } = useForm({
-  //resolver: zodResolver(LoginUserSchema),
-});
-
-
-/**PATCH REQUEST TO ADD RECEIVEMENT TO A RECEIVABLE */
-const receiveValue = async (createData) => {
-
-  if (receivingItemAmount <= receivingItemRemaining && receivingItemAmount > 0) {
-    let receivements = {
-      receivements: receivingItem?.receivements
-  
+    if (receivingItemAmount <= receivingItemRemaining && receivingItemAmount > 0) {
+      let receivements = {
+        receivements: receivingItem?.receivements
+    
+      }
+    
+      receivements.receivements.push(createData)
+    
+    
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+    
+        const response = await api.patch(`/receivables/${receivingItem.id}`, receivements, config);
+    
+        if (response.status === 200) {
+          toast.success();
+          toast.success("Valor recebido com sucesso!", {
+            position: "bottom-right", 
+            autoClose: 3000, 
+            hideProgressBar: false, 
+            closeOnClick: true, 
+            pauseOnHover: true, 
+            draggable: true, 
+            progress: undefined, 
+          });
+    
+          getUser();
+          getSale(saleToEdit.id);
+          setReceivingItem(null);
+          setReceivableMode(false);
+          
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Erro ao receber valor");
+      }
+    } else {
+      toast.error("Verifique o valor restante, e o valor que está sendo recebido!")
     }
-  
-    receivements.receivements.push(createData)
-  
-  
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-  
-      const response = await api.patch(`/receivables/${receivingItem.id}`, receivements, config);
-  
-      if (response.status === 200) {
-        toast.success();
-        toast.success("Valor recebido com sucesso!", {
+
+
+
+  };
+
+  const payValue = async (createData) => {
+
+    if (payingItemAmount <= payingItemRemaining && payingItemAmount > 0) {
+      let payments = {
+        payments: payingItem?.payments
+      }
+    
+      payments.payments.push(createData)
+    
+    
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+    
+        const response = await api.patch(`/payables/${payingItem.id}`, payments, config);
+    
+        if (response.status === 200) {
+          toast.success();
+          toast.success("Valor pago com sucesso!", {
+            position: "bottom-right", 
+            autoClose: 3000, 
+            hideProgressBar: false, 
+            closeOnClick: true, 
+            pauseOnHover: true, 
+            draggable: true, 
+            progress: undefined, 
+          });
+    
+          getUser();
+          getCompra(compraToEdit.id);
+          setPayingItem(null);
+          setPayableMode(false);
+          
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Erro ao executar pagamento");
+      }
+    } else {
+      toast.error("Verifique o valor restante, e o valor que está sendo pago!")
+    }
+
+
+
+  };
+
+  const deleteSale = async (id) => {
+      try {
+        const config = {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        };
+        const response = await api.delete(`vendas/${id}`, config);
+        if (response.status === 200) {
+          toast.success("Venda deletada com sucesso!", {
+            position: "bottom-right", 
+            autoClose: 3000, 
+            hideProgressBar: false, 
+            closeOnClick: true, 
+            pauseOnHover: true, 
+            draggable: true, 
+            progress: undefined, 
+          });
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
+        }
+      } catch (err) {
+        console.error(err);
+        toast.error("Erro ao deletar venda!", {
           position: "bottom-right", 
           autoClose: 3000, 
           hideProgressBar: false, 
@@ -131,86 +210,19 @@ const receiveValue = async (createData) => {
           draggable: true, 
           progress: undefined, 
         });
-  
-        getUser();
-        getSale(saleToEdit.id);
-        setReceivingItem(null);
-        setReceivableMode(false);
-        
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("Erro ao receber valor");
-    }
-  } else {
-    toast.error("Verifique o valor restante, e o valor que está sendo recebido!")
-  }
+  };
 
-
-
-};
-
-/**PATCH REQUEST TO ADD PAYMENT TO A PAYABLE */
-const payValue = async (createData) => {
-
-  if (payingItemAmount <= payingItemRemaining && payingItemAmount > 0) {
-    let payments = {
-      payments: payingItem?.payments
-    }
-  
-    payments.payments.push(createData)
-  
-  
+  const deleteCompra = async (id) => {
     try {
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       };
-  
-      const response = await api.patch(`/payables/${payingItem.id}`, payments, config);
-  
+      const response = await api.delete(`compras/${id}`, config);
       if (response.status === 200) {
-        toast.success();
-        toast.success("Valor pago com sucesso!", {
-          position: "bottom-right", 
-          autoClose: 3000, 
-          hideProgressBar: false, 
-          closeOnClick: true, 
-          pauseOnHover: true, 
-          draggable: true, 
-          progress: undefined, 
-        });
-  
-        getUser();
-        getCompra(compraToEdit.id);
-        setPayingItem(null);
-        setPayableMode(false);
-        
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Erro ao executar pagamento");
-    }
-  } else {
-    toast.error("Verifique o valor restante, e o valor que está sendo pago!")
-  }
-
-
-
-};
-
-/**DELETE SALE AND CHECK IF THERE'S ANY RECEIVABLED PAID, IF TRUE, IT GENERATES CREDIT INSIDE THE CLIENT*/
-const deleteSale = async (id) => {
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      const response = await api.delete(`vendas/${id}`, config);
-      if (response.status === 200) {
-        toast.success("Venda deletada com sucesso!", {
+        toast.success("Compra deletada com sucesso!", {
           position: "bottom-right", 
           autoClose: 3000, 
           hideProgressBar: false, 
@@ -225,7 +237,7 @@ const deleteSale = async (id) => {
       }
     } catch (err) {
       console.error(err);
-      toast.error("Erro ao deletar venda!", {
+      toast.error("Erro ao deletar compra!", {
         position: "bottom-right", 
         autoClose: 3000, 
         hideProgressBar: false, 
@@ -235,193 +247,140 @@ const deleteSale = async (id) => {
         progress: undefined, 
       });
     }
-};
+  };
 
-/**DELETE COMPRA */
-const deleteCompra = async (id) => {
-  try {
-    const config = {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    };
-    const response = await api.delete(`compras/${id}`, config);
-    if (response.status === 200) {
-      toast.success("Compra deletada com sucesso!", {
-        position: "bottom-right", 
-        autoClose: 3000, 
-        hideProgressBar: false, 
-        closeOnClick: true, 
-        pauseOnHover: true, 
-        draggable: true, 
-        progress: undefined, 
-      });
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
-    }
-  } catch (err) {
-    console.error(err);
-    toast.error("Erro ao deletar compra!", {
-      position: "bottom-right", 
-      autoClose: 3000, 
-      hideProgressBar: false, 
-      closeOnClick: true, 
-      pauseOnHover: true, 
-      draggable: true, 
-      progress: undefined, 
+  const handleReceivablesChange = ( formaPagamento) => {
+    setReceivingItemPayMethod(formaPagamento)
+  };
+
+  const handlePayablesChange = ( formaPagamento) => {
+    setPayingItemPayMethod(formaPagamento)
+  };
+
+  const renderPaymentRow = (payment) => {
+    const dataArray = payment.payments; 
+    let totalPaid = 0;
+
+    dataArray.forEach((item) => {
+      const amountMatch = item.match(/amount:([\d.]+)/);
+      if (amountMatch && amountMatch[1]) {
+        totalPaid += parseInt(amountMatch[1], 10);
+      }
     });
+
+    const canPay = payment.amount - totalPaid !== 0;
+
+    return (
+      <TableBody style={{ height: "100px", overflow: "scroll" }}>
+        <TableRow key={payment.id}>
+          <TableCell align="center">{payment.dueDate}</TableCell>
+          <TableCell align="center">R$ {parseFloat(payment.amount).toFixed(2)}</TableCell>
+          <TableCell align="center">R$ {totalPaid.toFixed(2)}</TableCell>
+          {canPay && (
+            <TableCell align="center">
+              <p
+                style={{
+                  border: "none",
+                  padding: "15px",
+                  backgroundColor: "green",
+                  color: "white",
+                  fontWeight: "bold",
+                  borderRadius: "18px",
+                  cursor: "pointer",
+                  boxShadow: "1pt 1pt 5pt black",
+                }}
+                onClick={() => {
+                  const paymentData = `data:${getDataAtualFormatada()}, amount:${payingItemAmount}, type:${payingItemPayMethod}, user:${user_name}`;
+                  handlePayment(
+                    getDataAtualFormatada(),
+                    payingItemAmount,
+                    payingItemPayMethod,
+                    user_name
+                  );
+                  payValue(paymentData);
+                }}
+              >
+                Pagar
+              </p>
+            </TableCell>
+          )}
+          {!canPay && (
+            <TableCell align="center">
+              <p
+                style={{
+                  border: "none",
+                  padding: "15px",
+                  backgroundColor: "lightblue",
+                  color: "black",
+                  fontWeight: "bold",
+                  borderRadius: "18px",
+                  cursor: "pointer",
+                  boxShadow: "1pt 1pt 5pt black",
+                }}
+              >
+                OK
+              </p>
+            </TableCell>
+          )}
+        </TableRow>
+      </TableBody>
+    );
+  };
+
+  const handleReceivingItemChange = (receivable) => {
+
+    setReceivingItem(receivable); 
+  
+    
+    setTimeout(() => {
+      setReceivableMode(true);
+    }, 1500);
+
+      // Obter o valor inicial de 'amount'
+    let totalAmount = parseFloat(receivable.amount);
+
+    // Iterar sobre os receivements e subtrair os valores correspondentes
+    receivable.receivements.forEach(receivement => {
+      const receivementParts = receivement.split(', ');
+      const amountPart = receivementParts.find(part => part.startsWith('amount:'));
+      
+      if (amountPart) {
+        const amountValue = parseFloat(amountPart.split(':')[1]);
+        totalAmount -= amountValue;
+      }
+    });
+
+    // Agora, 'totalAmount' contém o resultado da subtração
+    setReceivingItemRemaining(totalAmount)
+
   }
-};
 
+  const handlePayingItemChange = (payable) => {
 
-
-
-
-//DEAL WITH FORM OF RECEIVEMENT
-const handleReceivablesChange = ( formaPagamento) => {
-  setReceivingItemPayMethod(formaPagamento)
-};
-
-//DEAL WITH FORM OF PAYMENT
-const handlePayablesChange = ( formaPagamento) => {
-  setPayingItemPayMethod(formaPagamento)
-};
-
-
-const renderPaymentRow = (payment) => {
-  const dataArray = payment.payments; 
-  let totalPaid = 0;
-
-  dataArray.forEach((item) => {
-    const amountMatch = item.match(/amount:(\d+)/);
-    if (amountMatch && amountMatch[1]) {
-      totalPaid += parseInt(amountMatch[1], 10);
-    }
-  });
-
-  const canPay = payment.amount - totalPaid !== 0;
-
-  return (
-    <TableBody style={{ height: "100px", overflow: "scroll" }}>
-      <TableRow key={payment.id}>
-        <TableCell align="center">{payment.dueDate}</TableCell>
-        <TableCell align="center">R$ {parseFloat(payment.amount).toFixed(2)}</TableCell>
-        <TableCell align="center">R$ {totalPaid.toFixed(2)}</TableCell>
-        {canPay && (
-          <TableCell align="center">
-            <p
-              style={{
-                border: "none",
-                padding: "15px",
-                backgroundColor: "green",
-                color: "white",
-                fontWeight: "bold",
-                borderRadius: "18px",
-                cursor: "pointer",
-                boxShadow: "1pt 1pt 5pt black",
-              }}
-              onClick={() => {
-                const paymentData = `data:${getDataAtualFormatada()}, amount:${payingItemAmount}, type:${payingItemPayMethod}, user:${user_name}`;
-                handlePayment(
-                  getDataAtualFormatada(),
-                  payingItemAmount,
-                  payingItemPayMethod,
-                  user_name
-                );
-                payValue(paymentData);
-              }}
-            >
-              Pagar
-            </p>
-          </TableCell>
-        )}
-        {!canPay && (
-          <TableCell align="center">
-            <p
-              style={{
-                border: "none",
-                padding: "15px",
-                backgroundColor: "lightblue",
-                color: "black",
-                fontWeight: "bold",
-                borderRadius: "18px",
-                cursor: "pointer",
-                boxShadow: "1pt 1pt 5pt black",
-              }}
-            >
-              OK
-            </p>
-          </TableCell>
-        )}
-      </TableRow>
-    </TableBody>
-  );
-};
-
-
-
-
-
-
-
-
-const handleReceivingItemChange = (receivable) => {
-
-  setReceivingItem(receivable); 
- 
+    setPayingItem(payable); 
   
-  setTimeout(() => {
-    setReceivableMode(true);
-  }, 1500);
-
-    // Obter o valor inicial de 'amount'
-  let totalAmount = parseFloat(receivable.amount);
-
-  // Iterar sobre os receivements e subtrair os valores correspondentes
-  receivable.receivements.forEach(receivement => {
-    const receivementParts = receivement.split(', ');
-    const amountPart = receivementParts.find(part => part.startsWith('amount:'));
     
-    if (amountPart) {
-      const amountValue = parseFloat(amountPart.split(':')[1]);
-      totalAmount -= amountValue;
-    }
-  });
+    setTimeout(() => {
+      setPayableMode(true);
+    }, 1500);
 
-  // Agora, 'totalAmount' contém o resultado da subtração
-  setReceivingItemRemaining(totalAmount)
+    let totalAmount = parseFloat(payable.amount);
 
-}
+    payable.payments.forEach(payment => {
+      const paymentParts = payment.split(', ');
+      const amountPart = paymentParts.find(part => part.startsWith('amount:'));
+      
+      if (amountPart) {
+        const amountValue = parseFloat(amountPart.split(':')[1]);
+        totalAmount -= amountValue;
+      }
+    });
 
-const handlePayingItemChange = (payable) => {
+    setPayingItemRemaining(totalAmount)
 
-  setPayingItem(payable); 
- 
-  
-  setTimeout(() => {
-    setPayableMode(true);
-  }, 1500);
+  }
 
-  let totalAmount = parseFloat(payable.amount);
-
-  payable.payments.forEach(payment => {
-    const paymentParts = payment.split(', ');
-    const amountPart = paymentParts.find(part => part.startsWith('amount:'));
-    
-    if (amountPart) {
-      const amountValue = parseFloat(amountPart.split(':')[1]);
-      totalAmount -= amountValue;
-    }
-  });
-
-  setPayingItemRemaining(totalAmount)
-
-}
-
-
-//FORM SUBMIT
-const onFormSubmit = (formData) => {
+  const onFormSubmit = (formData) => {
 
   let currentPayment = `data:${getDataAtualFormatada()}, amount:${formData.payingAmount}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
   delete formData.amount;
@@ -431,44 +390,39 @@ const onFormSubmit = (formData) => {
 
   payValue(formData)
 
- }
-      
-
-
-
- /** GET SALE BY REQUEST IN BACKEND*/
-const [sale, setSale] = useState(null);
-const getSale = async (id) => {
-      try {
-        const response = await api.get(`/vendas/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        if(response.data){
-            setSale(response.data); 
+  }
+  
+  const [sale, setSale] = useState(null);
+  const getSale = async (id) => {
+        try {
+          const response = await api.get(`/vendas/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if(response.data){
+              setSale(response.data); 
+          }
+        } catch (err) {
+          console.log(err);
         }
-      } catch (err) {
-        console.log(err);
-      }
-}; 
+  }; 
 
- /** GET COMPRA BY REQUEST IN BACKEND*/
- const [compra, setCompra] = useState(null);
- const getCompra = async (id) => {
-       try {
-         const response = await api.get(`/compras/${id}`, {
-           headers: {
-             Authorization: `Bearer ${token}`,
-           },
-         });
-         if(response.data){
-             setCompra(response.data); 
-         }
-       } catch (err) {
-         console.log(err);
-       }
- }; 
+  const [compra, setCompra] = useState(null);
+  const getCompra = async (id) => {
+        try {
+          const response = await api.get(`/compras/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if(response.data){
+              setCompra(response.data); 
+          }
+        } catch (err) {
+          console.log(err);
+        }
+  }; 
 
 useEffect(() => {
 
@@ -499,7 +453,11 @@ useEffect(() =>{
 
 }, [compra])
 
-
+useEffect(() =>{
+  compra?.compra?.payables.map((payable)=>{
+    console.log(payable)
+  })
+}, [])
 
 
 
@@ -603,7 +561,6 @@ const renderForm = (
                   }, 0);
 
 
-
                   return(
 
 
@@ -624,7 +581,7 @@ const renderForm = (
                           <TableCell align="center">R${item.cost}</TableCell>
                           <TableCell align="center">R${item.disccount}</TableCell>
                           <TableCell align="center">R${item.cost - item.disccount}</TableCell>
-                          <TableCell align="center">R${(item.qty * item.cost) - (item.disccount * item.qty)}</TableCell>
+                          <TableCell align="center">R${((item.qty * item.cost) - (item.disccount * item.qty)).toFixed(2)}</TableCell>
                           <TableCell align="center"></TableCell>
       
                         </TableRow>
@@ -665,7 +622,7 @@ const renderForm = (
                     const desconto = parseFloat(item.disccount);
                     const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
                     const itemTotal = (preco - desconto) * qty;
-                    return acc + itemTotal;
+                    return (acc + itemTotal).toFixed(2);
                    }, 0)}
                    
                 </TableCell>
@@ -685,7 +642,7 @@ const renderForm = (
                     const desconto = parseFloat(item.disccount);
                     const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
                     const itemTotal = (preco - desconto) * qty;
-                    return acc + itemTotal + (parseFloat(compra?.dispatchValue) / aggregatedItems.length);
+                    return (acc + itemTotal + (parseFloat(compra?.dispatchValue) / aggregatedItems.length)).toFixed(2);
                    }, 0)}
                    
                 </TableCell>
@@ -749,7 +706,7 @@ const renderForm = (
 
                       <Box component="form" >
                           <TableRow key={payingItem?.id}>
-                          <TableCell>R$ {payingItemRemaining}</TableCell>
+                          <TableCell>R$ {payingItemRemaining.toFixed(2)}</TableCell>
                           <TableCell align="right">{payingItem?.dueDate}</TableCell>
 
                           <TableCell align="right">
@@ -830,13 +787,13 @@ const renderForm = (
                   let totalPaid = 0;
 
                   dataArray.forEach((item) => {
-                    const amountMatch = item.match(/amount:(\d+)/);
+                    const amountMatch = item.match(/amount:([\d.]+)/);
                     if (amountMatch && amountMatch[1]) {
-                      totalPaid += parseInt(amountMatch[1], 10);
+                      totalPaid += parseFloat(amountMatch[1], 10);
                     }
                   });
 
-                  const canPay = payable.amount - totalPaid !== 0;
+                  const canPay = parseFloat(payable.amount).toFixed(2) - totalPaid !== 0;
 
                   return (
                     <TableBody style={{ height: "100px", overflow: "scroll" }}>
@@ -929,7 +886,9 @@ const renderForm = (
             {
               compra?.payables.map((payable, index) => (
                 <TableBody key={index} style={{ height: "100px", overflow: "scroll" }}>
-                  <TableRow style={{ borderBottom: "1px solid #ccc" }}>
+                  {
+                    payable.payments.length > 0 &&
+                    <TableRow style={{ borderBottom: "1px solid #ccc" }}>
 
                     <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
                       {payable.payments.map((payment, paymentIndex) => (
@@ -963,10 +922,14 @@ const renderForm = (
                       ))}
                     </TableCell>
                   </TableRow>
+                  }
                 </TableBody>
               ))
             }
 
+            <Box>
+              Total Pago: R$ {}
+            </Box>
             </Table>
           }
           </Box>
