@@ -43,6 +43,8 @@ export default function ReceivablesView() {
       const [thisClient, setThisClient] = useState(null);
       const [user, setUser] = useState(null);
       const [showReceivableInputs, setShowReceivableInputs] = useState(false);
+      const [qtyParcelas, setQtyParcelas] = useState(0);
+      const [dates, setDates] = useState(Array(parseInt(qtyParcelas)).fill(''));
 
       /**FILTER STUFF STATES */
       const [page, setPage] = useState(0);
@@ -69,6 +71,16 @@ export default function ReceivablesView() {
           );
           setFilteredProducts(filtered || []);
         }
+      };
+
+      const handleDateChange = (index) => (event) => {
+        let input = event.target.value;
+        input = input.replace(/\D/g, ''); // remove non-digits
+        input = input.replace(/(\d{2})(\d{2})(\d{4})/, '$1/$2/$3'); // add slashes
+    
+        const newDates = [...dates];
+        newDates[index] = input;
+        setDates(newDates);
       };
       
       /**FILTER STUFF FUNCTIONS */
@@ -670,7 +682,7 @@ export default function ReceivablesView() {
                       </p>
                       <TextField
                         fullWidth
-                        label="Observações"
+                        label="Descrição"
                         id="description"
                         inputProps={{ maxLength: 400 }}
                         onInput={(e) => { e.target.value = e.target.value.toUpperCase(); setShowTypedClientResults(true); setFilteredClientsByTyping(e.target.value) }}
@@ -714,10 +726,18 @@ export default function ReceivablesView() {
                 </Typography>
 
                 {
-                  !thisReceivable &&
-                  <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{handleSetModalReceivable(true)}}>
-                    Novo Título a Receber
-                  </Button>
+                  !showReceivableInputs ?
+                  (
+                    <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{handleSetModalReceivable(true)}}>
+                      Novo Título a Receber
+                    </Button>
+                  )
+                  :
+                  (
+                    <Button variant="contained" color="inherit" style={{backgroundColor:"brown"}} onClick={()=>{location.reload()}}>
+                      Cancelar
+                    </Button>
+                  )
                 }
 
                 {
@@ -812,101 +832,162 @@ export default function ReceivablesView() {
           </Box>
 
           {
-            !thisReceivable &&
-            <Scrollbar>
-            <TableContainer sx={{ overflow: 'unset' }}>
-              <Table sx={{ minWidth: 800 }}>
+            !showReceivableInputs ?
+            (
+              <Scrollbar>
+              <TableContainer sx={{ overflow: 'unset' }}>
+                <Table sx={{ minWidth: 800 }}>
 
 
-                <UserTableHead rowCount={user?.clientes.length} 
-                  headLabel={[
-                    { id: 'data', label: 'Data' },
-                    { id: 'nome_razao_social', label: 'Nome / Razão Social' },
-                    { id: 'dueDate', label: 'Data de Vencimento' },
-                    { id: 'total', label: 'Total' },
-                  ]}
-                />
-
-
-                <TableBody>
-                  {receivablesFiltrados?.map(row => ({
-                    ...row,
-                    createdAt: row.createdAt.split('/').reverse().join('-') // Change date format to "YYYY-MM-DD"
-                  }))
-                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                  .map((row) => {
-                    const formattedDate = row.createdAt.split('-').reverse().join('/'); 
-                    if (regsSituation === "all") {
-                      console.log(row)
-                      const total = row.itens?.reduce((acc, item) => {
-                        const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
-                        const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                        const itemTotal = (preco - parseFloat(item.disccount)) * qty;
-                        return acc + itemTotal;
-                      }, 0);
-
-                      return (
-                        <ReceivablesTableRow
-                        key={row.id}
-                        data={formattedDate} // Use the formatted date
-                        nome_razao_social={row.client.nome_razao_social}
-                        total={`R$ ${row.amount}`}
-                        dueDate={row.dueDate}
-                        handleSaleToEdit={handleSaleToEdit}
-                        />
-                      );
-                    } else if (regsSituation === "inactive" && row.active === false) {
-                      const total = row.itens.reduce((acc, item) => {
-                        const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
-                        const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                        const itemTotal = (preco - parseFloat(item.disccount)) * qty;
-                        return acc + itemTotal;
-                      }, 0);
-
-                      return (
-                        <ReceivablesTableRow
-                        key={row.id}
-                        data={formattedDate} // Use the formatted date
-                        nome_razao_social={row.client.nome_razao_social}
-                        total={`R$ ${row.amount}`}
-                        dueDate={row.dueDate}
-                        handleSaleToEdit={handleSaleToEdit}
-                        />
-                      );
-                    } else if (regsSituation === "active" && row.active === true) {
-                      const total = row.itens?.reduce((acc, item) => {
-                        const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
-                        const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
-                        const itemTotal = (preco - parseFloat(item.disccount)) * qty;
-                        return acc + itemTotal;
-                      }, 0);
-
-                      return (
-                        <ReceivablesTableRow
-                        key={row.id}
-                        data={formattedDate} // Use the formatted date
-                        nome_razao_social={row.client.nome_razao_social}
-                        total={`R$ ${row.amount}`}
-                        dueDate={row.dueDate}
-                        handleSaleToEdit={handleSaleToEdit}
-                        />
-                      );
-                    }
-                  })}
-
-
-                  <TableEmptyRows
-                    height={77}
-                    emptyRows={emptyRows(page, user?.clientes.length)}
+                  <UserTableHead rowCount={user?.clientes.length} 
+                    headLabel={[
+                      { id: 'data', label: 'Data' },
+                      { id: 'nome_razao_social', label: 'Nome / Razão Social' },
+                      { id: 'dueDate', label: 'Data de Vencimento' },
+                      { id: 'total', label: 'Total' },
+                    ]}
                   />
 
-                  {/**              {notFound && <TableNoData query={filterName} />} */}
-                </TableBody>
+
+                  <TableBody>
+                    {receivablesFiltrados?.map(row => ({
+                      ...row,
+                      createdAt: row.createdAt.split('/').reverse().join('-') // Change date format to "YYYY-MM-DD"
+                    }))
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    .map((row) => {
+                      const formattedDate = row.createdAt.split('-').reverse().join('/'); 
+                      if (regsSituation === "all") {
+                        console.log(row)
+                        const total = row.itens?.reduce((acc, item) => {
+                          const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
+                          const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
+                          const itemTotal = (preco - parseFloat(item.disccount)) * qty;
+                          return acc + itemTotal;
+                        }, 0);
+
+                        return (
+                          <ReceivablesTableRow
+                          key={row.id}
+                          data={formattedDate} // Use the formatted date
+                          nome_razao_social={row.client.nome_razao_social}
+                          total={`R$ ${row.amount}`}
+                          dueDate={row.dueDate}
+                          handleSaleToEdit={handleSaleToEdit}
+                          />
+                        );
+                      } else if (regsSituation === "inactive" && row.active === false) {
+                        const total = row.itens.reduce((acc, item) => {
+                          const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
+                          const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
+                          const itemTotal = (preco - parseFloat(item.disccount)) * qty;
+                          return acc + itemTotal;
+                        }, 0);
+
+                        return (
+                          <ReceivablesTableRow
+                          key={row.id}
+                          data={formattedDate} // Use the formatted date
+                          nome_razao_social={row.client.nome_razao_social}
+                          total={`R$ ${row.amount}`}
+                          dueDate={row.dueDate}
+                          handleSaleToEdit={handleSaleToEdit}
+                          />
+                        );
+                      } else if (regsSituation === "active" && row.active === true) {
+                        const total = row.itens?.reduce((acc, item) => {
+                          const preco = typeof item.produto.preco !== 'undefined' ? parseFloat(item.produto.preco) : 0;
+                          const qty = typeof item.qty !== 'undefined' ? parseFloat(item.qty) : 0;
+                          const itemTotal = (preco - parseFloat(item.disccount)) * qty;
+                          return acc + itemTotal;
+                        }, 0);
+
+                        return (
+                          <ReceivablesTableRow
+                          key={row.id}
+                          data={formattedDate} // Use the formatted date
+                          nome_razao_social={row.client.nome_razao_social}
+                          total={`R$ ${row.amount}`}
+                          dueDate={row.dueDate}
+                          handleSaleToEdit={handleSaleToEdit}
+                          />
+                        );
+                      }
+                    })}
 
 
-              </Table>
-            </TableContainer>
-          </Scrollbar>
+                    <TableEmptyRows
+                      height={77}
+                      emptyRows={emptyRows(page, user?.clientes.length)}
+                    />
+
+                    {/**              {notFound && <TableNoData query={filterName} />} */}
+                  </TableBody>
+
+
+                </Table>
+              </TableContainer>
+            </Scrollbar>
+            )
+            :
+            (
+              <Box>
+                      <Typography variant="h6" gutterBottom>
+        Preencha os valores a receber
+      </Typography>
+
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6}>
+          <TextField
+            required
+            id="firstName"
+            name="firstName"
+            {...register("amount")}
+            label="Quantia Total"
+            fullWidth
+            autoComplete="given-name"
+            variant="standard"
+          />
+        </Grid>
+
+        <Grid item xs={12} sm={6}>
+          <TextField
+            required
+            id="lastName"
+            name="lastName"
+            onInput={(e)=>{setQtyParcelas(e.target.value); console.log(qtyParcelas)}}
+            label="Qtd Parcelas"
+            fullWidth
+            autoComplete="family-name"
+            variant="standard"
+          />
+        </Grid>
+        {
+          Array.from({length: parseInt(qtyParcelas)}, (v, i) => i).map((parcela, index)=>{
+            console.log(dates);
+            return(
+              <Grid item xs={12} sm={6} key={index}>
+              <TextField
+                required
+                id={`address${index}`}
+                name={`address${index}`}
+                label={`Data de Vencimento da Parcela ${index + 1}`}
+                fullWidth
+                autoComplete="shipping address-line1"
+                variant="standard"
+                value={dates[index]}
+                onChange={handleDateChange(index)}
+              />
+            </Grid>
+            )
+          })
+        }
+
+      </Grid> 
+      <Button style={{backgroundColor:"green", color:"white", margin:"20px 0"}} onClick={()=>{handleCreateReceivable()}}>Criar</Button>
+              </Box>
+              
+            )
           }
 
         </>    
