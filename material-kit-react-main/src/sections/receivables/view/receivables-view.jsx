@@ -18,6 +18,7 @@ import { emptyRows } from '../../clients/utils';
 import TableEmptyRows from 'src/sections/clients/table-empty-rows';
 import ReceivablesTableRow from '../receivables-table-row';
 import { VendaEditFormView } from '../receivablesEditForm';
+import ReceivableEditFormView from '../receivablesEditForm/receivables-edit-form-view';
 
 {/**FUNÇÃO QUE RETORNA A DATA ATUAL FORMATADA*/}
 function getDataAtualFormatada() {
@@ -43,7 +44,7 @@ export default function ReceivablesView() {
       const [thisClient, setThisClient] = useState(null);
       const [user, setUser] = useState(null);
       const [showReceivableInputs, setShowReceivableInputs] = useState(false);
-      const [qtyParcelas, setQtyParcelas] = useState(0);
+      const [qtyParcelas, setQtyParcelas] = useState(1);
       const [dates, setDates] = useState(Array(parseInt(qtyParcelas)).fill(''));
 
       /**FILTER STUFF STATES */
@@ -59,6 +60,11 @@ export default function ReceivablesView() {
       const [filtroAno, setFiltroAno] = useState('');
       const [filtroMes, setFiltroMes] = useState('');
       const [filtroDia, setFiltroDia] = useState('');
+
+      /**DATA TO ADD */
+      const [currentClientId, setCurrentClientId] = useState("");
+      const [currentAmount, setCurrentAmount] = useState("");
+      const [currentDescription, setCurrentDescription] = useState("");
 
       const filterProducts = (searchText) => {
         if (!searchText) {
@@ -611,6 +617,34 @@ export default function ReceivablesView() {
     getReceivable(id)
   }
 
+  const handleCreateReceivable = () => {
+
+    dates.map((date, index)=>{
+
+      let createData = {
+        createdAt : getDataAtualFormatada(),
+        lastEditted: getDataAtualFormatada(),
+        changeMaker: user_name,
+
+        dueDate: date,
+        status: "Pendente",
+        amount: (parseFloat(currentAmount) / dates.length).toString(),
+        active: true,
+        receivements: [],
+        description: dates.length > 1 ? currentDescription + ` Parcela ${index + 1}` : currentDescription,
+
+        user_id: user_id,
+        client_id: thisClient.id,
+  
+      }
+
+      createReceivable(createData)
+
+    })
+
+
+  }
+
   useEffect(() => {  setFilteredProducts(user?.produtos)  }, [user, thisReceivable])
   
   return (
@@ -633,7 +667,7 @@ export default function ReceivablesView() {
               showTypedClientResults && !thisClient &&
                 filteredClients?.map((client)=>{
                   return (
-                    <p style={{cursor:"pointer", backgroundColor:"lightgray", padding:"5px", borderRadius:"8px"}} key={client.id} onClick={()=>{getClient(client.id)}}>{client.nome_razao_social}</p>
+                    <p style={{cursor:"pointer", backgroundColor:"lightgray", padding:"5px", borderRadius:"8px"}} key={client.id} onClick={()=>{getClient(client.id); setCurrentClientId(client.id);}}>{client.nome_razao_social}</p>
                   )
                 })
             }
@@ -678,14 +712,14 @@ export default function ReceivablesView() {
                   >
                     <div style={{ width: "100%", marginBottom: "20px" }}>
                       <p style={{ padding: "10px", borderRadius: "8px", backgroundColor: "#ecf0f1" }} key={thisClient.id}>
-                        {thisClient.nome_razao_social}
+                        {thisClient?.nome_razao_social}
                       </p>
                       <TextField
                         fullWidth
                         label="Descrição"
                         id="description"
                         inputProps={{ maxLength: 400 }}
-                        onInput={(e) => { e.target.value = e.target.value.toUpperCase(); setShowTypedClientResults(true); setFilteredClientsByTyping(e.target.value) }}
+                        onInput={(e) => { e.target.value = e.target.value.toUpperCase(); setShowTypedClientResults(true); setFilteredClientsByTyping(e.target.value); setCurrentDescription(e.target.value); }}
                         {...register("description")}
                       />
                     </div>
@@ -724,6 +758,8 @@ export default function ReceivablesView() {
             <Typography variant="h4" sx={{ mb: 5 }}>
                   Títulos a Receber
                 </Typography>
+
+                <h2>{thisClient?.nome_razao_social}</h2>
 
                 {
                   !showReceivableInputs ?
@@ -873,7 +909,7 @@ export default function ReceivablesView() {
                           nome_razao_social={row.client.nome_razao_social}
                           total={`R$ ${row.amount}`}
                           dueDate={row.dueDate}
-                          handleSaleToEdit={handleSaleToEdit}
+                          handleReceivableToEdit={handleReceivableToEdit}
                           />
                         );
                       } else if (regsSituation === "inactive" && row.active === false) {
@@ -891,7 +927,7 @@ export default function ReceivablesView() {
                           nome_razao_social={row.client.nome_razao_social}
                           total={`R$ ${row.amount}`}
                           dueDate={row.dueDate}
-                          handleSaleToEdit={handleSaleToEdit}
+                          handleReceivableToEdit={handleReceivableToEdit}
                           />
                         );
                       } else if (regsSituation === "active" && row.active === true) {
@@ -909,7 +945,7 @@ export default function ReceivablesView() {
                           nome_razao_social={row.client.nome_razao_social}
                           total={`R$ ${row.amount}`}
                           dueDate={row.dueDate}
-                          handleSaleToEdit={handleSaleToEdit}
+                          handleReceivableToEdit={handleReceivableToEdit}
                           />
                         );
                       }
@@ -947,6 +983,7 @@ export default function ReceivablesView() {
             fullWidth
             autoComplete="given-name"
             variant="standard"
+            onInput={(e)=>{setCurrentAmount(e.target.value)}}
           />
         </Grid>
 
@@ -955,7 +992,13 @@ export default function ReceivablesView() {
             required
             id="lastName"
             name="lastName"
-            onInput={(e)=>{setQtyParcelas(e.target.value); console.log(qtyParcelas)}}
+            onInput={(e)=>{
+              if (e.target.value !== "") {
+                setQtyParcelas(e.target.value); console.log(qtyParcelas);
+              } else {
+                setQtyParcelas(1);
+              }
+            }}
             label="Qtd Parcelas"
             fullWidth
             autoComplete="family-name"
@@ -964,7 +1007,6 @@ export default function ReceivablesView() {
         </Grid>
         {
           Array.from({length: parseInt(qtyParcelas)}, (v, i) => i).map((parcela, index)=>{
-            console.log(dates);
             return(
               <Grid item xs={12} sm={6} key={index}>
               <TextField
@@ -995,7 +1037,7 @@ export default function ReceivablesView() {
 
         {
           showEdit &&
-          <VendaEditFormView saleToEdit={saleToEdit} updateSale={getSale}/>
+          <ReceivableEditFormView receivableToEdit={receivableToEdit} updateReceivable={getReceivable}/>
         }
 
         {

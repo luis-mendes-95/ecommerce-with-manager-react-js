@@ -26,8 +26,6 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import TableBody from '@mui/material/TableBody';
 
-// ----------------------------------------------------------------------
-
 function getDataAtualFormatada() {
   var data = new Date();
   var dia = data.getDate().toString().padStart(2, '0');
@@ -36,16 +34,13 @@ function getDataAtualFormatada() {
   return dia + '/' + mes + '/' + ano;
 }
 
-export default function VendaEditFormView(saleToEdit) {
+export default function ReceivableEditFormView(receivableToEdit) {
   
   const theme = useTheme();
   const router = useRouter();
 
-
 //FORM INPUTS CONFIGURATIONS
-let url = "/produtos"
-
-
+let url = "/receivables"
 
 //STATES FOR THIS COMPONENT
 const [receivableMode, setReceivableMode] = useState(false);
@@ -55,8 +50,6 @@ const [receivingItemPayMethod, setReceivingItemPayMethod] = useState('');
 const [parcelas, setParcelas] = useState(1);
 const [formaPagamentoParcelas, setFormaPagamentoParcelas] = useState(Array(parcelas).fill([]));
 const [receivingItemAmount, setReceivingItemAmount] = useState(0);
-
-
 
 /** GET USER BY REQUEST IN BACKEND AND TAKES TOKEN FROM LOCALSTORAGE*/
 const user_id = localStorage.getItem('tejas.app.user_id');
@@ -84,15 +77,10 @@ const getUser = async () => {
   }
 }; 
 
-
-
-
-
 //USE FORM CALLING FUNCTIONS
 const { register, handleSubmit } = useForm({
   //resolver: zodResolver(LoginUserSchema),
 });
-
 
 /**PATCH REQUEST TO ADD RECEIVEMENT TO A RECEIVABLE */
 const receiveValue = async (createData) => {
@@ -128,7 +116,7 @@ const receiveValue = async (createData) => {
         });
   
         getUser();
-        getSale(saleToEdit.id);
+        getSale(receivableToEdit.id);
         setReceivingItem(null);
         setReceivableMode(false);
         
@@ -146,7 +134,6 @@ const receiveValue = async (createData) => {
 };
 
 const edit = async (createData) => {
-  console.log("chegano aqui")
   try {
     // Define o cabeçalho da solicitação com o token de autenticação
     const config = {
@@ -172,6 +159,7 @@ const edit = async (createData) => {
     // Lida com o erro de forma apropriada, como exibir uma mensagem de erro.
   }
 };
+
 const deactivate = async () => {
   try {
     // Define o cabeçalho da solicitação com o token de autenticação
@@ -202,9 +190,9 @@ const deactivate = async () => {
     // Lida com o erro de forma apropriada, como exibir uma mensagem de erro.
   }
 };
+
 const activate = async () => {
   try {
-    // Define o cabeçalho da solicitação com o token de autenticação
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -232,48 +220,38 @@ const activate = async () => {
     // Lida com o erro de forma apropriada, como exibir uma mensagem de erro.
   }
 };
+
 const deleteItem = async () => {
-  console.log("sendo chamado pra deletar")
-  console.log(sale.sale.id);
   try {
-    // Define o cabeçalho da solicitação com o token de autenticação
     const config = {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     };
-
     const response = await api.delete(`/produtos/${sale.sale.id}`, config);
-
     if (response.status === 204) {
       toast.success("Produto foi deletado!");
       setTimeout(() => {
         window.location.reload();
       }, 1500);
-
-      // Você pode adicionar qualquer outra lógica aqui que desejar após o sucesso.
-      // Por exemplo, redirecionar para outra página.
     }
   } catch (err) {
     console.error(err);
     toast.error("Erro ao deletar produto");
-    // Lida com o erro de forma apropriada, como exibir uma mensagem de erro.
+
   }
 };
 
-
-
-/**DELETE SALE AND CHECK IF THERE'S ANY RECEIVABLED PAID, IF TRUE, IT GENERATES CREDIT INSIDE THE CLIENT*/
-const deleteSale = async (id) => {
+const deleteReceivable = async (id) => {
     try {
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       };
-      const response = await api.delete(`vendas/${id}`, config);
+      const response = await api.delete(`receivables/${id}`, config);
       if (response.status === 200) {
-        toast.success("Venda deletada com sucesso!", {
+        toast.success("Título deletado com sucesso!", {
           position: "bottom-right", 
           autoClose: 3000, 
           hideProgressBar: false, 
@@ -288,7 +266,7 @@ const deleteSale = async (id) => {
       }
     } catch (err) {
       console.error(err);
-      toast.error("Erro ao deletar venda!", {
+      toast.error("Erro ao deletar título!", {
         position: "bottom-right", 
         autoClose: 3000, 
         hideProgressBar: false, 
@@ -300,24 +278,16 @@ const deleteSale = async (id) => {
     }
 };
 
-
-
-
-
-//DEAL WITH FORM OF PAYMENT
 const handleReceivablesChange = ( formaPagamento) => {
   setReceivingItemPayMethod(formaPagamento)
 };
 
-
-
 const handlePaymentChange = (payment) => {
-  // Handle the change as needed
   console.log('Payment Change:', payment);
 };
 
 const renderPaymentRow = (payment) => {
-  const dataArray = payment.payments; // Assuming payments is the correct field
+  const dataArray = payment.payments;
   let totalReceived = 0;
 
   dataArray.forEach((item) => {
@@ -386,13 +356,6 @@ const renderPaymentRow = (payment) => {
   );
 };
 
-
-
-
-
-
-
-
 const handleReceivingItemChange = (receivable) => {
 
   setReceivingItem(receivable); 
@@ -421,8 +384,6 @@ const handleReceivingItemChange = (receivable) => {
 
 }
 
-
-//FORM SUBMIT
 const onFormSubmit = (formData) => {
 
   let currentReceivement = `data:${getDataAtualFormatada()}, amount:${formData.receivingAmount}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
@@ -435,14 +396,10 @@ const onFormSubmit = (formData) => {
 
  }
       
-
-
-
- /** GET SALE BY REQUEST IN BACKEND*/
-const [sale, setSale] = useState(null);
-const getSale = async (id) => {
+const [receivable, setReceivable] = useState(null);
+const getReceivable = async (id) => {
       try {
-        const response = await api.get(`/vendas/${id}`, {
+        const response = await api.get(`/receivables/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -456,23 +413,19 @@ const getSale = async (id) => {
       }
 }; 
 
-
 useEffect(() => {
 
-  getSale(saleToEdit.saleToEdit)
+  getReceivable(receivableToEdit.receivableToEdit)
 
 }, [])
 
-
-
-//FORM INPUTS, SELECTS AND BUTTONS
 const renderForm = (
   <>
     <Stack spacing={3} style={{display:"flex", flexDirection:"row", alignItems:"center", justifyContent:"center", alignContent:"center", gap:"15px", flexWrap:"wrap"}}>
 
-    <TextField style={{width:"200px"}} autoComplete="given-name" {...register("createdAt")} value={sale?.createdAt} defaultValue={" "} name="createdAt" required fullWidth id="createdAt" label="Data de cadastro" autoFocus/>
+    <TextField style={{width:"200px"}} autoComplete="given-name" value={sale?.createdAt} defaultValue={" "} name="createdAt" required fullWidth id="createdAt" label="Data de cadastro" autoFocus/>
     <TextField style={{width:"200px", marginTop:"0"}} required fullWidth id="lastEditted" value={sale?.lastEditted} defaultValue={" "} label="Última Edição" {...register("lastEditted")} name="lastEditted" autoComplete="family-name"/>
-    <TextField style={{width:"200px", marginTop:"0"}} required fullWidth id="changeMaker"lastEditted label="Colaborador" {...register("changeMaker")} name="changeMaker" autoComplete="family-name" value={user_name}/>
+    <TextField style={{width:"200px", marginTop:"0"}} required fullWidth id="changeMaker"lastEditted label="Colaborador" name="changeMaker" autoComplete="family-name" value={user_name}/>
    
     <TextField style={{width:"630px", marginTop:"0"}} required fullWidth id="description"lastEditted label="Cliente" value={sale?.client.nome_razao_social} defaultValue={" "}  name="client" autoComplete="family-name"/>
     <TextField style={{width:"630px", marginTop:"0"}} required fullWidth id="description"lastEditted label="Descrição" value={sale?.description} defaultValue={" "} name="description" autoComplete="family-name"/>
@@ -483,7 +436,7 @@ const renderForm = (
 
 
 
-
+/************************************CONTINUAR AQUI */
 
   </>
 );

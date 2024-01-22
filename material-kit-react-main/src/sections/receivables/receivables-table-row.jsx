@@ -27,7 +27,7 @@ export default function ReceivablesTableRow({
 
 
   selected,
-  handleSaleToEdit
+  handleReceivableToEdit
 }) {
 
   const [open, setOpen] = useState(null);
@@ -43,7 +43,7 @@ export default function ReceivablesTableRow({
 
   return (
     <>
-      <TableRow hover tabIndex={-1} role="checkbox" selected={selected} sx={{cursor:"pointer"}} onClick={()=>{handleSaleToEdit(id);}}>
+      <TableRow hover tabIndex={-1} role="checkbox" selected={selected} sx={{cursor:"pointer"}} onClick={()=>{handleReceivableToEdit(id);}}>
      
         <TableCell>{data}</TableCell>
 
