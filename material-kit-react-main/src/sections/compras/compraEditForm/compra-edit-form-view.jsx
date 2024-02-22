@@ -193,6 +193,16 @@ export default function CompraEditFormView(compraToEdit) {
 
   }
 
+  const handleInputChange = (e) => {
+    let input = e.target.value.replace(/\D/g, ''); // remove non-digits
+    let value = parseInt(input, 10);
+    let formattedValue = (value / 100).toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+    });
+    setPayingItemAmount(formattedValue);
+}
+
   const onFormSubmit = (formData) => {
 
   let currentPayment = `data:${getDataAtualFormatada()}, amount:${formData.payingAmount}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
@@ -709,7 +719,7 @@ const renderForm = (
                     <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
                     {payable.payments.map((payment, paymentIndex) => (
                         <div key={paymentIndex} style={{ marginTop: "10px" }}>
-                          <div style={{ marginBottom: "5px", fontSize: "14px" }}>Tipo: {payment.split(', ')[2].split(':')[1]}</div>
+                          <div style={{ marginBottom: "5px", fontSize: "14px" }}>{payment.split(', ')[2].split(':')[1]}</div>
                         </div>
                       ))}
                     </TableCell>
