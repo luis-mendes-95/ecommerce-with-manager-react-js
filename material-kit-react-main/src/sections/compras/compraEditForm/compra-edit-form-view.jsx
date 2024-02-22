@@ -372,7 +372,7 @@ const renderForm = (
                           <TableCell align="center">R${item.cost}</TableCell>
                           <TableCell align="center">R${item.disccount}</TableCell>
                           <TableCell align="center">R${item.cost - item.disccount}</TableCell>
-                          <TableCell align="center">R${((item.qty * item.cost) - (item.disccount * item.qty)).toFixed(2)}</TableCell>
+                          <TableCell align="center" >R${((item.qty * item.cost) - (item.disccount * item.qty)).toFixed(2)}</TableCell>
                           <TableCell align="center"></TableCell>
       
                         </TableRow>
@@ -402,7 +402,9 @@ const renderForm = (
 
               <Box style={{display:"flex", flexDirection:"column"}}> 
               {
-                <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> SUB TOTAL R$ {
+                <>
+                  <div>SUB TOTAL </div>
+                  <TableCell style={{width:"150px", fontWeight:"bold", color:"gray"}} align="right" > R$ {
                   
                   aggregatedItems.reduce((acc, item) => {  
                     const preco = typeof item.cost !== 'undefined' ? parseFloat(item.cost) : 0;
@@ -413,16 +415,23 @@ const renderForm = (
                    }, 0)}
                    
                 </TableCell>
+                </>
+
               }
 
               
               {
                 compra?.dispatchValue !== "0" &&
-                  <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> FRETE R$ {compra?.dispatchValue}</TableCell>
+                  <>
+                  <div>FRETE</div>
+                  <TableCell style={{width:"150px", fontWeight:"bold", color:"orange"}} align="right"> R$ {compra?.dispatchValue}</TableCell>
+                  </>
               }
 
               {
-                <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> TOTAL R$ {
+                <>
+                <div>TOTAL</div>
+                <TableCell style={{width:"150px", fontWeight:"bold", color:"green" }} align="right"> R$ {
                   
                   aggregatedItems.reduce((acc, item) => {  
                     const preco = typeof item.cost !== 'undefined' ? parseFloat(item.cost) : 0;
@@ -433,6 +442,7 @@ const renderForm = (
                    }, 0)}
                    
                 </TableCell>
+                </>
               }
               </Box>
 
