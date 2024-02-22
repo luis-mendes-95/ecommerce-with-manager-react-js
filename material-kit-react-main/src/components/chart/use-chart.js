@@ -13,7 +13,7 @@ export default function useChart(options) {
 
   const LABEL_TOTAL = {
     show: true,
-    label: 'Total',
+    label: 'TOTAL',
     color: theme.palette.text.secondary,
     fontSize: theme.typography.subtitle2.fontSize,
     fontWeight: theme.typography.subtitle2.fontWeight,

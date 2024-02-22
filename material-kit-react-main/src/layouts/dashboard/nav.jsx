@@ -63,7 +63,7 @@ export default function Nav({ openNav, onCloseNav }) {
     profilePic: "https://cdn-icons-png.flaticon.com/512/10593/10593542.png",
     displayName: user?.apelido_nome_fantasia,
     email: "holland@jupiter.com",
-    userType: user?.tags.includes("Empreendedor") ? "Empreendedor" : user?.tags.includes("Colaborador") ? "Colaborador" : user?.tags.includes("Administrador") ? "Admin" : "Cliente"
+    userType: user?.tags.includes("Empreendedor") ? "EMPREENDEDOR" : user?.tags.includes("Colaborador") ? "COLABORADOR" : user?.tags.includes("Administrador") ? "ADMIN" : "CLIENTE"
   }
 
   useEffect(() => {
@@ -93,7 +93,7 @@ export default function Nav({ openNav, onCloseNav }) {
             :
             (
             <>
-              <Typography variant="subtitle2" >Cadastre-se</Typography>
+              <Typography variant="subtitle2" >CADASTRE-SE</Typography>
             </>
     )
         }
@@ -119,35 +119,6 @@ export default function Nav({ openNav, onCloseNav }) {
     </Stack>
   );
 
-  const renderUpgrade = (
-    <Box sx={{ px: 2.5, pb: 3, mt: 10 }}>
-      <Stack alignItems="center" spacing={3} sx={{ pt: 5, borderRadius: 2, position: 'relative' }}>
-        <Box
-          component="img"
-          src="/assets/illustrations/illustration_avatar.png"
-          sx={{ width: 100, position: 'absolute', top: -50 }}
-        />
-
-        <Box sx={{ textAlign: 'center' }}>
-          <Typography variant="h6">Get more?</Typography>
-
-          <Typography variant="body2" sx={{ color: 'text.secondary', mt: 1 }}>
-            From only $69
-          </Typography>
-        </Box>
-
-        <Button
-          href="https://material-ui.com/store/items/minimal-dashboard/"
-          target="_blank"
-          variant="contained"
-          color="inherit"
-        >
-          Upgrade to Pro
-        </Button>
-      </Stack>
-    </Box>
-  );
-
   const renderContent = (
     <Scrollbar sx={{height: 1,'& .simplebar-content': {height: 1,display: 'flex',flexDirection: 'column',},}}>
       <Logo sx={{ mt: 3, ml: 4 }} />
@@ -164,8 +135,7 @@ export default function Nav({ openNav, onCloseNav }) {
 
   return (
     <Box sx={{flexShrink: { lg: 0 },width: { lg: NAV.WIDTH },}}>
-
-      
+   
       {upLg ? (
         <Box sx={{height: 1,position: 'fixed',width: NAV.WIDTH,borderRight: (theme) => `dashed 1px ${theme.palette.divider}`,}}>
           {renderContent}

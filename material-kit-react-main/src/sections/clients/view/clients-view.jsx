@@ -74,7 +74,6 @@ export default function ClientView() {
   /** GET CLIENT BY REQUEST IN BACKEND*/
   const [client, setClient] = useState(null);
   const getClient = async (id) => {
-    console.log("dae malusko");
     try {
       const response = await api.get(`/clientes/${id}`, {
         headers: {
@@ -117,13 +116,7 @@ export default function ClientView() {
     setShowAdd(false);
     getClient(id);
   };
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
-  };
-  const handleChangeRowsPerPage = (event) => {
-    setPage(0);
-    setRowsPerPage(parseInt(event.target.value, 10));
-  };
+
   const handleFilterByName = (event) => {
     setPage(0);
     setFilterName(event.target.value);
@@ -157,7 +150,7 @@ export default function ClientView() {
           <Typography variant="h4">CPF / CNPJ</Typography>
 
           <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{setShowAdd(true); setShowEdit(false)}}>
-            Novo Cpf / Cnpj
+            NOVO CPF / CNPJ
           </Button>
 
           </Stack>
@@ -167,18 +160,18 @@ export default function ClientView() {
           <Box sx={{display:"flex", alignItems:"center", flexWrap:"wrap"}}>
           <ClientTableToolbar numSelected={selected.length} filterName={filterName} onFilterName={handleFilterByName} />
           <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
-                  <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Situação</InputLabel>
+                  <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>SITUAÇÃO</InputLabel>
                   <Select
                     style={{minWidth: "200px"}}
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
                     value={regsSituation}
-                    label="Age"
+                    label="SITUAÇÃO"
                     onChange={handleChangeregsSituation}
                   >
-                    <MenuItem value={"active"}>Ativos</MenuItem>
-                    <MenuItem value={"inactive"}>Inativos</MenuItem>
-                    <MenuItem value={"all"}>Todos</MenuItem>
+                    <MenuItem value={"active"}>ATIVOS</MenuItem>
+                    <MenuItem value={"inactive"}>INATIVOS</MenuItem>
+                    <MenuItem value={"all"}>TODOS</MenuItem>
                   </Select>
               </FormControl>
           </Box>
@@ -190,12 +183,12 @@ export default function ClientView() {
 
                 <UserTableHead order={order} orderBy={orderBy} rowCount={users.length} numSelected={selected.length} onRequestSort={handleSort} onSelectAllClick={handleSelectAllClick}
                   headLabel={[
-                    { id: 'nome_razao_social', label: 'Nome / Razão Social' },
-                    { id: 'apelido_nome_fantasia', label: 'Apelido / Nome Fantasia' },
-                    { id: 'celular', label: 'Celular' },
-                    { id: 'telefone', label: 'Telefone', align: 'center' },
-                    { id: 'cidade', label: 'Cidade' },
-                    { id: 'estado', label: "Estado" },
+                    { id: 'nome_razao_social', label: 'NOME / RAZÃO SOCIAL' },
+                    { id: 'apelido_nome_fantasia', label: 'APELIDO / NOME FANTASIA' },
+                    { id: 'celular', label: 'CELULAR' },
+                    { id: 'telefone', label: 'TELEFONE', align: 'center' },
+                    { id: 'cidade', label: 'CIDADE' },
+                    { id: 'estado', label: "ESTADO" },
                   ]}
                 />
 

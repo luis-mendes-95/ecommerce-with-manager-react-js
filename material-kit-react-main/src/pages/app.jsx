@@ -14,7 +14,7 @@ export default function AppPage() {
     <>
       <ToastContainer />
       <Helmet>
-        <title> E-Kommerce | Tejas Software</title>
+        <title> E-KOMMERCE | TEJAS SOFTWARE</title>
       </Helmet>
 
       <AppView />

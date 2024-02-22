@@ -9,7 +9,7 @@ export default function ClientsPage() {
   return (
     <>
       <Helmet>
-        <title> E-Kommerce </title>
+        <title> E-KOMMERCE </title>
       </Helmet>
 
       <ClientsView />

@@ -11,47 +11,47 @@ const iconExternal = (name) => (
 const navConfig = {
   loggedIn: [
     {
-      title: 'Indicadores',
+      title: 'INDICADORES',
       path: '/',
       icon: iconExternal('https://cdn-icons-png.flaticon.com/512/3971/3971214.png'),
     },
     {
-      title: 'Cpf / Cnpj',
+      title: 'CPF / CNPJ',
       path: '/user',
       icon: iconExternal('https://cdn-icons-png.flaticon.com/512/1379/1379505.png'),
     },
     {
-      title: 'Produtos',
+      title: 'PRODUTOS',
       path: '/products',
       icon: iconExternal('https://cdn-icons-png.flaticon.com/512/1573/1573499.png'),
     },
     {
-      title: 'Vendas',
+      title: 'VENDAS',
       path: '/vendas',
       icon: iconExternal('https://cdn-icons-png.flaticon.com/512/7646/7646966.png'),
     },
     {
-      title: 'Ordens de serviço',
+      title: 'ORDENS DE SERVIÇO',
       path: '/os',
       icon: iconExternal('https://cdn-icons-png.flaticon.com/512/3527/3527105.png'),
     },
     {
-      title: 'Compras',
+      title: 'COMPRAS',
       path: '/compras',
       icon: iconExternal('https://cdn-icons-png.flaticon.com/512/3862/3862976.png'),
     },
     {
-      title: 'A Receber',
+      title: 'A RECEBER',
       path: '/receivables',
       icon: iconExternal('https://cdn-icons-png.flaticon.com/512/8312/8312154.png'),
     },
     {
-      title: 'A Pagar',
+      title: 'A PAGAR',
       path: '/payables',
       icon: iconExternal('https://cdn-icons-png.flaticon.com/512/8312/8312797.png'),
     },
     {
-      title: 'Arquivos',
+      title: 'ARQUIVOS',
       path: '/files',
       icon: iconExternal('https://cdn-icons-png.flaticon.com/512/4706/4706330.png'),
     },

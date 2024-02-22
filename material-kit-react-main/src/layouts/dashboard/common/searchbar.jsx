@@ -65,7 +65,7 @@ export default function Searchbar() {
               autoFocus
               fullWidth
               disableUnderline
-              placeholder="Digite seu produto..."
+              placeholder="DIGITE SEU PRODUTO"
               startAdornment={
                 <InputAdornment position="start">
                   <Iconify
