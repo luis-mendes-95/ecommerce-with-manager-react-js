@@ -53,6 +53,7 @@ export default function CompraEditFormView(compraToEdit) {
   const [payingItemAmount, setPayingItemAmount] = useState(0);
   const [aggregatedItems, setAggregatedItems] = useState([]);
   const [totalPaidParcel, setTotalPaidParcel] = useState(0);
+  let totalPaidGeneral = 0;
 
   const user_id = localStorage.getItem('tejas.app.user_id');
   const token = localStorage.getItem('tejas.app.token');
@@ -78,56 +79,6 @@ export default function CompraEditFormView(compraToEdit) {
   }; 
   const { register, handleSubmit } = useForm({});
 
-  const receiveValue = async (createData) => {
-
-    if (receivingItemAmount <= receivingItemRemaining && receivingItemAmount > 0) {
-      let receivements = {
-        receivements: receivingItem?.receivements
-    
-      }
-    
-      receivements.receivements.push(createData)
-    
-    
-      try {
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
-    
-        const response = await api.patch(`/receivables/${receivingItem.id}`, receivements, config);
-    
-        if (response.status === 200) {
-          toast.success();
-          toast.success("Valor recebido com sucesso!", {
-            position: "bottom-right", 
-            autoClose: 3000, 
-            hideProgressBar: false, 
-            closeOnClick: true, 
-            pauseOnHover: true, 
-            draggable: true, 
-            progress: undefined, 
-          });
-    
-          getUser();
-          getSale(saleToEdit.id);
-          setReceivingItem(null);
-          setReceivableMode(false);
-          
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Erro ao receber valor");
-      }
-    } else {
-      toast.error("Verifique o valor restante, e o valor que está sendo recebido!")
-    }
-
-
-
-  };
-
   const payValue = async (createData) => {
 
     if (payingItemAmount <= payingItemRemaining && payingItemAmount > 0) {
@@ -149,7 +100,7 @@ export default function CompraEditFormView(compraToEdit) {
     
         if (response.status === 200) {
           toast.success();
-          toast.success("Valor pago com sucesso!", {
+          toast.success("VALOR PAGO COM SUCESSO!", {
             position: "bottom-right", 
             autoClose: 3000, 
             hideProgressBar: false, 
@@ -167,50 +118,14 @@ export default function CompraEditFormView(compraToEdit) {
         }
       } catch (err) {
         console.error(err);
-        toast.error("Erro ao executar pagamento");
+        toast.error("ERRO AO EXECUTAR PAGAMENTO!");
       }
     } else {
-      toast.error("Verifique o valor restante, e o valor que está sendo pago!")
+      toast.error("VERIFIQUE O VALOR RESTANTE E O VALOR QUE ESTÁ SENDO PAGO!")
     }
 
 
 
-  };
-
-  const deleteSale = async (id) => {
-      try {
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
-        const response = await api.delete(`vendas/${id}`, config);
-        if (response.status === 200) {
-          toast.success("Venda deletada com sucesso!", {
-            position: "bottom-right", 
-            autoClose: 3000, 
-            hideProgressBar: false, 
-            closeOnClick: true, 
-            pauseOnHover: true, 
-            draggable: true, 
-            progress: undefined, 
-          });
-          setTimeout(() => {
-            window.location.reload();
-          }, 1000);
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Erro ao deletar venda!", {
-          position: "bottom-right", 
-          autoClose: 3000, 
-          hideProgressBar: false, 
-          closeOnClick: true, 
-          pauseOnHover: true, 
-          draggable: true, 
-          progress: undefined, 
-        });
-      }
   };
 
   const deleteCompra = async (id) => {
@@ -222,7 +137,7 @@ export default function CompraEditFormView(compraToEdit) {
       };
       const response = await api.delete(`compras/${id}`, config);
       if (response.status === 200) {
-        toast.success("Compra deletada com sucesso!", {
+        toast.success("COMPRA DELETADA COM SUCESSO!", {
           position: "bottom-right", 
           autoClose: 3000, 
           hideProgressBar: false, 
@@ -237,7 +152,7 @@ export default function CompraEditFormView(compraToEdit) {
       }
     } catch (err) {
       console.error(err);
-      toast.error("Erro ao deletar compra!", {
+      toast.error("ERRO AO DELETAR COMRA!", {
         position: "bottom-right", 
         autoClose: 3000, 
         hideProgressBar: false, 
@@ -249,111 +164,9 @@ export default function CompraEditFormView(compraToEdit) {
     }
   };
 
-  const handleReceivablesChange = ( formaPagamento) => {
-    setReceivingItemPayMethod(formaPagamento)
-  };
-
   const handlePayablesChange = ( formaPagamento) => {
     setPayingItemPayMethod(formaPagamento)
   };
-
-  const renderPaymentRow = (payment) => {
-    const dataArray = payment.payments; 
-    let totalPaid = 0;
-
-    dataArray.forEach((item) => {
-      const amountMatch = item.match(/amount:([\d.]+)/);
-      if (amountMatch && amountMatch[1]) {
-        totalPaid += parseInt(amountMatch[1], 10);
-      }
-    });
-
-    const canPay = payment.amount - totalPaid !== 0;
-
-    return (
-      <TableBody style={{ height: "100px", overflow: "scroll" }}>
-        <TableRow key={payment.id}>
-          <TableCell align="center">{payment.dueDate}</TableCell>
-          <TableCell align="center">R$ {parseFloat(payment.amount).toFixed(2)}</TableCell>
-          <TableCell align="center">R$ {totalPaid.toFixed(2)}</TableCell>
-          {canPay && (
-            <TableCell align="center">
-              <p
-                style={{
-                  border: "none",
-                  padding: "15px",
-                  backgroundColor: "green",
-                  color: "white",
-                  fontWeight: "bold",
-                  borderRadius: "18px",
-                  cursor: "pointer",
-                  boxShadow: "1pt 1pt 5pt black",
-                }}
-                onClick={() => {
-                  const paymentData = `data:${getDataAtualFormatada()}, amount:${payingItemAmount}, type:${payingItemPayMethod}, user:${user_name}`;
-                  handlePayment(
-                    getDataAtualFormatada(),
-                    payingItemAmount,
-                    payingItemPayMethod,
-                    user_name
-                  );
-                  payValue(paymentData);
-                }}
-              >
-                Pagar
-              </p>
-            </TableCell>
-          )}
-          {!canPay && (
-            <TableCell align="center">
-              <p
-                style={{
-                  border: "none",
-                  padding: "15px",
-                  backgroundColor: "lightblue",
-                  color: "black",
-                  fontWeight: "bold",
-                  borderRadius: "18px",
-                  cursor: "pointer",
-                  boxShadow: "1pt 1pt 5pt black",
-                }}
-              >
-                OK
-              </p>
-            </TableCell>
-          )}
-        </TableRow>
-      </TableBody>
-    );
-  };
-
-  const handleReceivingItemChange = (receivable) => {
-
-    setReceivingItem(receivable); 
-  
-    
-    setTimeout(() => {
-      setReceivableMode(true);
-    }, 1500);
-
-      // Obter o valor inicial de 'amount'
-    let totalAmount = parseFloat(receivable.amount);
-
-    // Iterar sobre os receivements e subtrair os valores correspondentes
-    receivable.receivements.forEach(receivement => {
-      const receivementParts = receivement.split(', ');
-      const amountPart = receivementParts.find(part => part.startsWith('amount:'));
-      
-      if (amountPart) {
-        const amountValue = parseFloat(amountPart.split(':')[1]);
-        totalAmount -= amountValue;
-      }
-    });
-
-    // Agora, 'totalAmount' contém o resultado da subtração
-    setReceivingItemRemaining(totalAmount)
-
-  }
 
   const handlePayingItemChange = (payable) => {
 
@@ -391,22 +204,6 @@ export default function CompraEditFormView(compraToEdit) {
   payValue(formData)
 
   }
-  
-  const [sale, setSale] = useState(null);
-  const getSale = async (id) => {
-        try {
-          const response = await api.get(`/vendas/${id}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          if(response.data){
-              setSale(response.data); 
-          }
-        } catch (err) {
-          console.log(err);
-        }
-  }; 
 
   const [compra, setCompra] = useState(null);
   const getCompra = async (id) => {
@@ -459,9 +256,6 @@ useEffect(() =>{
   })
 }, [])
 
-
-
-//FORM INPUTS, SELECTS AND BUTTONS
 const renderForm = (
   <>
     <Stack spacing={3} style={{display:"flex", flexDirection:"row", alignItems:"center", justifyContent:"center", alignContent:"center", gap:"15px", flexWrap:"wrap"}}>
@@ -485,9 +279,6 @@ const renderForm = (
 );
 
 
-
-
-  //RETURN IN HTML
   return (
     <Box
       sx={{
@@ -508,9 +299,9 @@ const renderForm = (
               sx={{ mt: 3, mb: 2, mr: 3, bgcolor:"brown"}}
               onClick={()=>{window.location.reload()}}
             >
-              Voltar
+              VOLTAR
             </Button>
-          <Typography variant="h4">Compra</Typography>
+          <Typography variant="h4">COMPRA</Typography>
 
 
           <Box component="form" onSubmit={handleSubmit(onFormSubmit)} noValidate sx={{ mt: 1 }}>
@@ -535,13 +326,13 @@ const renderForm = (
                         <TableCell align="center"></TableCell>
                       </TableRow>
                       <TableRow style={{height:"100%", padding:"0"}}>
-                        <TableCell>Item</TableCell>
+                        <TableCell>ITEM</TableCell>
                         <TableCell align="center"></TableCell>
-                        <TableCell align="center">Qtd</TableCell>
-                        <TableCell align="center">Valor Unit</TableCell>
-                        <TableCell align="center">Desconto Unit</TableCell>
-                        <TableCell align="center">Valor com Desc</TableCell>
-                        <TableCell align="center">Sub Total</TableCell>
+                        <TableCell align="center">QTD</TableCell>
+                        <TableCell align="center">VALOR UNIT</TableCell>
+                        <TableCell align="center">DESCONTO UNIT</TableCell>
+                        <TableCell align="center">VALOR COM DESC</TableCell>
+                        <TableCell align="center">SUB TOTAL</TableCell>
                         <TableCell align="center"></TableCell>
                       </TableRow>
                     </TableHead>
@@ -590,11 +381,7 @@ const renderForm = (
                       <TableRow >
       
       
-      
-      
-
-      
-      
+          
       
       
       
@@ -615,7 +402,7 @@ const renderForm = (
 
               <Box style={{display:"flex", flexDirection:"column"}}> 
               {
-                <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Sub Total R$ {
+                <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> SUB TOTAL R$ {
                   
                   aggregatedItems.reduce((acc, item) => {  
                     const preco = typeof item.cost !== 'undefined' ? parseFloat(item.cost) : 0;
@@ -631,11 +418,11 @@ const renderForm = (
               
               {
                 compra?.dispatchValue !== "0" &&
-                  <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Frete R$ {compra?.dispatchValue}</TableCell>
+                  <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> FRETE R$ {compra?.dispatchValue}</TableCell>
               }
 
               {
-                <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> Total R$ {
+                <TableCell style={{width:"150px", fontWeight:"bold"}} align="right"> TOTAL R$ {
                   
                   aggregatedItems.reduce((acc, item) => {  
                     const preco = typeof item.cost !== 'undefined' ? parseFloat(item.cost) : 0;
@@ -678,7 +465,7 @@ const renderForm = (
                   <TableHead>
 
                         <TableRow>
-                          <TableCell align="center" colSpan={6}>Pagar este valor</TableCell>
+                          <TableCell align="center" colSpan={6}>PAGAR ESTE VALOR</TableCell>
                         </TableRow>
 
 
@@ -714,12 +501,12 @@ const renderForm = (
                               <select style={{borderRadius:"8px", border:"none", backgroundColor:"lightgray", padding:"5px", cursor: "pointer"}}
                                 onChange={(e) => handlePayablesChange(e.target.value)}
                               >
-                                <option value="">Forma de Pagamento</option>
-                                <option value="A Vista">A Vista</option>
-                                <option value="Pix">Pix</option>
-                                <option value="Cartão Débito">Cartão Débito</option>
-                                <option value="Cartão Crédito">Cartão Crédito</option>
-                                <option value="A Prazo">A Prazo</option>
+                                <option value="">FORMA DE PAGAMENTO</option>
+                                <option value="A Vista">A VISTA</option>
+                                <option value="Pix">PIX</option>
+                                <option value="Cartão Débito">CARTÃO DÉBITO</option>
+                                <option value="Cartão Crédito">CARTÃO CRÉDITO</option>
+                                <option value="A Prazo">A PRAZO</option>
                               </select>
 
                           </TableCell>
@@ -728,7 +515,7 @@ const renderForm = (
                           </TableCell>
                           <TableCell>
                             <Box>
-                              <p onClick={()=>{payValue(`data:${getDataAtualFormatada()}, amount:${payingItemAmount}, type:${payingItemPayMethod}, user:${user_name}`)}} style={{cursor:"pointer", border:"2pt solid black", padding:"4px", borderRadius:"8px"}}>Pagar</p>
+                              <p onClick={()=>{payValue(`data:${getDataAtualFormatada()}, amount:${payingItemAmount}, type:${payingItemPayMethod}, user:${user_name}`)}} style={{cursor:"pointer", border:"2pt solid black", padding:"4px", borderRadius:"8px"}}>PAGAR</p>
                             </Box>
 
                           </TableCell>
@@ -742,7 +529,7 @@ const renderForm = (
 
 
                   
-                  <button style={{backgroundColor:"green", color:"white", border:"none", borderRadius:"8px", padding:"10px", margin:"10px", cursor:"pointer"}} onClick={()=>{window.location.reload()}}>Concluir</button>
+                  <button style={{backgroundColor:"green", color:"white", border:"none", borderRadius:"8px", padding:"10px", margin:"10px", cursor:"pointer"}} onClick={()=>{window.location.reload()}}>CONCLUIR</button>
 
                   </Box>
 
@@ -768,9 +555,9 @@ const renderForm = (
 
 
               <TableRow>
-                    <TableCell align="center">Vencimento</TableCell>
-                    <TableCell align="center">Quantia</TableCell>
-                    <TableCell align="center">Pago</TableCell>
+                    <TableCell align="center">VENCIMENTO</TableCell>
+                    <TableCell align="center">QUANTIA</TableCell>
+                    <TableCell align="center">PAGO</TableCell>
                     <TableCell align="center">...</TableCell>
               </TableRow> 
 
@@ -818,7 +605,7 @@ const renderForm = (
                                 handlePayingItemChange(payable);
                               }}
                             >
-                              Pagar
+                              PAGAR
                             </p>
                           </TableCell>
                         )}
@@ -873,10 +660,10 @@ const renderForm = (
 
 
               <TableRow>
-                    <TableCell align="center">Data</TableCell>
-                    <TableCell align="center">Quantia</TableCell>
-                    <TableCell align="center">Método</TableCell>
-                    <TableCell align="center">Usuário</TableCell>
+                    <TableCell align="center">DATA</TableCell>
+                    <TableCell align="center">QUANTIA</TableCell>
+                    <TableCell align="center">MÉTODO</TableCell>
+                    <TableCell align="center">USUÁRIO</TableCell>
               </TableRow> 
 
             </TableHead>
@@ -893,17 +680,20 @@ const renderForm = (
                     <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
                       {payable.payments.map((payment, paymentIndex) => (
                         <div key={paymentIndex} style={{ marginTop: "10px" }}>
-                          <div style={{ marginBottom: "5px", fontSize: "14px" }}>Data: {payment.split(', ')[0].split(':')[1]}</div>
+                          <div style={{ marginBottom: "5px", fontSize: "14px" }}>{payment.split(', ')[0].split(':')[1]}</div>
                         </div>
                       ))}
                     </TableCell>
 
                     <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
-                    {payable.payments.map((payment, paymentIndex) => (
+                    {payable.payments.map((payment, paymentIndex) => {
+                      totalPaidGeneral = totalPaidGeneral + parseFloat(payment.split(', ')[1].split(':')[1])
+                      return (
                         <div key={paymentIndex} style={{ marginTop: "10px" }}>
                           <div style={{ marginBottom: "5px", fontSize: "14px" }}>R$ {payment.split(', ')[1].split(':')[1]}</div>
                         </div>
-                      ))}
+                      )
+                    })}
                     </TableCell>
 
                     <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
@@ -917,10 +707,11 @@ const renderForm = (
                     <TableCell align="center" style={{ padding: "10px", fontSize: "16px", fontWeight: "bold" }}>
                     {payable.payments.map((payment, paymentIndex) => (
                         <div key={paymentIndex} style={{ marginTop: "10px" }}>
-                          <div style={{ marginBottom: "5px", fontSize: "14px" }}>Usuário: {payment.split(', ')[3].split(':')[1]}</div>
+                          <div style={{ marginBottom: "5px", fontSize: "14px" }}>{payment.split(', ')[3].split(':')[1].toUpperCase()}</div>
                         </div>
                       ))}
                     </TableCell>
+
                   </TableRow>
                   }
                 </TableBody>
@@ -928,7 +719,7 @@ const renderForm = (
             }
 
             <Box>
-              Total Pago: R$ {}
+              TOTAL PAGO: R$ {totalPaidGeneral.toFixed(2)}
             </Box>
             </Table>
           }

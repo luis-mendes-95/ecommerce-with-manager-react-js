@@ -225,134 +225,6 @@ export default function ComprasView() {
     }      
   }
 
-  /**CREATE VENDA REQUEST IN BACKEND */
-  const createOs = async (createData) => {
-
-      createData.descricao = createData.description;
-      delete createData.description;
-      createData.status = "Aguardando Arte"
-      createData.mockup = "data:image/png;base64,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"
-      createData.active = true;
-
-      console.log(createData)
-
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      const response = await api.post("os", createData, config);
-      if (response.data) {
-        toast.success("Ordem de serviço gerada!", {
-          position: "bottom-right", 
-          autoClose: 3000, 
-          hideProgressBar: false, 
-          closeOnClick: true, 
-          pauseOnHover: true, 
-          draggable: true, 
-          progress: undefined, 
-        });
-        setThisOs(response.data)
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Erro ao cadastrar venda!", {
-        position: "bottom-right", 
-        autoClose: 3000, 
-        hideProgressBar: false, 
-        closeOnClick: true, 
-        pauseOnHover: true, 
-        draggable: true, 
-        progress: undefined, 
-      });
-    }
-  };
-
-  /**CREATE VENDA REQUEST IN BACKEND */
-  const deleteOs = async () => {
-
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      const response = await api.delete(`os/${thisOs.id}`,  config);
-      if (response.status === 200) {
-        toast.success("Ordem de serviço deletada!", {
-          position: "bottom-right", 
-          autoClose: 3000, 
-          hideProgressBar: false, 
-          closeOnClick: true, 
-          pauseOnHover: true, 
-          draggable: true, 
-          progress: undefined, 
-        });
-        setThisOs(null);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Erro ao deletar ordem de serviço!", {
-        position: "bottom-right", 
-        autoClose: 3000, 
-        hideProgressBar: false, 
-        closeOnClick: true, 
-        pauseOnHover: true, 
-        draggable: true, 
-        progress: undefined, 
-      });
-      setThisOs(null);
-    }
-  };
-
-  /**CREATE VENDA REQUEST IN BACKEND */
-  const createVenda = async (createData) => {
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      const response = await api.post(url, createData, config);
-      if (response.data) {
-        toast.success("Adicione produtos no carrinho!", {
-          position: "bottom-right", 
-          autoClose: 3000, 
-          hideProgressBar: false, 
-          closeOnClick: true, 
-          pauseOnHover: true, 
-          draggable: true, 
-          progress: undefined, 
-        });
-        handleSetModalVenda(false);
-        createData.venda_id = response.data.id;
-        if(generateOs){
-          createOs(createData);
-        }
-        setTimeout(() => {
-          setShowCart(true);
-          setSubmitType("createItemSale");
-          handleGetSale(response.data.id);
-          reset();
-          getUser();
-        }, 1500);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Erro ao cadastrar venda!", {
-        position: "bottom-right", 
-        autoClose: 3000, 
-        hideProgressBar: false, 
-        closeOnClick: true, 
-        pauseOnHover: true, 
-        draggable: true, 
-        progress: undefined, 
-      });
-      setSubmitType("createItemSale")
-    }
-  };
-
   /**CREATE COMPRA REQUEST IN BACKEND */
   const createCompra = async (createData) => {
       try {
@@ -363,7 +235,7 @@ export default function ComprasView() {
         };
         const response = await api.post(urlCompras, createData, config);
         if (response.data) {
-          toast.success("Adicione os produtos da sua compra!", {
+          toast.success("ADICIONE OS PRODUTOS DA SUA COMPRA!", {
             position: "bottom-right", 
             autoClose: 3000, 
             hideProgressBar: false, 
@@ -384,7 +256,7 @@ export default function ComprasView() {
         }
       } catch (err) {
         console.error(err);
-        toast.error("Erro ao cadastrar compra!", {
+        toast.error("ERRO AO CADASTRAR COMPRA!", {
           position: "bottom-right", 
           autoClose: 3000, 
           hideProgressBar: false, 
@@ -398,56 +270,6 @@ export default function ComprasView() {
   };
 
   /**DELETE VENDA REQUEST IN BACKEND */
-  const deleteVenda = async () => {
-      try {
-        const config = {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        };
-        const response = await api.delete(`${url}/${thisSale.id}`, config);
-        console.log("to deletano")
-        console.log(response)
-        if (response.status === 200) {
-          toast.success("Venda cancelada!", {
-            position: "bottom-right", 
-            autoClose: 3000, 
-            hideProgressBar: false, 
-            closeOnClick: true, 
-            pauseOnHover: true, 
-            draggable: true, 
-            progress: undefined, 
-          });
-          handleSetModalVenda(false);
-          setThisSale(null);
-          setThisOs(null);
-          setThisClient(null);
-
-          setTimeout(() => {
-            setSubmitType("createSale");
-            reset();
-            getUser();
-          }, 1500);
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Erro ao cancelar venda!", {
-          position: "bottom-right", 
-          autoClose: 3000, 
-          hideProgressBar: false, 
-          closeOnClick: true, 
-          pauseOnHover: true, 
-          draggable: true, 
-          progress: undefined, 
-        });
-        setSubmitType("createSale")
-        setThisSale(null);
-        setThisOs(null);
-        setThisClient(null);
-      }
-  };
-
-  /**DELETE VENDA REQUEST IN BACKEND */
   const deleteCompra = async () => {
       try {
         const config = {
@@ -457,7 +279,7 @@ export default function ComprasView() {
         };
         const response = await api.delete(`${urlCompras}/${thisCompra.id}`, config);
         if (response.status === 200) {
-          toast.success("Compra cancelada!", {
+          toast.success("COMPRA CANCELADA!", {
             position: "bottom-right", 
             autoClose: 3000, 
             hideProgressBar: false, 
@@ -480,7 +302,7 @@ export default function ComprasView() {
         }
       } catch (err) {
         console.error(err);
-        toast.error("Erro ao cancelar compra!", {
+        toast.error("ERRO AO CANCELAR COMPRA!", {
           position: "bottom-right", 
           autoClose: 3000, 
           hideProgressBar: false, 
@@ -551,29 +373,6 @@ export default function ComprasView() {
   }; 
 
   /**DELETE ITEM IN CART */
-  const deleteItemVenda = async (itemId) => {
-    
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      const response = await api.delete(`itemVendas/${itemId}`, config);
-      if (response.status === 200) {
-        
-        toast.success("Item deletado com sucesso!");
-        setTimeout(() => {
-          getSale(thisSale.id)
-        }, 1500);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Erro ao deletar item");
-    }
-  };
-
-  /**DELETE ITEM IN CART */
   const deleteItemCompra = async (itemId) => {
     
       try {
@@ -585,24 +384,16 @@ export default function ComprasView() {
         const response = await api.delete(`itemCompras/${itemId}`, config);
         if (response.status === 200) {
           
-          toast.success("Item deletado com sucesso!");
+          toast.success("ITEM DELETADO COM SUCESSO!");
           setTimeout(() => {
             getCompra(thisCompra.id)
           }, 1500);
         }
       } catch (err) {
         console.error(err);
-        toast.error("Erro ao deletar item");
+        toast.error("ERRO AO DELETAR ITEM!");
       }
   };
-
-  /**HANDLE SALE TO EDIT */
-  const handleSaleToEdit = (id) => {
-    getSale(id);
-    setSaleToEdit(id);
-    setShowEdit(true);
-    setShowAdd(false);
-  }
 
   /**HANDLE SALE TO EDIT */
   const handleCompraToEdit = (id) => {
@@ -632,7 +423,7 @@ export default function ComprasView() {
           showModalCompra &&
             <div style={{position:"absolute", top:"0", left:"0", zIndex: 9999, backgroundColor:"#F9FAFA", width:"100%", height:"100%", padding:"10px"}}>
             <button style={{backgroundColor:"red", color:"white", border:"none", padding:"8px", borderRadius:"8px", cursor:"pointer"}} onClick={()=>{window.location.reload()}}>X</button>
-            <h3>Nova Compra:</h3>
+            <h3>NOVA COMPRA:</h3>
 
           {
             !thisClient &&
@@ -670,7 +461,7 @@ export default function ComprasView() {
             thisClient &&
               <div style={{ width: "100%", display: "flex", flexDirection: "column", alignItems: "center" }}>
 
-                <label style={{ fontWeight: "bold", marginBottom: "10px", fontSize: "1.2em" }}>Cliente:</label>
+                <label style={{ fontWeight: "bold", marginBottom: "10px", fontSize: "1.2em" }}>CLIENTE:</label>
                 <button
                   style={{
                     maxWidth: "200px",
@@ -685,7 +476,7 @@ export default function ComprasView() {
                   }}
                   onClick={() => { handleSetClient(null) }}
                 >
-                  Trocar
+                  TROCAR
                 </button>
                 <form
                   onSubmit={(e) => { e.preventDefault(); handleSubmit(onFormSubmit)(e); }}
@@ -721,7 +512,7 @@ export default function ComprasView() {
                       fontSize: "1.2em",
                     }}
                   >
-                    Iniciar Compra
+                    INICIAR COMPRA
                   </button>
                 </form>
               </div>
@@ -745,13 +536,13 @@ export default function ComprasView() {
 
         <Box sx={{display:"flex", justifyContent:"space-between", alignContent:"flex-start", alignItems:"flex-start"}}>
           <Typography variant="h4" sx={{ mb: 5 }}>
-                Compras
+                COMPRAS
               </Typography>
 
               {
                 !thisCompra &&
                 <Button variant="contained" color="inherit" startIcon={<Iconify icon="eva:plus-fill" />} onClick={()=>{handleSetModalCompra(true)}}>
-                  Nova Compra
+                  NOVA COMPRA
                 </Button>
               }
 
@@ -760,7 +551,7 @@ export default function ComprasView() {
                 <>
                   <p style={{fontWeight:"bold"}}>{thisCompra.supplier.nome_razao_social}</p>
                   <Button variant="contained" color="inherit" style={{backgroundColor:"brown"}} onClick={()=>{deleteCompra()}}>
-                    Cancelar Compra
+                    CANCELAR COMPRA
                   </Button>
                 </>
               }
@@ -784,7 +575,7 @@ export default function ComprasView() {
                   <OutlinedInput
                     value={filtroNomeCliente}
                     onChange={(e) => setFiltroNomeCliente(e.target.value)}
-                    placeholder="Procurar cliente..."
+                    placeholder="PROCURAR CLIENTE..."
                     startAdornment={
                       <InputAdornment position="start">
                         <Iconify
@@ -796,51 +587,51 @@ export default function ComprasView() {
                   />
 
                   <FormControl style={{minWidth: "200px", margin:"10px 20px"}}>
-                              <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>Situação</InputLabel>
+                              <InputLabel id="demo-simple-select-label" sx={{bgcolor:"white", padding:"0 3px 0 0"}}>SITUAÇÃO</InputLabel>
                               <Select
                                 style={{minWidth: "200px"}}
                                 labelId="demo-simple-select-label"
                                 id="demo-simple-select"
                                 value={regsSituation}
-                                label="Age"
+                                label="SITUAÇÃO"
                                 onChange={handleChangeregsSituation}
                               >
-                                <MenuItem value={"active"}>Ativos</MenuItem>
-                                <MenuItem value={"inactive"}>Inativos</MenuItem>
-                                <MenuItem value={"all"}>Todos</MenuItem>
+                                <MenuItem value={"active"}>ATIVOS</MenuItem>
+                                <MenuItem value={"inactive"}>INATIVOS</MenuItem>
+                                <MenuItem value={"all"}>TODOS</MenuItem>
                               </Select>
                   </FormControl>
 
                   <FormControl style={{display:"flex", flexDirection:"column"}}>
                       <div>
-                        <label>Dia:</label>
+                        <label>DIA:</label>
                         <select value={filtroDia} onChange={(e) => setFiltroDia(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}} >
-                          <option value="">Todos</option>
+                          <option value="">TODOS</option>
                           {Array.from({ length: 31 }, (_, index) => <option key={index + 1} value={`${index + 1 < 10 ? '0' : ''}${index + 1}`}>{index + 1}</option>)}
                         </select>
                       </div>
                       <div>
-                        <label>Mês:</label>
+                        <label>MÊS:</label>
                         <select value={filtroMes} onChange={(e) => setFiltroMes(e.target.value)}  style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}}>
-                          <option value="">Todos</option>
-                          <option value="01">Janeiro</option>
-                          <option value="02">Fevereiro</option>
-                          <option value="03">Março</option>
-                          <option value="04">Abril</option>
-                          <option value="05">Maio</option>
-                          <option value="06">Junho</option>
-                          <option value="07">Julho</option>
-                          <option value="08">Agosto</option>
-                          <option value="09">Setembro</option>
-                          <option value="10">Outubro</option>
-                          <option value="11">Novembro</option>
-                          <option value="12">Dezembro</option>
+                          <option value="">TODOS</option>
+                          <option value="01">JANEIRO</option>
+                          <option value="02">FEVEREIRO</option>
+                          <option value="03">MARÇO</option>
+                          <option value="04">ABRIL</option>
+                          <option value="05">MAIO</option>
+                          <option value="06">JUNHO</option>
+                          <option value="07">JULHO</option>
+                          <option value="08">AGOSTO</option>
+                          <option value="09">SETEMBRO</option>
+                          <option value="10">OUTUBRO</option>
+                          <option value="11">NOVEMBRO</option>
+                          <option value="12">DEZEMBRO</option>
                         </select>
                       </div>
                       <div>
-                        <label>Ano:</label>
+                        <label>ANO:</label>
                         <select value={filtroAno} onChange={(e) => setFiltroAno(e.target.value)} style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}}>
-                          <option value="">Todos</option>
+                          <option value="">TODOS</option>
                           <option value="2024">2024</option>
                           <option value="2023">2023</option>
                           <option value="2022">2022</option>
@@ -880,9 +671,9 @@ export default function ComprasView() {
 
               <UserTableHead rowCount={user?.clientes.length} 
                 headLabel={[
-                  { id: 'data', label: 'Data' },
-                  { id: 'nome_razao_social', label: 'Nome / Razão Social' },
-                  { id: 'total', label: 'Total' },
+                  { id: 'data', label: 'DATA' },
+                  { id: 'nome_razao_social', label: 'NOME / RAZÃO SOCIAL' },
+                  { id: 'total', label: 'TOTAL' },
                 ]}
               />
 
@@ -894,8 +685,6 @@ export default function ComprasView() {
                 }))
                 .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                 .map((row) => {
-                  console.log("saieeeeeeeu")
-
 
                   const formattedDate = row.createdAt.split('-').reverse().join('/');
 

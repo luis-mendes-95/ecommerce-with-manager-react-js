@@ -10,7 +10,7 @@ export default function ComprasPage() {
   return (
     <>
       <Helmet>
-        <title> Compras </title>
+        <title> COMPRAS </title>
       </Helmet>
 
       <ComprasView />
