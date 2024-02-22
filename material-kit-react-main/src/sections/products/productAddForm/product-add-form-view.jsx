@@ -617,7 +617,7 @@ const renderForm = (
           { 
           showCategorias &&
             <Box style={{backgroundColor:"white", padding:"8px"}}>
-              <TextField label="Nome da categoria" onInput={(e)=>{setAddingCategoria(e.target.value)}}></TextField>
+              <TextField label="Nome da categoria" onInput={(e)=>{setAddingCategoria(e.target.value.toUpperCase())}} value={addingCategoria}></TextField>
               <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createCategoria(addingCategoria);}}>Criar</Button>
             </Box>
 
@@ -625,7 +625,7 @@ const renderForm = (
           {
           showMarcas &&
             <Box style={{backgroundColor:"white", padding:"8px"}}>
-              <TextField label="Nome da marca" onInput={(e)=>{setAddingMarca(e.target.value)}}></TextField>
+              <TextField label="Nome da marca" onInput={(e)=>{setAddingMarca(e.target.value.toUpperCase())}} value={addingMarca}></TextField>
               <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createMarca(addingMarca);}}>Criar</Button>
             </Box>
          }
@@ -633,7 +633,7 @@ const renderForm = (
          { 
         showModelos &&
           <Box style={{backgroundColor:"white", padding:"8px"}}>
-            <TextField label="Nome do modelo" onInput={(e)=>{setAddingModelo(e.target.value); console.log(addingModelo)}}></TextField>
+            <TextField label="Nome do modelo" onInput={(e)=>{setAddingModelo(e.target.value.toUpperCase()); console.log(addingModelo)}} value={addingModelo}></TextField>
             <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createModelo(addingModelo);}}>Criar</Button>
           </Box>
           }

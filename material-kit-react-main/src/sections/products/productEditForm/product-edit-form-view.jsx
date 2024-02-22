@@ -691,81 +691,9 @@ const renderForm = (
                 >
                   Deletar
                 </Button>
-         {
-          showMarcas && user?.Marca.length > 0 &&  
-            <Box style={{backgroundColor:"white", width:"100%", color:"black"}}>
 
-              {
-                user?.Marca.map((marca)=>{
-                  return (
-                    <Box style={{display:"flex", justifyContent:"space-between", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
-                      <p style={{padding:"8px"}}>{marca.nome.toUpperCase()}</p>
-                      <Button style={{backgroundColor:"red", color:"white"}} onClick={()=>{deleteMarca(marca.id)}}>X</Button>
-                    </Box>
-                  )
-                })
-              }
-            </Box>
-          }
 
-          {
-          showModelos && user?.Modelo.length > 0 &&  
-            <Box style={{backgroundColor:"white", width:"100%", color:"black"}}>
 
-              {
-                user?.Modelo.map((modelo)=>{
-                  console.log(modelo)
-                  return (
-                    <Box style={{display:"flex", justifyContent:"space-between", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
-                      <p style={{padding:"8px"}}>{modelo.nome.toUpperCase()}</p>
-                      <Button style={{backgroundColor:"red", color:"white"}} onClick={()=>{deleteModelo(modelo.id)}}>X</Button>
-                    </Box>
-                  )
-                })
-              }
-            </Box>
-          }
-
-          {
-          showCategorias && user?.categorias.length > 0 &&  
-            <Box style={{backgroundColor:"white", width:"100%", color:"black"}}>
-
-              {
-                user?.categorias.map((categoria)=>{
-                  return (
-                    <Box style={{display:"flex", justifyContent:"space-between", alignContent:"center", alignItems:"center", backgroundColor:"lightgray"}}>
-                      <p style={{padding:"8px"}}>{categoria.nome.toUpperCase()}</p>
-                      <Button style={{backgroundColor:"red", color:"white"}} onClick={()=>{deleteCategoria(categoria.id)}}>X</Button>
-                    </Box>
-                  )
-                })
-              }
-            </Box>
-          }
-
-          { 
-          showCategorias &&
-            <Box style={{backgroundColor:"white", padding:"8px"}}>
-              <TextField label="Nome da categoria" onInput={(e)=>{setAddingCategoria(e.target.value)}}></TextField>
-              <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createCategoria(addingCategoria);}}>Criar</Button>
-            </Box>
-
-          }
-          {
-          showMarcas &&
-            <Box style={{backgroundColor:"white", padding:"8px"}}>
-              <TextField label="Nome da marca" onInput={(e)=>{setAddingMarca(e.target.value)}}></TextField>
-              <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createMarca(addingMarca);}}>Criar</Button>
-            </Box>
-         }
-
-         { 
-        showModelos &&
-          <Box style={{backgroundColor:"white", padding:"8px"}}>
-            <TextField label="Nome do modelo" onInput={(e)=>{setAddingModelo(e.target.value); console.log(addingModelo)}}></TextField>
-            <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createModelo(addingModelo);}}>Criar</Button>
-          </Box>
-          }
           </Box>
     </Stack>
 
@@ -868,7 +796,7 @@ const renderForm = (
           { 
           showCategorias &&
             <Box style={{backgroundColor:"white", padding:"8px"}}>
-              <TextField label="Nome da categoria" onInput={(e)=>{setAddingCategoria(e.target.value)}}></TextField>
+              <TextField label="Nome da categoria" onInput={(e)=>{setAddingCategoria(e.target.value.toUpperCase())}} value={addingCategoria}></TextField>
               <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createCategoria(addingCategoria);}}>Criar</Button>
             </Box>
 
@@ -876,7 +804,7 @@ const renderForm = (
           {
           showMarcas &&
             <Box style={{backgroundColor:"white", padding:"8px"}}>
-              <TextField label="Nome da marca" onInput={(e)=>{setAddingMarca(e.target.value)}}></TextField>
+              <TextField label="Nome da marca" onInput={(e)=>{setAddingMarca(e.target.value.toUpperCase())}} value={addingMarca}></TextField>
               <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createMarca(addingMarca);}}>Criar</Button>
             </Box>
          }
@@ -884,7 +812,7 @@ const renderForm = (
          { 
         showModelos &&
           <Box style={{backgroundColor:"white", padding:"8px"}}>
-            <TextField label="Nome do modelo" onInput={(e)=>{setAddingModelo(e.target.value); console.log(addingModelo)}}></TextField>
+            <TextField label="Nome do modelo" onInput={(e)=>{setAddingModelo(e.target.value.toUpperCase());}} value={addingModelo}></TextField>
             <Button style={{backgroundColor:"lightblue", padding:"8px", margin:"8px"}} onClick={()=>{createModelo(addingModelo);}}>Criar</Button>
           </Box>
           }
