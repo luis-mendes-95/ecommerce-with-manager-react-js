@@ -149,7 +149,7 @@ export default function AccountPopover() {
             }}
             sx={{ typography: 'body2', color: 'error.main', py: 1.5 }}
           >
-            Logout
+            LOGOUT
           </MenuItem>
         }
 
@@ -164,7 +164,7 @@ export default function AccountPopover() {
             }}
             sx={{ typography: 'body2', color: 'green', py: 1.5 }}
           >
-            Login
+            LOGIN
           </MenuItem>
         }
 

@@ -41,7 +41,7 @@ const Logo = forwardRef(({ disabledLink = false, sx, ...other }, ref) => {
       {...other}
     >
 
-      <img src="https://cdn-icons-png.flaticon.com/512/18/18407.png" alt="logo"/>
+      <h2>GESTTOR</h2>
 
     </Box>
   );

@@ -50,6 +50,26 @@ export default function ProductAddFormView() {
   const [marca, setMarca] = useState("");
   const [modelo, setModelo] = useState("");
 
+  const [price, setPrice] = useState();
+  const [custo, setCusto] = useState();
+
+  const handleChangeCusto = (event) => {
+    let { value } = event.target;
+    value = value.replace(/\D/g, ""); 
+    value = value.replace(/(\d)(\d{2})$/, "$1,$2"); 
+    value = value.replace(/(?=(\d{3})+(\D))\B/g, "."); 
+    setCusto(value);
+  };
+
+  const handleChangePrice = (event) => {
+    let { value } = event.target;
+    value = value.replace(/\D/g, "");
+    value = value.replace(/(\d)(\d{2})$/, "$1,$2");
+    value = value.replace(/(?=(\d{3})+(\D))\B/g, ".");
+    setPrice(value);
+  };
+
+
 //FORM INPUTS CONFIGURATIONS
 let url = "/clientes"
 
@@ -473,8 +493,31 @@ const renderForm = (
       <TextField style={{width:"415px", marginTop:"0"}} required fullWidth {...register("descricao")} label="Descrição" type="descricao" id="descricao" inputProps={{ maxLength: 8000 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
       <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("imagem_principal")} label="Imagem de Capa" type="imagem_principal" id="imagem_principal" />
       <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("imagens")} label="Imagens (por , )" type="imagens" id="imagens" />
-      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("custo")} label="Custo" type="custo" id="custo" inputProps={{ maxLength: 80 }} />
-      <TextField style={{width:"200px", marginTop:"0"}} required fullWidth {...register("preco")} label="Preço" type="preco" id="preco" inputProps={{ maxLength: 20 }} />
+      <TextField
+        style={{width:"200px", marginTop:"0"}}
+        required
+        fullWidth
+        label="Custo"
+        type="text"
+        id="custo"
+        value={custo}
+        {...register("custo")}
+        onChange={handleChangeCusto}
+        inputProps={{ maxLength: 80 }}
+      />
+
+      <TextField
+        style={{width:"200px", marginTop:"0"}}
+        required
+        fullWidth
+        label="Preço"
+        type="text"
+        id="preco"
+        value={price}
+        {...register("preco")}
+        onChange={handleChangePrice}
+        inputProps={{ maxLength: 20 }}
+      />
 
 
 
