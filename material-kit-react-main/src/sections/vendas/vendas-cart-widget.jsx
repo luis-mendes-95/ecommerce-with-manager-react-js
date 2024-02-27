@@ -74,7 +74,7 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
   const [parcelas, setParcelas] = useState(1);
   const [formaPagamentoParcelas, setFormaPagamentoParcelas] = useState(Array(parcelas).fill([]));
   const [dueDates, setDueDates] = useState([`${getDataAtualFormatada()}`]);
-  const [dispatchValue, setDispatchValue] = useState(0);
+  const [dispatchValue, setDispatchValue] = useState("");
   const [generateReceivables, setGenerateReceivables] = useState(true);
 
   const [generateDispatch, setGenerateDispatch] = useState(false);
@@ -184,9 +184,6 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
 
 /**CREATE RECEIVABLE REQUEST IN BACKEND */
   const createReceivable = async (createData) => {
-    console.log("agora verifica a cacilda do valor do frete")
-    console.log(thisSale.dispatchValue)
-    console.log(dispatchValue.toString())
 
     if(thisSale.dispatchValue === "0") {
       addDispatchValue(thisSale.id, {dispatchValue: dispatchValue.toString()})
@@ -540,13 +537,27 @@ const receiveValue = async (createData) => {
 
 
                   <TableCell style={{width:"150px"}} align="right"> Total R$ { thisSale?.itens.reduce((total,item)=>{
+
                     let valorSemFormatacao = item.produto.preco.replace(".", "").replace(",", ".");
                     let descontoSemFormatacao = item.disccount.replace(".", "").replace(",", ".");
+
+
                     let convertedPrice = parseFloat(valorSemFormatacao);
                     let convertedDisccount = parseFloat(descontoSemFormatacao);
+
+
                     const precoComDesconto=convertedPrice-convertedDisccount;
                     const subtotal=((precoComDesconto*item.qty));
-                    return (total+subtotal).toFixed(2);}, 0) - -dispatchValue  }</TableCell>
+
+                    const mainTotal = parseFloat(total) + parseFloat(subtotal) + (dispatchValue !== "" ? parseFloat(dispatchValue.replace(".", "").replace(",", ".")) : 0);
+
+                    console.log(total)
+                    console.log(subtotal)
+                    console.log()
+                    
+                    return formatarComoMoeda(mainTotal);}, 0)   }
+                    
+                  </TableCell>
                 </TableRow>
 
               </TableBody>
@@ -787,6 +798,7 @@ const receiveValue = async (createData) => {
                 </FormGroup>
               )
             }
+
             {
               checkoutStep === 1 && (
                   <Box>
