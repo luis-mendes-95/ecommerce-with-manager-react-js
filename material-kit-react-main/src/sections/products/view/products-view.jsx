@@ -529,7 +529,6 @@ export default function ProductsView() {
 
   const transferItem = async (createData, id) => {
     try {
-      // Define o cabeçalho da solicitação com o token de autenticação
       const config = {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -591,12 +590,6 @@ export default function ProductsView() {
     })
 
   }
-
-
-
-
-{/**  const handleOpenFilter = () => {    setOpenFilter(true);  };  const handleCloseFilter = () => {    setOpenFilter(false);  }; */}
-
 
   const handleEditProduct = (id) => {    getProduct(id);  }
   

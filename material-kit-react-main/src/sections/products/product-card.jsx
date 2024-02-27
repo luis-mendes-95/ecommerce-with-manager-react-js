@@ -72,7 +72,7 @@ export default function ShopProductCard({ product, handleEditProduct }) {
 
   const renderPrice = (
     <Typography variant="subtitle1">
-      R{fCurrency(product.preco)}
+      R$ {product.preco}
     </Typography>
   );
 
