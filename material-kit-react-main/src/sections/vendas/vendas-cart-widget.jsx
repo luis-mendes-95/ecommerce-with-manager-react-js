@@ -84,8 +84,17 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
   const [receivingItem, setReceivingItem] = useState(null);
   let newArrayDueDates = []
 
+  const [receivingValue, setReceivingValue] = useState();
 
 
+
+  const handleChangeReceivingValue = (event) => {
+    let { value } = event.target;
+    value = value.replace(/\D/g, "");
+    value = value.replace(/(\d)(\d{2})$/, "$1,$2");
+    value = value.replace(/(?=(\d{3})+(\D))\B/g, ".");
+    setReceivingValue(value);
+  };
 
 
 
@@ -241,6 +250,9 @@ const receiveValue = async (createData) => {
       },
     };
 
+    console.log("olha eu negooooo")
+    console.log(createData)
+
     const response = await api.patch(`/receivables/${receivingItem.id}`, createData, config);
 
     if (response.status === 200) {
@@ -285,20 +297,15 @@ const receiveValue = async (createData) => {
   /**ON FORM SUBMIT FUNCTION */
   const onFormSubmit = (formData) => {
 
-
+    console.log("chegando aqui manolooooooooooow")
     if (dueDates.length < parcelas) {
-      console.log("gere parcelas automaticas")
+
       for (let i = 0; i < parcelas; i++) { 
       let currentDueDate = getDataAtualFormatada();
       newArrayDueDates.push(currentDueDate);
       }
 
       if(!receivableMode) { 
-
-
-
-
-
 
       
         newArrayDueDates.forEach((item, index)=>{
@@ -309,7 +316,13 @@ const receiveValue = async (createData) => {
   
         formData.dueDate = item;
         formData.status = "Pendente";
-        formData.amount = `${thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) + (dispatchValue / thisSale.itens.length));return total+subtotal;}, 0) / parcelas}`;
+
+        formData.amount = `${thisSale?.itens.reduce((total,item)=>{
+          const precoComDesconto=parseFloat(item.produto.preco.replace(".","").replace(",","."))-parseFloat(item.disccount.replace(".","").replace(",","."));
+          const subtotal=((precoComDesconto*item.qty) + (parseFloat(dispatchValue.replace(".","").replace(",",".")) / thisSale.itens.length));
+          console.log(subtotal)
+          return total+subtotal;}, 0) / parcelas}`;
+
         formData.active = true;
         formData.receivements = [];
         formData.description = "Título gerado a partir de uma venda"
@@ -328,7 +341,7 @@ const receiveValue = async (createData) => {
       } else {
   
   
-        let currentReceivement = `data:${getDataAtualFormatada()}, amount:${formData.receivingAmount}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
+        let currentReceivement = `data:${getDataAtualFormatada()}, amount:${parseFloat(formData.receivingAmount.replace(".","").replace(",","."))}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
         delete formData.amount;
         delete formData.receivingAmount;
         formData.receivements = receivingItem.receivements
@@ -339,8 +352,6 @@ const receiveValue = async (createData) => {
 
 
     } else if (dueDates.length === parcelas) {
-      console.log("gere as dueDates digitadas: ")
-      console.log(dueDates)
       for (let i = 0; i < dueDates.length; i++) { 
       let currentDueDate = dueDates[i];
       newArrayDueDates.push(currentDueDate);
@@ -352,7 +363,7 @@ const receiveValue = async (createData) => {
 
 
 
-      
+        
         dueDates.forEach((item, index)=>{
   
         formData.createdAt = getDataAtualFormatada();
@@ -361,7 +372,10 @@ const receiveValue = async (createData) => {
   
         formData.dueDate = item;
         formData.status = "Pendente";
-        formData.amount = `${thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty) + (dispatchValue / thisSale.itens.length));return total+subtotal;}, 0) / parcelas}`;
+        formData.amount = `${thisSale?.itens.reduce((total,item)=>{
+          const precoComDesconto=parseFloat(item.produto.preco.replace(".",".").replace(",","."))-parseFloat(item.disccount.replace(".",".").replace(",","."));
+          const subtotal=((precoComDesconto*item.qty) + (dispatchValue / thisSale.itens.length));
+          return total+subtotal;}, 0) / parcelas}`;
         formData.active = true;
         formData.receivements = [];
         formData.description = "Título gerado a partir de uma venda"
@@ -384,7 +398,7 @@ const receiveValue = async (createData) => {
       } else {
   
   
-        let currentReceivement = `data:${getDataAtualFormatada()}, amount:${formData.receivingAmount}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
+        let currentReceivement = `data:${getDataAtualFormatada()}, amount:${parseFloat(formData.receivingAmount.replace(".","").replace(",","."))}, type:${formaPagamentoParcelas[0]}, user:${user_name}`
         delete formData.amount;
         delete formData.receivingAmount;
         formData.receivements = receivingItem.receivements
@@ -512,7 +526,7 @@ const receiveValue = async (createData) => {
                       <TableCell align="right">R$ {row.produto.preco}</TableCell>
                       <TableCell align="right">R$ {row.disccount}</TableCell>
                       <TableCell align="right">{`R$ ${formatarComoMoeda(convertedPrice - descontoSemFormatacao)}`}</TableCell>
-                      <TableCell align="right">R$ {((row.qty * convertedPrice) - (convertedDesconto * row.qty)).toFixed(2)}</TableCell>
+                      <TableCell align="right">R$ {formatarComoMoeda((row.qty * convertedPrice) - (convertedDesconto * row.qty))}</TableCell>
                       <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemVenda(row.id); setParcelas(0); setFormaPagamentoParcelas([]); setCheckoutStep(0);}} >X</button></TableCell>
   
                     </TableRow>
@@ -644,7 +658,7 @@ const receiveValue = async (createData) => {
                             return (
                               <>
                                 <TableRow key={receivable.id}>
-                                  <TableCell>R$ {valueToRender.toFixed(2)}</TableCell>
+                                  <TableCell>R$ {formatarComoMoeda(valueToRender)}</TableCell>
                                   <TableCell align="left">{receivable.dueDate}</TableCell>
                                   <TableCell align="left">
                                     {!choosePayMethod && (
@@ -710,10 +724,10 @@ const receiveValue = async (createData) => {
                         return (
                           <>
                           <TableRow key={receivingItem.id}>
-                          <TableCell>R$ {valueToRender.toFixed(2)}</TableCell>
-                          <TableCell align="right">{receivingItem.dueDate}</TableCell>
+                          <TableCell>R$ {formatarComoMoeda(valueToRender)}</TableCell>
+                          <TableCell align="left">{receivingItem.dueDate}</TableCell>
 
-                          <TableCell align="right">
+                          <TableCell align="left">
                             {
                               !choosePayMethod &&
                               <button onClick={()=>{ }}>Receber</button>
@@ -734,7 +748,7 @@ const receiveValue = async (createData) => {
                             }
                           </TableCell>
                           <TableCell>
-                            <input placeholder="R$" style={{borderRadius:"8px", border:"none", backgroundColor:"lightgray", padding:"5px"}} {...register("receivingAmount")}/>
+                            <input placeholder="R$" style={{borderRadius:"8px", border:"none", backgroundColor:"lightgray", padding:"5px"}} value={receivingValue} {...register("receivingAmount")} onChange={handleChangeReceivingValue}/>
                           </TableCell>
                           <TableCell>
                             <form onSubmit={handleSubmit(onFormSubmit)}>
@@ -818,7 +832,12 @@ const receiveValue = async (createData) => {
                         />
                       ))}
                     </FormGroup>
-                    <p>Valor da parcela: R$ { ((thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty));return total+subtotal;}, 0) - -dispatchValue) / parcelas).toFixed(2)  }</p>
+                    <p>Valor da parcela: R$ {formatarComoMoeda(((thisSale?.itens.reduce((total, item) => {
+                        const precoComDesconto = parseFloat(item.produto.preco.replace(".", "").replace(",", ".")) - parseFloat(item.disccount.replace(".", "").replace(",", "."));
+                        const subtotal = ((precoComDesconto * item.qty));
+                        return total + subtotal;
+                    }, 0) + (dispatchValue && dispatchValue !== "" ? parseFloat(dispatchValue.replace(".", "").replace(",", ".")) : 0)) / parcelas))}
+                    </p>
                   </Box>
               )
             }
@@ -827,31 +846,43 @@ const receiveValue = async (createData) => {
                 <Box>
                   {/* ... (outros elementos) */}
                   <form onSubmit={handleSubmit(onFormSubmit)} style={{height:"100%", overflow:"scroll", }}>
-                  {Array.from({ length: parcelas }).map((_, index) => (
-                    <div style={{ display: "flex", flexDirection:"row", backgroundColor:"lightgray", width:"25%" }}>
-                      <p>Parcela {index + 1} : R$ {((thisSale?.itens.reduce((total, item) => {
-                        const precoComDesconto = item.produto.preco - item.disccount;
-                        const subtotal = ((precoComDesconto * item.qty));
-                        return total + subtotal;
-                      }, 0)) / parcelas + (dispatchValue / parcelas)).toFixed(2)}</p>
-                      <FormGroup sx={{ margin: "0 0" }} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px", flexWrap: "nowrap", maxHeight:"80px" }}>
-                        {/* Substituir os Checkbox por Select */}
+                  {Array.from({ length: parcelas }).map((_, index) => {
+                    
+                    return (
+                      (
+                        <div style={{ display: "flex", flexDirection:"row", backgroundColor:"lightgray", width:"25%" }}>
+    
+                        <p>Parcela {index + 1} : R$ {formatarComoMoeda(((thisSale?.itens.reduce((total, item) => {
+                            const precoComDesconto = parseFloat(item.produto.preco.replace(".", "").replace(",", ".")) - parseFloat(item.disccount.replace(".", "").replace(",", "."));
+                            const subtotal = ((precoComDesconto * item.qty));
+                            console.log(precoComDesconto)
 
-                        <TextField
-                          placeholder='01/01/2018'
-                          label='Data Vencimento'
-                          defaultValue={getDataAtualFormatada()}
-                          style={{margin:"10px 0"}}
-                          value={dueDates[index]}
-                          onChange={(e) => {
-                            const newDueDates = [...dueDates];
-                            newDueDates[index] = e.target.value;
-                            setDueDates(newDueDates);
-                          }}
-                        />
-                      </FormGroup>
-                    </div>
-                  ))}
+                            return total + subtotal;
+                        }, 0)) / parcelas + (dispatchValue !== "" ? parseFloat(dispatchValue.replace(".", "").replace(",", ".")) / parcelas : 0)))}
+                        </p>
+
+
+                          
+                          <FormGroup sx={{ margin: "0 0" }} style={{ display: "flex", flexDirection: "row", alignItems: "center", gap: "5px", flexWrap: "nowrap", maxHeight:"80px" }}>
+                            {/* Substituir os Checkbox por Select */}
+    
+                            <TextField
+                              placeholder='01/01/2018'
+                              label='Data Vencimento'
+                              defaultValue={getDataAtualFormatada()}
+                              style={{margin:"10px 0"}}
+                              value={dueDates[index]}
+                              onChange={(e) => {
+                                const newDueDates = [...dueDates];
+                                newDueDates[index] = e.target.value;
+                                setDueDates(newDueDates);
+                              }}
+                            />
+                          </FormGroup>
+                        </div>
+                      )
+                    )
+                  })}
 
                   <Button sx={{bgcolor:"green", color:"white"}} type='submit' >Continuar</Button>
                   </form>

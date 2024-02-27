@@ -693,6 +693,7 @@ export default function VendasView() {
                 <label>Ano:</label>
                 <select value={filtroAno} onChange={(e) => setFiltroAno(e.target.value)} style={{border:"none", margin:"10px", padding:"10px", cursor:"pointer"}}>
                   <option value="">Todos</option>
+                  <option value="2024">2024</option>
                   <option value="2023">2023</option>
                   <option value="2022">2022</option>
                 </select>
