@@ -24,12 +24,15 @@ import { ToastContainer, toast } from "react-toastify";
 import { Toastify } from 'toastify';
 import "react-toastify/dist/ReactToastify.css";
 import { create } from 'lodash';
+import { useState } from 'react';
 
   /**LOCALSTORAGE DATA TO HAVE PERMISSION */
   const user_id = localStorage.getItem('tejas.app.user_id');
   const token = localStorage.getItem('tejas.app.token');
   const user_name = localStorage.getItem('tejas.app.user_name');
 
+
+ 
 
 
 {/**FUNÇÃO QUE RETORNA A DATA ATUAL FORMATADA*/}
@@ -44,6 +47,18 @@ function getDataAtualFormatada() {
 
 export default function ShopProductCard({ product, handleEditProduct, handleGetSale, thisSale, thisOs, submitType, setSubmitType, thisClient, handleSetClient, handleSetModalVenda, showModalVenda, handleSetShowCart, generateOs }) {
 
+  const [desconto, setDesconto] = useState()
+
+
+  const handleChangeDesconto = (event) => {
+    let { value } = event.target;
+    value = value.replace(/\D/g, "");
+    value = value.replace(/(\d)(\d{2})$/, "$1,$2");
+    value = value.replace(/(?=(\d{3})+(\D))\B/g, ".");
+    setDesconto(value)
+  };
+
+
 
   const findTotalItemsVenda = () => {
     let currentTotal = 0;
@@ -54,30 +69,21 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
     return currentTotal
   }
 
+
   const itemsCompra = product.ItemCompra.length;
 
+
   const itemsVenda = findTotalItemsVenda();
-
-
-
 
 
   /**STATES FOR THIS COMPONENT */
   const [user, setUser] = React.useState(null);
 
 
-
-
-
-
-
-
   /**VARIABLES TO CUSTOM THIS COMPONENT */
   const url = "vendas"
   const urlEdit = url + `/${thisSale?.id}`;
   const urlItemVenda = "itemVendas";
-
-
 
 
   /**FUNCTIONS FOR REQUESTS */
@@ -167,18 +173,6 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
  
   const createItemOs = async (createData) => {
 
@@ -223,6 +217,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
           handleSetShowCart(true);
           getUser();
           reset();
+          setDesconto('');
           handleGetSale(response.data.venda_id);
         }, 1500);
       }
@@ -266,6 +261,8 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
           createItemOs(createData)
         }
 
+        setDesconto('');
+
 
 
         toast.success("Item adicionado ao carrinho!", {
@@ -282,6 +279,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
           getUser();
           reset();
           handleGetSale(response.data.venda_id);
+
         }, 1500);
       }
     } catch (err) {
@@ -322,7 +320,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
 
 
   /**FORM CONFIGURATION - USE FORM */
-  const { register, handleSubmit, reset, formState: { errors }  } = useForm({
+  const { register, handleSubmit, reset, watch, formState: { errors }  } = useForm({
     // resolver: zodResolver(RegisterClientSchema),
   });
 
@@ -424,7 +422,7 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
   );
   const renderPrice = (
     <Typography variant="subtitle1">
-      R{fCurrency(product.preco)}
+      R$ {product.preco}
     </Typography>
   );
 
@@ -466,7 +464,17 @@ export default function ShopProductCard({ product, handleEditProduct, handleGetS
               thisSale &&
               <div>
               <TextField style={{width:"100%", marginTop:"8px"}} required fullWidth {...register("qty")} label="Quantidade" id="qty" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
-              <TextField style={{width:"100%", marginTop:"8px"}} fullWidth {...register("disccount")} label="Desconto unitário" id="disccount" inputProps={{ maxLength: 100 }} onInput={(e) => { e.target.value =  e.target.value.toUpperCase(); }}/>
+              <TextField
+                style={{width:"100%", marginTop:"8px"}}
+                fullWidth
+                {...register("disccount")}
+                label="Desconto unitário"
+                type="text"
+                id="disccount"
+                value={desconto}
+                onChange={handleChangeDesconto}
+                inputProps={{ maxLength: 100 }}
+              />
               {
                 generateOs &&
                 <>

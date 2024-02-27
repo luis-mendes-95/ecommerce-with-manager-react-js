@@ -289,48 +289,6 @@ export default function VendasView() {
 
 
 
-
-
-    /**CREATE VENDA REQUEST IN BACKEND */
-    const deleteOs = async () => {
-
-    try {
-      const config = {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      };
-      const response = await api.delete(`os/${thisOs.id}`,  config);
-      if (response.status === 200) {
-        toast.success("Ordem de serviço deletada!", {
-          position: "bottom-right", 
-          autoClose: 3000, 
-          hideProgressBar: false, 
-          closeOnClick: true, 
-          pauseOnHover: true, 
-          draggable: true, 
-          progress: undefined, 
-        });
-        setThisOs(null);
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Erro ao deletar ordem de serviço!", {
-        position: "bottom-right", 
-        autoClose: 3000, 
-        hideProgressBar: false, 
-        closeOnClick: true, 
-        pauseOnHover: true, 
-        draggable: true, 
-        progress: undefined, 
-      });
-      setThisOs(null);
-    }
-  };
-
-
-
-
   /**CREATE VENDA REQUEST IN BACKEND */
   const createVenda = async (createData) => {
     try {
@@ -435,42 +393,42 @@ export default function VendasView() {
 
 
 
-/**GET CLIENT REQUEST IN BACKEND */
-  const getClient = async (id) => {
+  /**GET CLIENT REQUEST IN BACKEND */
+    const getClient = async (id) => {
 
-    try {
-      const response = await api.get(`/clientes/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      if(response.data){
-          handleSetClient(response.data);
-      }
-    } catch (err) {
-      handleSetClient(null);
-    }
-
-}; 
-
-
-/** GET SALE BY REQUEST IN BACKEND*/
-const getSale = async (id) => {
       try {
-        const response = await api.get(`/vendas/${id}`, {
+        const response = await api.get(`/clientes/${id}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         if(response.data){
-            setThisSale(response.data); 
-            setSaleToEdit(response.data.id)
+            handleSetClient(response.data);
         }
       } catch (err) {
-        console.log(err);
-        setThisSale(null);
+        handleSetClient(null);
       }
-}; 
+
+  }; 
+
+
+  /** GET SALE BY REQUEST IN BACKEND*/
+  const getSale = async (id) => {
+        try {
+          const response = await api.get(`/vendas/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if(response.data){
+              setThisSale(response.data); 
+              setSaleToEdit(response.data.id)
+          }
+        } catch (err) {
+          console.log(err);
+          setThisSale(null);
+        }
+  }; 
 
 
   /**DELETE ITEM IN CART */

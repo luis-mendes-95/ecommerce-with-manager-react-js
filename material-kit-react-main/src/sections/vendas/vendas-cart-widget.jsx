@@ -59,6 +59,10 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
   const user_name = localStorage.getItem('tejas.app.user_name');
 
 
+  function formatarComoMoeda(valor) {
+    return valor.toFixed(2).replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+  }
+
 
 
 
@@ -84,6 +88,15 @@ export default function CartWidget({thisSale, deleteItemVenda}) {
 
 
 
+
+  const handleChangeDispatch = (event) => {
+    let { value } = event.target;
+    value = value.replace(/\D/g, "");
+    value = value.replace(/(\d)(\d{2})$/, "$1,$2");
+    value = value.replace(/(?=(\d{3})+(\D))\B/g, ".");
+    setDispatchValue(value)
+  };
+  
 
 
 
@@ -487,18 +500,27 @@ const receiveValue = async (createData) => {
               <TableBody style={{height:"100px", overflow:"scroll"}}>
 
 
-                {thisSale?.itens.map((row) => (
-                  <TableRow key={row.id}> 
-                    <TableCell>{row.produto.nome}</TableCell>
-                    <TableCell align="right">{row.qty}</TableCell>
-                    <TableCell align="right">R${row.produto.preco}</TableCell>
-                    <TableCell align="right">R${row.disccount}</TableCell>
-                    <TableCell align="right">R${row.produto.preco - row.disccount}</TableCell>
-                    <TableCell align="right">R${((row.qty * row.produto.preco) - (row.disccount * row.qty)).toFixed(2)}</TableCell>
-                    <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemVenda(row.id); setParcelas(0); setFormaPagamentoParcelas([]); setCheckoutStep(0);}} >X</button></TableCell>
-
-                  </TableRow>
-                ))}
+                {thisSale?.itens.map((row) => {
+                  let valorSemFormatacao = row.produto.preco.replace(".", "").replace(",", ".");
+                  let convertedPrice = parseFloat(valorSemFormatacao);
+                  let descontoSemFormatacao = row.disccount.replace(".", "").replace(",", ".");
+                  let convertedDesconto = parseFloat(descontoSemFormatacao);
+                  console.log("se liga nas rows, muda a mascara da inputa")
+                  
+   
+                  return (
+                    <TableRow key={row.id}> 
+                      <TableCell>{row.produto.nome}</TableCell>
+                      <TableCell align="right">{row.qty}</TableCell>
+                      <TableCell align="right">R$ {row.produto.preco}</TableCell>
+                      <TableCell align="right">R$ {row.disccount}</TableCell>
+                      <TableCell align="right">{`R$ ${formatarComoMoeda(convertedPrice - descontoSemFormatacao)}`}</TableCell>
+                      <TableCell align="right">R$ {((row.qty * convertedPrice) - (convertedDesconto * row.qty)).toFixed(2)}</TableCell>
+                      <TableCell align="right"><button style={{backgroundColor:"brown", color:"white", border:"none", padding:"15px", borderRadius:"8px", fontWeight:"bolder", cursor:"pointer"}} onClick={()=>{deleteItemVenda(row.id); setParcelas(0); setFormaPagamentoParcelas([]); setCheckoutStep(0);}} >X</button></TableCell>
+  
+                    </TableRow>
+                  )
+                })}
 
                 <TableRow >
 
@@ -509,7 +531,7 @@ const receiveValue = async (createData) => {
                   {
                     generateDispatch &&
                     <TableCell align='right'> 
-                    <TextField style={{width:"110px"}} align="right" label='Valor Frete' onChange={(e)=>{setDispatchValue(e.target.value)}}/> 
+                    <TextField style={{width:"110px"}} align="right" label='Valor Frete'  value={dispatchValue} onChange={handleChangeDispatch}/> 
                   </TableCell>
                   }
 
@@ -517,7 +539,14 @@ const receiveValue = async (createData) => {
 
 
 
-                  <TableCell style={{width:"150px"}} align="right"> Total R$ { thisSale?.itens.reduce((total,item)=>{const precoComDesconto=item.produto.preco-item.disccount;const subtotal=((precoComDesconto*item.qty));return (total+subtotal).toFixed(2);}, 0) - -dispatchValue  }</TableCell>
+                  <TableCell style={{width:"150px"}} align="right"> Total R$ { thisSale?.itens.reduce((total,item)=>{
+                    let valorSemFormatacao = item.produto.preco.replace(".", "").replace(",", ".");
+                    let descontoSemFormatacao = item.disccount.replace(".", "").replace(",", ".");
+                    let convertedPrice = parseFloat(valorSemFormatacao);
+                    let convertedDisccount = parseFloat(descontoSemFormatacao);
+                    const precoComDesconto=convertedPrice-convertedDisccount;
+                    const subtotal=((precoComDesconto*item.qty));
+                    return (total+subtotal).toFixed(2);}, 0) - -dispatchValue  }</TableCell>
                 </TableRow>
 
               </TableBody>
